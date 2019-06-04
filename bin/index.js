@@ -33,25 +33,36 @@ function envFileExist() {
 
 async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
-    const reposSet = [];
+    const reposRemoteArray = [];
     try {
-        const remoteRepos = await repos("SlimIO", envFileExist());
-        for (const repo of remoteRepos) {
-            reposSet.push(repo.name);
+        const remote = await repos("SlimIO", envFileExist());
+        for (const repo of remote) {
+            reposRemoteArray.push(repo.name.toLowerCase());
         }
     }
-    catch (error) {
-        console.log(error);
+    catch (err) {
+        console.log(err);
     }
 
-    const reposLocal = await readdir(CWD);
-    for (const dir of reposLocal) {
-        const st = await stat(join(CWD, dir));
-        if (st.isDirectory()) {
-            console.log("prout");
+    const localDir = await readdir(CWD);
+    const reposLocalArray = new Set();
+    const reposLocalStat = await Promise.all(
+        localDir.map((name) => stat(join(CWD, name)))
+    );
+
+    for (let _i = 0; _i < localDir.length; _i++) {
+        if (reposLocalStat[_i].isDirectory()) {
+            reposLocalArray.add(localDir[_i].toLowerCase());
         }
     }
-    // console.log(reposLocal);
+
+    for (let _i = 0; _i < reposRemoteArray.length; _i++) {
+        if (reposLocalArray.has(reposRemoteArray[_i])) {
+            continue;
+        }
+
+        console.log(reposRemoteArray[_i]);
+    }
 }
 
 main();
