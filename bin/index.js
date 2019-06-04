@@ -2,18 +2,19 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { readdir, readFile, writeFile } = require("fs").promises;
+const { readdir, readFile, writeFile, stat } = require("fs").promises;
 const { existsSync } = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { yellow } = require("kleur");
+const { white } = require("kleur");
 
 // Globals
 require("make-promises-safe");
 require("dotenv").config({ path: join(process.cwd(), ".env") });
 
 // Constants
+const CWD = process.cwd();
 
 /**
  * @func envFileExist
@@ -24,8 +25,6 @@ function envFileExist() {
     const envExist = existsSync(join(process.cwd(), ".env"));
     const envToken = process.env.GITHUB_TOKEN;
     if (envExist && envToken !== undefined) {
-        console.log("Il y a un token");
-
         return { token: envToken };
     }
 
@@ -33,11 +32,26 @@ function envFileExist() {
 }
 
 async function main() {
-    const remoteRepos = await repos("SlimIO");
+    console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
     const reposSet = [];
-    for (const repo of remoteRepos) {
-        reposSet.push(repo.name);
+    try {
+        const remoteRepos = await repos("SlimIO", envFileExist());
+        for (const repo of remoteRepos) {
+            reposSet.push(repo.name);
+        }
     }
+    catch (error) {
+        console.log(error);
+    }
+
+    const reposLocal = await readdir(CWD);
+    for (const dir of reposLocal) {
+        const st = await stat(join(CWD, dir));
+        if (st.isDirectory()) {
+            console.log("prout");
+        }
+    }
+    // console.log(reposLocal);
 }
 
 main();
