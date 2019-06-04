@@ -62,5 +62,4 @@ docs/
 jsdoc/
 
 # personnal
-personal/
-test/test.js
+test.js

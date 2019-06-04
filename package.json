@@ -22,19 +22,24 @@
         "url": "https://github.com/SlimIO/Sync/issues"
     },
     "homepage": "https://github.com/SlimIO/Sync#readme",
-    "dependencies": {},
+    "dependencies": {
+        "@slimio/github": "^0.5.0",
+        "kleur": "^3.0.3",
+        "make-promises-safe": "^5.0.0",
+        "repos": "^2.0.0"
+    },
     "devDependencies": {
         "@commitlint/cli": "^8.0.0",
         "@commitlint/config-conventional": "^8.0.0",
         "@escommunity/minami": "^1.0.0",
         "@slimio/eslint-config": "^2.0.4",
         "ava": "^2.0.0",
+        "dotenv": "^8.0.0",
         "eslint": "^5.16.0",
         "husky": "^2.3.0",
         "jsdoc": "^3.6.2",
-        "pkg-ok": "^2.3.1",
         "nyc": "^14.1.1",
-        "dotenv": "^8.0.0"
+        "pkg-ok": "^2.3.1"
     },
     "engines": {
         "node": ">=10"
