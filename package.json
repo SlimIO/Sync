@@ -1,0 +1,59 @@
+{
+    "name": "@slimio/sync",
+    "version": "0.1.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "prepublishOnly": "pkg-ok",
+        "test": "ava --verbose",
+        "doc": "jsdoc -c ./jsdoc.json -r -R ./README.md -P ./package.json --verbose",
+        "coverage": "nyc npm test",
+        "report": "nyc report --reporter=html"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/SlimIO/Sync.git"
+    },
+    "keywords": [],
+    "author": "SlimIO",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/SlimIO/Sync/issues"
+    },
+    "homepage": "https://github.com/SlimIO/Sync#readme",
+    "dependencies": {},
+    "devDependencies": {
+        "@commitlint/cli": "^8.0.0",
+        "@commitlint/config-conventional": "^8.0.0",
+        "@escommunity/minami": "^1.0.0",
+        "@slimio/eslint-config": "^2.0.4",
+        "ava": "^2.0.0",
+        "eslint": "^5.16.0",
+        "husky": "^2.3.0",
+        "jsdoc": "^3.6.2",
+        "pkg-ok": "^2.3.1",
+        "nyc": "^14.1.1",
+        "dotenv": "^8.0.0"
+    },
+    "engines": {
+        "node": ">=10"
+    },
+    "husky": {
+        "hooks": {
+            "pre-push": "npm test",
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+        }
+    },
+    "nyc": {
+        "check-coverage": true,
+        "per-file": false,
+        "lines": 98,
+        "statements": 98,
+        "functions": 98,
+        "branches": 90
+    },
+    "bin": {
+        "slimio-sync": "./bin/index.js"
+    }
+}
