@@ -32,6 +32,12 @@ function envFileExist() {
     return {};
 }
 
-function main() {
-    envFileExist()
+async function main() {
+    const remoteRepos = await repos("SlimIO");
+    const reposSet = [];
+    for (const repo of remoteRepos) {
+        reposSet.push(repo.name);
+    }
 }
+
+main();
