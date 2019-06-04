@@ -60,8 +60,6 @@ async function main() {
         if (reposLocalArray.has(reposRemoteArray[_i])) {
             continue;
         }
-
-        console.log(reposRemoteArray[_i]);
     }
 }
 
