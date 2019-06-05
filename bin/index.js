@@ -24,11 +24,8 @@ const CWD = join(process.cwd());
 function envFileExist() {
     const envExist = existsSync(join(__dirname, "..", ".env"));
     const envToken = process.env.GITHUB_TOKEN;
-    if (envExist && envToken !== undefined) {
-        return { token: envToken };
-    }
 
-    return {};
+    return envExist && envToken !== undefined ? { token: envToken } : {};
 }
 
 /**
@@ -92,6 +89,10 @@ async function main() {
 
         reposLocalSet.add(reposRemoteArray[_i]);
         
+
+        if (_i === 3) {
+            break;
+        }
     }
 
 }
