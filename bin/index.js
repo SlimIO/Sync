@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Require Node.js dependencies
-const { join } = require("path");
+const { join, extname } = require("path");
 const { existsSync, promises: { readdir, readFile, writeFile, stat } } = require("fs");
 
 // Require Third Party dependencies
@@ -31,7 +31,31 @@ function envFileExist() {
     return {};
 }
 
-async function reposLocalFiltered(remoteArray) {
+/**
+ * @async
+ * @func getSlimioToml
+ * @desc Verify if .toml exist in the folder
+ * @param {!String} dir Folder checked
+ * @returns {Boolean}
+ */
+async function getSlimioToml(dir) {
+    const mainDir = await readdir(dir);
+    for (const file of mainDir) {
+        if (extname(file) === ".toml") {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @async
+ * @func reposLocalFiltered
+ * @desc Filters local repositories
+ * @returns {String[]}
+ */
+async function reposLocalFiltered() {
     const localDir = await readdir(CWD);
     const reposLocalSet = new Set();
 
@@ -40,10 +64,16 @@ async function reposLocalFiltered(remoteArray) {
     );
 
     for (let _i = 0; _i < localDir.length; _i++) {
-        if (reposLocalStat[_i].isDirectory()) {
+        if (!reposLocalStat[_i].isDirectory()) {
+            continue;
+        }
+
+        if (await getSlimioToml(localDir[_i])) {
             reposLocalSet.add(localDir[_i].toLowerCase());
         }
     }
+
+    return reposLocalSet;
 }
 
 async function main() {
@@ -54,18 +84,13 @@ async function main() {
         reposRemoteArray.push(repo.name.toLowerCase());
     }
 
-    for (let _i = 0; _i < localDir.length; _i++) {
-        if (reposLocalStat[_i].isDirectory()) {
-            reposLocalSet.add(localDir[_i].toLowerCase());
-        }
-    }
-
+    const reposLocalSet = await reposLocalFiltered();
     for (let _i = 0; _i < reposRemoteArray.length; _i++) {
         if (reposLocalSet.has(reposRemoteArray[_i])) {
             continue;
         }
 
-
+        console.log(reposRemoteArray[_i]);
     }
 }
 
