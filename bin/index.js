@@ -11,10 +11,10 @@ const Spinner = require("@slimio/async-cli-spinner");
 
 // Globals
 require("make-promises-safe");
-require("dotenv").config();
+require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Constants
-const CWD = process.cwd();
+const CWD = join(process.cwd());
 
 /**
  * @func envFileExist
@@ -22,7 +22,7 @@ const CWD = process.cwd();
  * @returns {{}|{token:String}}
  */
 function envFileExist() {
-    const envExist = existsSync(join(process.cwd(), ".env"));
+    const envExist = existsSync(join(__dirname, "..", ".env"));
     const envToken = process.env.GITHUB_TOKEN;
     if (envExist && envToken !== undefined) {
         return { token: envToken };
