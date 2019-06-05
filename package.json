@@ -23,6 +23,7 @@
     },
     "homepage": "https://github.com/SlimIO/Sync#readme",
     "dependencies": {
+        "@slimio/async-cli-spinner": "^0.1.4",
         "@slimio/github": "^0.5.0",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",

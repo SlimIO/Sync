@@ -2,12 +2,12 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { readdir, readFile, writeFile, stat } = require("fs").promises;
-const { existsSync } = require("fs");
+const { existsSync, promises: { readdir, readFile, writeFile, stat } } = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
 const { white } = require("kleur");
+const Spinner = require("@slimio/async-cli-spinner");
 
 // Globals
 require("make-promises-safe");
@@ -31,35 +31,41 @@ function envFileExist() {
     return {};
 }
 
-async function main() {
-    console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
-    const reposRemoteArray = [];
-    try {
-        const remote = await repos("SlimIO", envFileExist());
-        for (const repo of remote) {
-            reposRemoteArray.push(repo.name.toLowerCase());
-        }
-    }
-    catch (err) {
-        console.log(err);
-    }
-
+async function reposLocalFiltered(remoteArray) {
     const localDir = await readdir(CWD);
-    const reposLocalArray = new Set();
+    const reposLocalSet = new Set();
+
     const reposLocalStat = await Promise.all(
         localDir.map((name) => stat(join(CWD, name)))
     );
 
     for (let _i = 0; _i < localDir.length; _i++) {
         if (reposLocalStat[_i].isDirectory()) {
-            reposLocalArray.add(localDir[_i].toLowerCase());
+            reposLocalSet.add(localDir[_i].toLowerCase());
+        }
+    }
+}
+
+async function main() {
+    console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
+    const reposRemoteArray = [];
+    const remote = await repos("SlimIO", envFileExist());
+    for (const repo of remote) {
+        reposRemoteArray.push(repo.name.toLowerCase());
+    }
+
+    for (let _i = 0; _i < localDir.length; _i++) {
+        if (reposLocalStat[_i].isDirectory()) {
+            reposLocalSet.add(localDir[_i].toLowerCase());
         }
     }
 
     for (let _i = 0; _i < reposRemoteArray.length; _i++) {
-        if (reposLocalArray.has(reposRemoteArray[_i])) {
+        if (reposLocalSet.has(reposRemoteArray[_i])) {
             continue;
         }
+
+
     }
 }
 
