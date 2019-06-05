@@ -11,7 +11,7 @@ const Spinner = require("@slimio/async-cli-spinner");
 
 // Globals
 require("make-promises-safe");
-require("dotenv").config({ path: join(process.cwd(), ".env") });
+require("dotenv").config();
 
 // Constants
 const CWD = process.cwd();
@@ -90,8 +90,10 @@ async function main() {
             continue;
         }
 
-        console.log(reposRemoteArray[_i]);
+        reposLocalSet.add(reposRemoteArray[_i]);
+        
     }
+
 }
 
 main();
