@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 // Require Node.js dependencies
-const { join, extname } = require("path");
-const { existsSync, promises: { readdir, readFile, writeFile, stat } } = require("fs");
+const { join } = require("path");
+const { existsSync, promises: { readdir, readFile, access, stat } } = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
 const { white } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
+
+// Require Internal Dependencies
+const { cloneRepo } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -36,14 +39,14 @@ function envFileExist() {
  * @returns {Boolean}
  */
 async function getSlimioToml(dir) {
-    const mainDir = await readdir(dir);
-    for (const file of mainDir) {
-        if (extname(file) === ".toml") {
-            return true;
-        }
-    }
+    try {
+        await access(join(CWD, dir, "slimio.toml"));
 
-    return false;
+        return true;
+    }
+    catch (error) {
+        return false;
+    }
 }
 
 /**
@@ -78,7 +81,7 @@ async function main() {
     const reposRemoteArray = [];
     const remote = await repos("SlimIO", envFileExist());
     for (const repo of remote) {
-        reposRemoteArray.push(repo.name.toLowerCase());
+        reposRemoteArray.push(repo.name).map((name) => name.toLowerCase());
     }
 
     const reposLocalSet = await reposLocalFiltered();
@@ -88,7 +91,7 @@ async function main() {
         }
 
         reposLocalSet.add(reposRemoteArray[_i]);
-        
+        cloneRepo(reposRemoteArray[_i], envFileExist());
 
         if (_i === 3) {
             break;
