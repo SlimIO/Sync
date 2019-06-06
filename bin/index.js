@@ -79,30 +79,18 @@ async function reposLocalFiltered() {
 async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
 
-    const remote = await repos("SlimIO", envFileExist());
+    const token = envFileExist();
+    const remote = await repos("SlimIO", token);
     const reposLocalSet = await reposLocalFiltered();
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName));
+        .filter((repoName) => !reposLocalSet.has(repoName))
+        // For test
+        .filter((repos) => repos.length <= 3 && repos.charAt(0) === "c");
 
-    console.log(reposRemoteArray);
-
-    // reposRemoteArray.filter((name) => !reposLocalSet.has(name));
-
-    // for (let idx = 0; idx < reposRemoteArray.length; idx++) {
-    //     if (reposLocalSet.has(reposRemoteArray[idx])) {
-    //         continue;
-    //     }
-
-    //     reposLocalSet.add(reposRemoteArray[idx]);
-    //     cloneRepo(reposRemoteArray[idx], envFileExist());
-
-    //     if (idx === 3) {
-    //         break;
-    //     }
-    // }
-    // await Promise.all(
-    // )
+    await Promise.all(
+        reposRemoteArray.map((repos) => cloneRepo(repos, token))
+    );
 }
 
 main();
