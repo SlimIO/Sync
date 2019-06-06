@@ -57,11 +57,13 @@ async function getSlimioToml(dir) {
  */
 async function reposLocalFiltered() {
     const localDir = await readdir(CWD);
-    const reposLocalSet = new Set();
+    // const reposLocalSet = new Set();
 
     const reposLocalStat = await Promise.all(
         localDir.map((name) => stat(join(CWD, name)))
     );
+
+    reposLocalSet = new Set()
 
     for (let idx = 0; idx < localDir.length; idx++) {
         if (!reposLocalStat[idx].isDirectory()) {
@@ -80,8 +82,10 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
 
     const token = envFileExist();
-    const remote = await repos("SlimIO", token);
-    const reposLocalSet = await reposLocalFiltered();
+    const [remote, reposLocalSet] = await Promise.all([
+        repos("SlimIO", token),
+        reposLocalFiltered()
+    ]);
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
