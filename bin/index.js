@@ -2,7 +2,7 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { existsSync, promises: { readdir, readFile, access, stat } } = require("fs");
+const { existsSync, accessSync, promises: { readdir, readFile, stat } } = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
@@ -32,15 +32,14 @@ function envFileExist() {
 }
 
 /**
- * @async
  * @func getSlimioToml
  * @desc Verify if .toml exist in the folder
  * @param {!String} dir Folder checked
  * @returns {Boolean}
  */
-async function getSlimioToml(dir) {
+function getSlimioToml(dir) {
     try {
-        await access(join(CWD, dir, "slimio.toml"));
+        accessSync(join(CWD, dir, "slimio.toml"));
 
         return true;
     }
@@ -57,23 +56,14 @@ async function getSlimioToml(dir) {
  */
 async function reposLocalFiltered() {
     const localDir = await readdir(CWD);
-    // const reposLocalSet = new Set();
 
     const reposLocalStat = await Promise.all(
         localDir.map((name) => stat(join(CWD, name)))
     );
-
-    reposLocalSet = new Set()
-
-    for (let idx = 0; idx < localDir.length; idx++) {
-        if (!reposLocalStat[idx].isDirectory()) {
-            continue;
-        }
-
-        if (await getSlimioToml(localDir[idx])) {
-            reposLocalSet.add(localDir[idx].toLowerCase());
-        }
-    }
+    const reposLocalSet = new Set(localDir
+        .filter((name, idx) => getSlimioToml(name) && reposLocalStat[idx].isDirectory())
+        .map((name) => name.toLowerCase())
+    );
 
     return reposLocalSet;
 }
@@ -92,9 +82,9 @@ async function main() {
         // For test
         .filter((repos) => repos.length <= 3 && repos.charAt(0) === "c");
 
-    await Promise.all(
-        reposRemoteArray.map((repos) => cloneRepo(repos, token))
-    );
+    // await Promise.all(
+    //     reposRemoteArray.map((repos) => cloneRepo(repos, token))
+    // );
 }
 
 main();
