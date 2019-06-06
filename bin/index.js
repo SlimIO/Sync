@@ -78,11 +78,13 @@ async function reposLocalFiltered() {
 
 async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
+
     const reposRemoteArray = [];
     const remote = await repos("SlimIO", envFileExist());
     for (const repo of remote) {
-        reposRemoteArray.push(repo.name).map((name) => name.toLowerCase());
+        reposRemoteArray.push(repo.name);
     }
+    reposRemoteArray.map((name) => name.toLowerCase());
 
     const reposLocalSet = await reposLocalFiltered();
     for (let _i = 0; _i < reposRemoteArray.length; _i++) {
@@ -97,7 +99,6 @@ async function main() {
             break;
         }
     }
-
 }
 
 main();
