@@ -2,12 +2,11 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { existsSync, accessSync, promises: { readdir, readFile, stat } } = require("fs");
+const { existsSync, promises: { readdir, readFile, stat, access } } = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { white } = require("kleur");
-const Spinner = require("@slimio/async-cli-spinner");
+const { cyan } = require("kleur");
 
 // Require Internal Dependencies
 const { cloneRepo } = require("../src/utils");
@@ -32,16 +31,17 @@ function envFileExist() {
 }
 
 /**
+ * @async
  * @func getSlimioToml
  * @desc Verify if .toml exist in the folder
  * @param {!String} dir Folder checked
  * @returns {Boolean}
  */
-function getSlimioToml(dir) {
+async function getSlimioToml(dir) {
     try {
-        accessSync(join(CWD, dir, "slimio.toml"));
+        await access(join(CWD, dir, "slimio.toml"));
 
-        return true;
+        return dir;
     }
     catch (error) {
         return false;
@@ -56,20 +56,19 @@ function getSlimioToml(dir) {
  */
 async function reposLocalFiltered() {
     const localDir = await readdir(CWD);
-
     const reposLocalStat = await Promise.all(
         localDir.map((name) => stat(join(CWD, name)))
     );
-    const reposLocalSet = new Set(localDir
-        .filter((name, idx) => getSlimioToml(name) && reposLocalStat[idx].isDirectory())
-        .map((name) => name.toLowerCase())
-    );
+    const reposLocal = localDir
+        .filter((name, idx) => reposLocalStat[idx].isDirectory())
+        .map((name) => name.toLowerCase());
+    const result = await Promise.all(reposLocal.map((name) => getSlimioToml(name)));
 
-    return reposLocalSet;
+    return new Set(result.filter((name) => name !== false));
 }
 
 async function main() {
-    console.log(`\n > Executing SlimIO Sync at: ${white().bold(process.cwd())}\n`);
+    console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(process.cwd())}\n`);
 
     const token = envFileExist();
     const [remote, reposLocalSet] = await Promise.all([
@@ -79,12 +78,12 @@ async function main() {
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
-        // For test
+        // For tests
         .filter((repos) => repos.length <= 3 && repos.charAt(0) === "c");
 
-    // await Promise.all(
-    //     reposRemoteArray.map((repos) => cloneRepo(repos, token))
-    // );
+    await Promise.all(
+        reposRemoteArray.map((repos) => cloneRepo(repos, token))
+    );
 }
 
-main();
+main().catch(console.error);
