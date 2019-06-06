@@ -63,13 +63,13 @@ async function reposLocalFiltered() {
         localDir.map((name) => stat(join(CWD, name)))
     );
 
-    for (let _i = 0; _i < localDir.length; _i++) {
-        if (!reposLocalStat[_i].isDirectory()) {
+    for (let idx = 0; idx < localDir.length; idx++) {
+        if (!reposLocalStat[idx].isDirectory()) {
             continue;
         }
 
-        if (await getSlimioToml(localDir[_i])) {
-            reposLocalSet.add(localDir[_i].toLowerCase());
+        if (await getSlimioToml(localDir[idx])) {
+            reposLocalSet.add(localDir[idx].toLowerCase());
         }
     }
 
@@ -87,18 +87,20 @@ async function main() {
     reposRemoteArray.map((name) => name.toLowerCase());
 
     const reposLocalSet = await reposLocalFiltered();
-    for (let _i = 0; _i < reposRemoteArray.length; _i++) {
-        if (reposLocalSet.has(reposRemoteArray[_i])) {
+    for (let idx = 0; idx < reposRemoteArray.length; idx++) {
+        if (reposLocalSet.has(reposRemoteArray[idx])) {
             continue;
         }
 
-        reposLocalSet.add(reposRemoteArray[_i]);
-        cloneRepo(reposRemoteArray[_i], envFileExist());
+        reposLocalSet.add(reposRemoteArray[idx]);
+        cloneRepo(reposRemoteArray[idx], envFileExist());
 
-        if (_i === 3) {
+        if (idx === 3) {
             break;
         }
     }
+    await Promise.all(
+    )
 }
 
 main();
