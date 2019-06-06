@@ -17,7 +17,7 @@ require("make-promises-safe");
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Constants
-const CWD = join(process.cwd());
+const CWD = process.cwd();
 
 /**
  * @func envFileExist
