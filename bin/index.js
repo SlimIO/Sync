@@ -7,7 +7,6 @@ const { existsSync, promises: { readdir, readFile, stat, access } } = require("f
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan } = require("kleur");
-const ora = require("ora");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // Require Internal Dependencies
@@ -73,23 +72,28 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(process.cwd())}\n`);
 
     const orga = process.env.ORGA;
+    const rejects = [];
     const token = envFileExist();
     const spinner = new Spinner({ prefixText: cyan().bold(`Search repositories for ${orga}`), spinner: "dots" });
-    spinner.start();
+    spinner.start("Work");
+
     const [remote, reposLocalSet] = await Promise.all([
         repos(orga, token),
         reposLocalFiltered()
     ]);
     spinner.succeed(`${remote.length} repositories found ==> \n\n`);
+
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 4 && repos.charAt(0) === "c");
+        .filter((repos) => repos.length <= 6);
 
-    await Promise.all(
+    const ret = await Promise.all(
         reposRemoteArray.map((repos) => cloneRepo(repos, token))
     );
+    console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
+    ret.map((repo) => console.log(repo));
 }
 
 main().catch(console.error);

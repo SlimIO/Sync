@@ -6,7 +6,8 @@ const cp = require("child_process");
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
 const Spinner = require("@slimio/async-cli-spinner");
-const { cyan } = require("kleur");
+const { cyan, red, green } = require("kleur");
+const { get } = require("node-emoji");
 
 // Constant
 const CWD = process.cwd();
@@ -22,13 +23,23 @@ async function cloneRepo(repoName, token) {
         singleBranch: true,
         oauth2format: "github"
     }, token);
+    const optsPull = Object.assign(optsClone, { ref: "master" });
 
-    spinner.start();
-    spinner.text = "Cloning from GitHub";
-    await git.clone(optsClone);
-    spinner.text = "Pull master from GitHub";
-    await git.pull(optsClone);
-    spinner.succeed("OK");
+    try {
+        spinner.start();
+        spinner.text = "Cloning from GitHub";
+        await git.clone(optsClone);
+        spinner.text = "Pull master from GitHub";
+        await git.pull(optsPull);
+        spinner.succeed("OK");
+
+        return `${green(get(":heavy_check_mark:"))} ${repoName}`;
+    }
+    catch ({ message }) {
+        spinner.failed();
+
+        return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
+    }
 }
 
 module.exports = { cloneRepo };

@@ -28,6 +28,7 @@
         "isomorphic-git": "^0.55.2",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
+        "node-emoji": "^1.10.0",
         "repos": "^2.0.0"
     },
     "devDependencies": {
