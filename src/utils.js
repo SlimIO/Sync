@@ -10,15 +10,17 @@ const CWD = process.cwd();
 git.plugins.set("fs", fs);
 
 async function cloneRepo(repoName, token) {
-    const dir = join(CWD, repoName);
+    const reject = [];
+    const dir = join(CWD, "..", `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
-    const opts = Object.assign({
+    const optsClone = Object.assign({
         dir, url,
         singleBranch: true,
         oauth2format: "github"
     }, token);
 
-    await git.clone(opts);
+    await git.clone(optsClone);
+    await git.pull(optsClone);
 }
 
 module.exports = { cloneRepo };

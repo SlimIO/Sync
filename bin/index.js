@@ -7,6 +7,7 @@ const { existsSync, promises: { readdir, readFile, stat, access } } = require("f
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan } = require("kleur");
+const ora = require("ora");
 
 // Require Internal Dependencies
 const { cloneRepo } = require("../src/utils");
@@ -70,6 +71,7 @@ async function reposLocalFiltered() {
 async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(process.cwd())}\n`);
 
+    const reject = []
     const token = envFileExist();
     const [remote, reposLocalSet] = await Promise.all([
         repos("SlimIO", token),
@@ -79,10 +81,10 @@ async function main() {
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 3 && repos.charAt(0) === "c");
+        .filter((repos) => repos.length <= 4 && repos.charAt(0) === "c");
 
     await Promise.all(
-        reposRemoteArray.map((repos) => cloneRepo(repos, token))
+        reposRemoteArray.map((repos) => cloneRepo(repos, token).catch(reject.push));
     );
 }
 
