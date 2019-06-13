@@ -14,7 +14,16 @@ const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
 
-async function cloneRepo(repoName, token) {
+/**
+ * @async
+ * @func cloneRepo
+ * @desc Clone & pull master
+ * @param {!string} repo Name of the repository
+ * @param {!string} token Token github
+ * @returns {string}
+ */
+async function cloneRepo(repo, token) {
+    const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
     const spinner = new Spinner({ prefixText: cyan().bold(repoName), spinner: "dots" });

@@ -102,10 +102,10 @@ async function main() {
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 5)
+        .filter((repos) => repos.length <= 5);
 
-    const ret = await Promise.all(
-        reposRemoteArray.map((repos) => cloneRepo(repos, token))
+    const ret = await Spinner.startAll(
+        reposRemoteArray.map((repos) => Spinner.create(cloneRepo, repos, token))
     );
     console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
     ret.map((repo) => console.log(repo));
