@@ -35,12 +35,12 @@ async function cloneRepo(repoName, token) {
         await git.pull(optsPull);
         spinner.succeed("OK");
 
-        // return `${green(get(":heavy_check_mark:"))} ${repoName}`;
+        return `${green(get(":heavy_check_mark:"))} ${repoName}`;
     }
     catch ({ message }) {
         spinner.failed();
 
-        // return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
+        return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }
 }
 

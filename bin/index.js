@@ -103,16 +103,12 @@ async function main() {
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
         .filter((repos) => repos.length <= 5)
-        .filter((repos) => repos.toLowerCase() !== "blog");
 
-    // const ret = await Promise.all(
-    //     reposRemoteArray.map((repos) => cloneRepo(repos, token))
-    // );
-    await Spinner.startAll(
+    const ret = await Promise.all(
         reposRemoteArray.map((repos) => cloneRepo(repos, token))
     );
     console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
-    // ret.map((repo) => console.log(repo));
+    ret.map((repo) => console.log(repo));
 }
 
 main().catch(console.error);
