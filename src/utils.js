@@ -27,8 +27,10 @@ async function cloneRepo(repoName, token) {
 
     try {
         spinner.start();
+
         spinner.text = "Cloning from GitHub";
         await git.clone(optsClone);
+
         spinner.text = "Pull master from GitHub";
         await git.pull(optsPull);
         spinner.succeed("OK");

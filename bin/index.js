@@ -6,8 +6,9 @@ const { existsSync, promises: { readdir, readFile, stat, access } } = require("f
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { cyan } = require("kleur");
+const { cyan, red } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
+const qoa = require("qoa");
 
 // Require Internal Dependencies
 const { cloneRepo } = require("../src/utils");
@@ -69,7 +70,22 @@ async function reposLocalFiltered() {
 }
 
 async function main() {
-    console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(process.cwd())}\n`);
+    console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
+
+    // Valid path
+    const confirm = {
+        type: "confirm",
+        query: `Do you want execut Sync in ${CWD} ?`,
+        handle: "validPath",
+        accept: "y",
+        deny: "n"
+    };
+    const { validPath } = await qoa.prompt([confirm]);
+    console.log(validPath);
+    if (!validPath) {
+        console.log(red("Exiting process."));
+        process.exit(1);
+    }
 
     const orga = process.env.ORGA;
     const rejects = [];
@@ -87,7 +103,7 @@ async function main() {
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 6);
+        .filter((repos) => repos.length <= 5);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos) => cloneRepo(repos, token))
