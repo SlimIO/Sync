@@ -100,9 +100,9 @@ async function main() {
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName))
+        .filter((repoName) => !reposLocalSet.has(repoName));
         // For tests
-        .filter((repos) => repos.length <= 5);
+        // .filter((repos) => repos.length <= 4);
 
     const ret = await Spinner.startAll(
         reposRemoteArray.map((repos) => Spinner.create(cloneRepo, repos, token))

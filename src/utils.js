@@ -1,7 +1,8 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const cp = require("child_process");
+const { existsSync } = require("fs");
+const { spawn } = require("child_process");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
@@ -42,15 +43,32 @@ async function cloneRepo(repo, token) {
 
         spinner.text = "Pull master from GitHub";
         await git.pull(optsPull);
-        spinner.succeed("OK");
 
-        return `${green(get(":heavy_check_mark:"))} ${repoName}`;
+        spinner.text = "Installing dependencies";
+        await npmInstall(dir);
+
+        spinner.succeed();
+
+        return `${green(get(":heavy_check_mark:"))} ${repoName} - ${dir}`;
     }
     catch ({ message }) {
         spinner.failed();
 
         return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }
+}
+
+function npmInstall(dir) {
+    return new Promise((resolve, reject) => {
+        const cmd = existsSync(join(dir, "package-lock.json")) ? "ci" : "install";
+        const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { dir, stdio: "pipe" });
+        subProcess.once("close", (code) => {
+            resolve();
+        });
+        subProcess.once("error", (err) => {
+            reject(err);
+        });
+    });
 }
 
 module.exports = { cloneRepo };
