@@ -6,7 +6,7 @@ const { existsSync, promises: { readdir, readFile, stat, access } } = require("f
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { cyan, red } = require("kleur");
+const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
 
@@ -75,13 +75,12 @@ async function main() {
     // Valid path
     const confirm = {
         type: "confirm",
-        query: `Do you want execut Sync in ${CWD} ?`,
+        query: `${yellow(`Do you want execut Sync in ${CWD}`)} ?`,
         handle: "validPath",
         accept: "y",
         deny: "n"
     };
     const { validPath } = await qoa.prompt([confirm]);
-    console.log(validPath);
     if (!validPath) {
         console.log(red("Exiting process."));
         process.exit(1);
@@ -103,13 +102,17 @@ async function main() {
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 5);
+        .filter((repos) => repos.length <= 5)
+        .filter((repos) => repos.toLowerCase() !== "blog");
 
-    const ret = await Promise.all(
+    // const ret = await Promise.all(
+    //     reposRemoteArray.map((repos) => cloneRepo(repos, token))
+    // );
+    await Spinner.startAll(
         reposRemoteArray.map((repos) => cloneRepo(repos, token))
     );
     console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
-    ret.map((repo) => console.log(repo));
+    // ret.map((repo) => console.log(repo));
 }
 
 main().catch(console.error);

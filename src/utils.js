@@ -15,7 +15,7 @@ const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
 
 async function cloneRepo(repoName, token) {
-    const dir = join(CWD, "..", `${repoName}_TEST`);
+    const dir = join(CWD, `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
     const spinner = new Spinner({ prefixText: cyan().bold(repoName), spinner: "dots" });
     const optsClone = Object.assign({
@@ -35,12 +35,12 @@ async function cloneRepo(repoName, token) {
         await git.pull(optsPull);
         spinner.succeed("OK");
 
-        return `${green(get(":heavy_check_mark:"))} ${repoName}`;
+        // return `${green(get(":heavy_check_mark:"))} ${repoName}`;
     }
     catch ({ message }) {
         spinner.failed();
 
-        return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
+        // return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }
 }
 
