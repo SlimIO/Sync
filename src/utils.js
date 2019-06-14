@@ -104,6 +104,13 @@ async function log(name) {
     return timestamp;
 }
 
+/**
+ * @async
+ * @func pull
+ * @desc Pull from gitHub
+ * @param {!String} repoName Name of the repository
+ * @returns {void}
+ */
 async function pull(repoName) {
     const free = await lockerPull.lock();
     const dir = join(CWD, repoName);
@@ -114,10 +121,8 @@ async function pull(repoName) {
         ref: "master"
     }, envFileExist());
 
-    const pullMaster = await git.pull(optsPull);
+    await git.pull(optsPull);
     free();
-
-    return pullMaster;
 }
 
 /**
