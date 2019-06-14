@@ -13,7 +13,8 @@ const Lock = require("@slimio/lock");
 
 // Constant
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
-const asyncLocker = new Lock({ max: 3 });
+const lockerDep = new Lock({ max: 3 });
+const lockerPull = new Lock({ max: 8 });
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
@@ -49,7 +50,7 @@ async function cloneRepo(repo, index) {
         oauth2format: "github"
     }, envFileExist());
     const optsPull = Object.assign(optsClone, { ref: "master" });
-    const free = await asyncLocker.lock();
+    const free = await lockerDep.lock();
 
     try {
         spinner.start();
@@ -104,7 +105,7 @@ async function log(name) {
 }
 
 async function pull(repoName) {
-    const spinner = new Spinner({ prefixText: cyan().bold(repoName), spinner: "dots" });
+    const free = await lockerPull.lock();
     const dir = join(CWD, repoName);
     const url = `https://github.com/${process.env.ORGA}/${repoName}`;
     const optsPull = Object.assign({
@@ -113,9 +114,8 @@ async function pull(repoName) {
         ref: "master"
     }, envFileExist());
 
-    spinner.start("Pull master from GitHub");
     const pullMaster = await git.pull(optsPull);
-    spinner.succeed("OK");
+    free();
 
     return pullMaster;
 }

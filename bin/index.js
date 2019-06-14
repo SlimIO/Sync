@@ -56,6 +56,21 @@ function compareDates(date1, date2) {
 }
 
 /**
+ * @func n
+ * @description add \n in string
+ * @param {number} nb Number of \n
+ * @returns {string}
+ */
+function n(nb = 1) {
+    let lineBreak = "";
+    for (let idx = 1; idx <= nb; idx++) {
+        lineBreak += "\n";
+    }
+
+    return lineBreak;
+}
+
+/**
  * @async
  * @func question
  * @desc Question for the dev
@@ -105,7 +120,7 @@ async function reposLocalFiltered() {
 }
 
 async function main() {
-    console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
+    console.log(`${n()} > Executing SlimIO Sync at: ${cyan().bold(CWD)}${n()}`);
 
     // Valid path
     let sentence = `Do you want execut Sync in ${CWD} ?`;
@@ -123,13 +138,13 @@ async function main() {
     // const log = remote.filter((repos, index) => repos.name === "Sync");
     // console.log(log);
     // process.exit(1);
-    spinner.succeed(`${remote.length} repositories found ==> \n\n`);
+    spinner.succeed(`${remote.length} repositories found ==> ${n(2)}`);
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repo) => repo.length <= 3);
+        // .filter((repo) => repo.length <= 3);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
@@ -139,9 +154,9 @@ async function main() {
     // Display errors
     const err = ret.filter((repo) => repo !== null);
     if (err.length !== 0) {
-        console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
+        console.log(`${n(2)}`, `${cyan("Error(s) recap ==>")}${n()}`);
         err.map((err) => console.log(err));
-        sentence = "\nThere were errors during the clone, do you want continue ?";
+        sentence = `${n()}There were errors during the clone, do you want continue ?`;
         await question(sentence);
     }
 
@@ -158,13 +173,15 @@ async function main() {
         }
     }
 
-    sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
+    sentence = `${n()}- ${repoNoUpdate.join(n())}${n(2)}The above repoitories doesn't update. Do you want update them ?}`;
     const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
+    const spin = new Spinner({ prefixText: "Pull master from GitHub for each repository", spinner: "dots" });
+    spin.start("Wait");
     if (updateOrNot) {
-        await Lock.all(
-            repoNoUpdate.map((repoName) => pull(repoName)), { max: 8 }
+        await Promise.all(
+            repoNoUpdate.map((repoName) => pull(repoName))
         );
-        console.log("Update OK");
+        spin.succeed(`${n()}Pull OK${n()}`);
     }
 }
 
