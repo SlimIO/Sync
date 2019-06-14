@@ -94,6 +94,13 @@ async function pkgLockExist() {
     }
 }
 
+/**
+ * @async
+ * @func log
+ * @desc Log local commits
+ * @param {!String} name Name of the repository
+ * @returns {number}
+ */
 async function log(name) {
     const { committer: { timestamp } } = (await git.log({
         gitdir: join(CWD, name, ".git"),
