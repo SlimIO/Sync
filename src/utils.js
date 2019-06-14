@@ -40,8 +40,8 @@ function envFileExist() {
  */
 async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
-    const dir = join(CWD, `${repoName}_TEST`);
-    const url = `https://github.com/SlimIO/${repoName}`;
+    const dir = join(CWD, repoName);
+    const url = `https://github.com/${process.env.ORGA}/${repoName}`;
     const spinner = new Spinner({ prefixText: cyan().bold(`${index + 1}. ${repoName}`), spinner: "dots" });
     const optsClone = Object.assign({
         dir, url,
@@ -58,7 +58,7 @@ async function cloneRepo(repo, index) {
         await git.clone(optsClone);
 
         spinner.text = "Pull master from GitHub";
-        await git.pull(optsPull);
+        await pull(repoName);
 
         // spinner.text = "Installing dependencies";
         // await npmInstall(dir);
@@ -93,6 +93,33 @@ async function pkgLockExist() {
     }
 }
 
+async function log(name) {
+    const { committer: { timestamp } } = (await git.log({
+        gitdir: join(CWD, name, ".git"),
+        depth: 1,
+        ref: "master"
+    }))[0];
+
+    return timestamp;
+}
+
+async function pull(repoName) {
+    const spinner = new Spinner({ prefixText: cyan().bold(repoName), spinner: "dots" });
+    const dir = join(CWD, repoName);
+    const url = `https://github.com/${process.env.ORGA}/${repoName}`;
+    const optsPull = Object.assign({
+        dir, url,
+        singleBranch: true,
+        ref: "master"
+    }, envFileExist());
+
+    spinner.start("Pull master from GitHub");
+    const pullMaster = await git.pull(optsPull);
+    spinner.succeed("OK");
+
+    return pullMaster;
+}
+
 /**
  * @async
  * @func npmInstall
@@ -110,4 +137,4 @@ async function npmInstall(dir) {
     });
 }
 
-module.exports = { cloneRepo, envFileExist };
+module.exports = { cloneRepo, envFileExist, log, pull };

@@ -10,11 +10,10 @@ const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
-const git = require("isomorphic-git");
+const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
-const { cloneRepo, envFileExist } = require("../src/utils");
-git.plugins.set("fs", fs);
+const { cloneRepo, envFileExist, log, pull } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -152,13 +151,9 @@ async function main() {
         if (!reposLocalSet.has(name.toLowerCase())) {
             continue;
         }
-        const { committer: { timestamp } } = (await git.log({
-            gitdir: join(CWD, name, ".git"),
-            depth: 1,
-            ref: "master"
-        }))[0];
+        const timestamp = await log(name);
 
-        if (!compareDates(new Date(updated_at), new Date(timestamp * 1000))) {
+        if (!compareDates(new Date(updated_at), new Date(timestamp * 1000), name)) {
             repoNoUpdate.push(name);
         }
     }
@@ -166,10 +161,11 @@ async function main() {
     sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
     const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
     if (updateOrNot) {
-        console.log("Update en cours");
+        await Lock.all(
+            repoNoUpdate.map((repoName) => pull(repoName)), { max: 8 }
+        );
+        console.log("Update OK");
     }
-
-    console.log("Pas d'update");
 }
 
 main().catch(console.error);
