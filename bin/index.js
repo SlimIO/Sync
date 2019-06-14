@@ -73,21 +73,29 @@ function compareDates(date1, date2) {
  * @func question
  * @desc Question for the dev
  * @param {!string} sentence Sentence
- * @returns {void}
+ * @param {string} force Allows not exit even in case of negative respone
+ * @returns {void|boolean}
  */
-async function question(sentence) {
+async function question(sentence, force) {
     const confirm = { type: "confirm",
         accept: "y",
         deny: "n",
         handle: "validQuestion",
-        query: sentence
+        query: yellow(sentence)
     };
 
     const { validQuestion } = await qoa.prompt([Object.assign(confirm, question)]);
+
+    if (force) {
+        return validQuestion;
+    }
+
     if (!validQuestion) {
         console.log(red("Exiting process."));
         process.exit(1);
     }
+
+    return null;
 }
 
 /**
@@ -113,7 +121,7 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
 
     // Valid path
-    let sentence = `${yellow(`Do you want execut Sync in ${CWD}`)} ?`;
+    let sentence = `Do you want execut Sync in ${CWD} ?`;
     await question(sentence);
 
     const orga = process.env.ORGA;
@@ -146,7 +154,7 @@ async function main() {
     if (err.length !== 0) {
         console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
         err.map((err) => console.log(err));
-        sentence = `\n${yellow("There were errors during the clone, do you want continue ?")}`;
+        sentence = "\nThere were errors during the clone, do you want continue ?";
         await question(sentence);
     }
 
@@ -166,10 +174,14 @@ async function main() {
             repoNoUpdate.push(name);
         }
     }
-    if (repoNoUpdate !== 0) {
-        console.log("\n\n", `${cyan("The following repoitories doesn't update. Do you want update them ?")}\n`);
-        console.log(repoNoUpdate.join("\n"));
+
+    sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
+    const updateOrNot = repoNoUpdate === 0 ? false : await question(sentence, "force");
+    if (updateOrNot) {
+        console.log("Update en cours");
     }
+
+    console.log("Pas d'update");
 }
 
 main().catch(console.error);
