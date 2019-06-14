@@ -1,7 +1,7 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const { existsSync } = require("fs");
+const { access } = require("fs").promises;
 const { spawn } = require("child_process");
 
 // Require Third-Party dependencies
@@ -21,13 +21,14 @@ git.plugins.set("fs", fs);
  * @desc Clone & pull master
  * @param {!string} repo Name of the repository
  * @param {!string} token Token github
+ * @param {!number} index Numero of the repository
  * @returns {string}
  */
-async function cloneRepo(repo, token) {
+async function cloneRepo(repo, token, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
-    const spinner = new Spinner({ prefixText: cyan().bold(repoName), spinner: "dots" });
+    const spinner = new Spinner({ prefixText: cyan().bold(`${index + 1}. ${repoName}`), spinner: "dots" });
     const optsClone = Object.assign({
         dir, url,
         singleBranch: true,
@@ -44,8 +45,8 @@ async function cloneRepo(repo, token) {
         spinner.text = "Pull master from GitHub";
         await git.pull(optsPull);
 
-        spinner.text = "Installing dependencies";
-        await npmInstall(dir);
+        // spinner.text = "Installing dependencies";
+        // await npmInstall(dir);
 
         spinner.succeed();
 
@@ -58,16 +59,37 @@ async function cloneRepo(repo, token) {
     }
 }
 
-function npmInstall(dir) {
-    return new Promise((resolve, reject) => {
-        const cmd = existsSync(join(dir, "package-lock.json")) ? "ci" : "install";
-        const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { dir, stdio: "pipe" });
-        subProcess.once("close", (code) => {
-            resolve();
-        });
-        subProcess.once("error", (err) => {
-            reject(err);
-        });
+/**
+ * @async
+ * @func pkgLockExist
+ * @desc Verify if package-lock exist in the directory
+ * @returns {string}
+ */
+async function pkgLockExist() {
+    try {
+        await access(join(dir, "package-lock.json"));
+
+        return "ci";
+    }
+    catch (error) {
+        return "install";
+    }
+}
+
+/**
+ * @async
+ * @func npmInstall
+ * @desc Spawn a new node cmd
+ * @param {!string} dir Path of the directory
+ * @returns {void}
+ */
+async function npmInstall(dir) {
+    const cmd = await pkgLockExist();
+
+    await new Promise((resolve, reject) => {
+        const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { cwd: dir, stdio: "pipe" });
+        subProcess.once("close", resolve);
+        subProcess.once("error", reject);
     });
 }
 

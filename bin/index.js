@@ -87,7 +87,6 @@ async function main() {
     }
 
     const orga = process.env.ORGA;
-    const rejects = [];
     const token = envFileExist();
     const spinner = new Spinner({ prefixText: cyan().bold(`Search repositories for ${orga}`), spinner: "dots" });
     spinner.start("Work");
@@ -100,12 +99,12 @@ async function main() {
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName));
+        .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        // .filter((repos) => repos.length <= 4);
+        .filter((repos) => repos.length <= 3);
 
     const ret = await Spinner.startAll(
-        reposRemoteArray.map((repos) => Spinner.create(cloneRepo, repos, token))
+        reposRemoteArray.map((repos, index) => Spinner.create(cloneRepo, repos, token, index))
     );
     console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
     ret.map((repo) => console.log(repo));
