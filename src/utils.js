@@ -1,7 +1,7 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const { access } = require("fs").promises;
+const { existsSync, promises: { access } } = require("fs");
 const { spawn } = require("child_process");
 
 // Require Third-Party dependencies
@@ -12,10 +12,23 @@ const { get } = require("node-emoji");
 const Lock = require("@slimio/lock");
 
 // Constant
+require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const asyncLocker = new Lock({ max: 3 });
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
+
+/**
+ * @func envFileExist
+ * @desc Check if .env exist and if there is a github token.
+ * @returns {{}|{token:String}}
+ */
+function envFileExist() {
+    const envExist = existsSync(join(__dirname, "..", ".env"));
+    const envToken = process.env.GITHUB_TOKEN;
+
+    return envExist && envToken !== undefined ? { token: envToken } : {};
+}
 
 /**
  * @async
@@ -23,10 +36,9 @@ git.plugins.set("fs", fs);
  * @desc Clone & pull master
  * @param {!string} repo Name of the repository
  * @param {!number} index Numero of the repository
- * @param {!string} token Token github
  * @returns {string}
  */
-async function cloneRepo(repo, index, token) {
+async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
@@ -35,7 +47,7 @@ async function cloneRepo(repo, index, token) {
         dir, url,
         singleBranch: true,
         oauth2format: "github"
-    }, token);
+    }, envFileExist());
     const optsPull = Object.assign(optsClone, { ref: "master" });
     const free = await asyncLocker.lock();
 
@@ -48,8 +60,8 @@ async function cloneRepo(repo, index, token) {
         spinner.text = "Pull master from GitHub";
         await git.pull(optsPull);
 
-        spinner.text = "Installing dependencies";
-        await npmInstall(dir);
+        // spinner.text = "Installing dependencies";
+        // await npmInstall(dir);
 
         spinner.succeed();
         free();
@@ -98,4 +110,4 @@ async function npmInstall(dir) {
     });
 }
 
-module.exports = { cloneRepo };
+module.exports = { cloneRepo, envFileExist };

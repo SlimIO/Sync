@@ -13,7 +13,7 @@ const qoa = require("qoa");
 const git = require("isomorphic-git");
 
 // Require Internal Dependencies
-const { cloneRepo } = require("../src/utils");
+const { cloneRepo, envFileExist } = require("../src/utils");
 git.plugins.set("fs", fs);
 
 // Globals
@@ -22,18 +22,6 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Constants
 const CWD = process.cwd();
-
-/**
- * @func envFileExist
- * @desc Check if .env exist and if there is a github token.
- * @returns {{}|{token:String}}
- */
-function envFileExist() {
-    const envExist = existsSync(join(__dirname, "..", ".env"));
-    const envToken = process.env.GITHUB_TOKEN;
-
-    return envExist && envToken !== undefined ? { token: envToken } : {};
-}
 
 /**
  * @async
@@ -144,10 +132,10 @@ async function main() {
         // For tests
         .filter((repo) => repo.length <= 3);
 
-    // const ret = await Promise.all(
-    //     reposRemoteArray.map((repos, index) => cloneRepo(repos, index, token))
-    // );
-    const ret = [];
+    const ret = await Promise.all(
+        reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
+    );
+    // const ret = [];
 
     // Display errors
     const err = ret.filter((repo) => repo !== null);
@@ -176,7 +164,7 @@ async function main() {
     }
 
     sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
-    const updateOrNot = repoNoUpdate === 0 ? false : await question(sentence, "force");
+    const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
     if (updateOrNot) {
         console.log("Update en cours");
     }
