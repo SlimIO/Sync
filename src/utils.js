@@ -20,11 +20,11 @@ git.plugins.set("fs", fs);
  * @func cloneRepo
  * @desc Clone & pull master
  * @param {!string} repo Name of the repository
- * @param {!string} token Token github
  * @param {!number} index Numero of the repository
+ * @param {!string} token Token github
  * @returns {string}
  */
-async function cloneRepo(repo, token, index) {
+async function cloneRepo(repo, index, token) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, `${repoName}_TEST`);
     const url = `https://github.com/SlimIO/${repoName}`;
@@ -49,8 +49,6 @@ async function cloneRepo(repo, token, index) {
         // await npmInstall(dir);
 
         spinner.succeed();
-
-        return `${green(get(":heavy_check_mark:"))} ${repoName} - ${dir}`;
     }
     catch ({ message }) {
         spinner.failed();

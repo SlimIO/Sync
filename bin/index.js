@@ -9,6 +9,7 @@ const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
+const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
 const { cloneRepo } = require("../src/utils");
@@ -50,6 +51,21 @@ async function getSlimioToml(dir) {
     }
 }
 
+async function question(sentence) {
+    const confirm = { type: "confirm",
+        accept: "y",
+        deny: "n",
+        handle: "validQuestion",
+        query: sentence
+    };
+
+    const { validQuestion } = await qoa.prompt([Object.assign(confirm, question)]);
+    if (!validQuestion) {
+        console.log(red("Exiting process."));
+        process.exit(1);
+    }
+}
+
 /**
  * @async
  * @func reposLocalFiltered
@@ -73,18 +89,8 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
 
     // Valid path
-    const confirm = {
-        type: "confirm",
-        query: `${yellow(`Do you want execut Sync in ${CWD}`)} ?`,
-        handle: "validPath",
-        accept: "y",
-        deny: "n"
-    };
-    const { validPath } = await qoa.prompt([confirm]);
-    if (!validPath) {
-        console.log(red("Exiting process."));
-        process.exit(1);
-    }
+    let sentence = `${yellow(`Do you want execut Sync in ${CWD}`)} ?`;
+    await question(sentence);
 
     const orga = process.env.ORGA;
     const token = envFileExist();
@@ -101,13 +107,19 @@ async function main() {
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 3);
+        .filter((repos) => repos.length <= 4);
 
     const ret = await Spinner.startAll(
-        reposRemoteArray.map((repos, index) => Spinner.create(cloneRepo, repos, token, index))
+        reposRemoteArray.map((repos, index) => Spinner.create(cloneRepo, repos, index, token))
     );
-    console.log("\n\n", `${cyan("Actions recap ==>")}\n`);
-    ret.map((repo) => console.log(repo));
+
+    const err = ret.filter((repo) => repo !== undefined);
+    if (err.length !== 0) {
+        console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
+        err.map((err) => console.log(err));
+        sentence = `\n${yellow("There were errors during the clone, do you want continue ?")}`;
+        await question(sentence);
+    }
 }
 
 main().catch(console.error);
