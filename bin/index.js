@@ -53,6 +53,28 @@ async function getSlimioToml(dir) {
     }
 }
 
+/**
+ * @func compareDates
+ * @desc Compare the two date passed in arguments
+ * @param {!Date} date1 First date
+ * @param {!Date} date2 Second date
+ * @returns {boolean}
+ */
+function compareDates(date1, date2) {
+    const day = date1.getDate() === date2.getDate();
+    const hours = date1.getHours() === date2.getHours();
+    const minutes = date1.getMinutes() === date2.getMinutes();
+
+    return day && hours && minutes;
+}
+
+/**
+ * @async
+ * @func question
+ * @desc Question for the dev
+ * @param {!string} sentence Sentence
+ * @returns {void}
+ */
 async function question(sentence) {
     const confirm = { type: "confirm",
         accept: "y",
@@ -129,12 +151,24 @@ async function main() {
     }
 
     // Check update on existing repositories
-    for await (const { name, updated_at } of remote) {
+    const repoNoUpdate = [];
+    for (const { name, updated_at } of remote) {
         if (!reposLocalSet.has(name.toLowerCase())) {
             continue;
         }
-        const commit = await git.log({ gitdir: join(CWD, name, ".git"), depth: 1, ref: "master" });
-        console.log(commit);
+        const { committer: { timestamp } } = (await git.log({
+            gitdir: join(CWD, name, ".git"),
+            depth: 1,
+            ref: "master"
+        }))[0];
+
+        if (!compareDates(new Date(updated_at), new Date(timestamp * 1000))) {
+            repoNoUpdate.push(name);
+        }
+    }
+    if (repoNoUpdate !== 0) {
+        console.log("\n\n", `${cyan("The following repoitories doesn't update. Do you want update them ?")}\n`);
+        console.log(repoNoUpdate.join("\n"));
     }
 }
 
