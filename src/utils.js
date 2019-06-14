@@ -9,8 +9,10 @@ const git = require("isomorphic-git");
 const Spinner = require("@slimio/async-cli-spinner");
 const { cyan, red, green } = require("kleur");
 const { get } = require("node-emoji");
+const Lock = require("@slimio/lock");
 
 // Constant
+const asyncLocker = new Lock({ max: 3 });
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
@@ -35,6 +37,7 @@ async function cloneRepo(repo, index, token) {
         oauth2format: "github"
     }, token);
     const optsPull = Object.assign(optsClone, { ref: "master" });
+    const free = await asyncLocker.lock();
 
     try {
         spinner.start();
@@ -45,13 +48,17 @@ async function cloneRepo(repo, index, token) {
         spinner.text = "Pull master from GitHub";
         await git.pull(optsPull);
 
-        // spinner.text = "Installing dependencies";
-        // await npmInstall(dir);
+        spinner.text = "Installing dependencies";
+        await npmInstall(dir);
 
         spinner.succeed();
+        free();
+
+        return null;
     }
     catch ({ message }) {
         spinner.failed();
+        free();
 
         return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }

@@ -3,16 +3,18 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const { existsSync, promises: { readdir, readFile, stat, access } } = require("fs");
+const fs = require("fs");
 
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
-const Lock = require("@slimio/lock");
+const git = require("isomorphic-git");
 
 // Require Internal Dependencies
 const { cloneRepo } = require("../src/utils");
+git.plugins.set("fs", fs);
 
 // Globals
 require("make-promises-safe");
@@ -101,19 +103,22 @@ async function main() {
         repos(orga, token),
         reposLocalFiltered()
     ]);
+    // const log = remote.filter((repos, index) => repos.name === "Sync");
+    // console.log(log);
+    // process.exit(1);
     spinner.succeed(`${remote.length} repositories found ==> \n\n`);
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
         .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        .filter((repos) => repos.length <= 4);
+        .filter((repo) => repo.length <= 3);
 
     const ret = await Spinner.startAll(
         reposRemoteArray.map((repos, index) => Spinner.create(cloneRepo, repos, index, token))
     );
 
-    const err = ret.filter((repo) => repo !== undefined);
+    const err = ret.filter((repo) => repo !== null);
     if (err.length !== 0) {
         console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
         err.map((err) => console.log(err));
