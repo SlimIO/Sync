@@ -114,16 +114,27 @@ async function main() {
         // For tests
         .filter((repo) => repo.length <= 3);
 
-    const ret = await Spinner.startAll(
-        reposRemoteArray.map((repos, index) => Spinner.create(cloneRepo, repos, index, token))
-    );
+    // const ret = await Promise.all(
+    //     reposRemoteArray.map((repos, index) => cloneRepo(repos, index, token))
+    // );
+    const ret = [];
 
+    // Display errors
     const err = ret.filter((repo) => repo !== null);
     if (err.length !== 0) {
         console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
         err.map((err) => console.log(err));
         sentence = `\n${yellow("There were errors during the clone, do you want continue ?")}`;
         await question(sentence);
+    }
+
+    // Check update on existing repositories
+    for await (const { name, updated_at } of remote) {
+        if (!reposLocalSet.has(name.toLowerCase())) {
+            continue;
+        }
+        const commit = await git.log({ gitdir: join(CWD, name, ".git"), depth: 1, ref: "master" });
+        console.log(commit);
     }
 }
 
