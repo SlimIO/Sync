@@ -155,7 +155,7 @@ async function main() {
     const sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
     const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
     const spin = new Spinner({
-        prefixText: "Pull master from GitHub for each repository", 
+        prefixText: "Pull master from GitHub for each repository",
         spinner: "dots"
     });
 
