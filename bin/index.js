@@ -108,8 +108,7 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
 
     // Valid path
-    let sentence = `Do you want execut Sync in ${CWD} ?`;
-    await question(sentence);
+    await question(`Do you want execut Sync in ${CWD} ?`);
 
     const GITHUB_ORGA = process.env.GITHUB_ORGA;
     const token = envFileExist();
@@ -141,8 +140,7 @@ async function main() {
     if (err.length !== 0) {
         console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
         err.map((err) => console.log(err));
-        sentence = "\nThere were errors during the clone, do you want continue ?";
-        await question(sentence);
+        await question("\nThere were errors during the clone, do you want continue ?");
     }
 
     // Check update on existing repositories
