@@ -26,6 +26,7 @@
         "@slimio/async-cli-spinner": "^0.1.6",
         "@slimio/github": "^0.5.0",
         "@slimio/lock": "^0.1.0",
+        "httpie": "^1.1.2",
         "isomorphic-git": "^0.55.2",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
