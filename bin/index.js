@@ -21,6 +21,7 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Constants
 const CWD = process.cwd();
+const GITHUB_ORGA = process.env.GITHUB_ORGA;
 
 /**
  * @async
@@ -106,34 +107,28 @@ async function reposLocalFiltered() {
 
 async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
-
-    // Valid path
     await question(`Do you want execut Sync in ${CWD} ?`);
 
-    const GITHUB_ORGA = process.env.GITHUB_ORGA;
-    const token = envFileExist();
-    const spinner = new Spinner({ prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`), spinner: "dots" });
-    spinner.start("Work");
+    const spinner = new Spinner({ 
+        prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`),
+        spinner: "dots"
+    }).start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
-        repos(GITHUB_ORGA, token),
+        repos(GITHUB_ORGA, envFileExist()),
         reposLocalFiltered()
     ]);
-    // const log = remote.filter((repos, index) => repos.name === "Sync");
-    // console.log(log);
-    // process.exit(1);
     spinner.succeed(`${remote.length} repositories found ==> \n\n`);
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName));
+        .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        // .filter((repo) => repo.length <= 3);
+        .filter((repo) => repo.length <= 3);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
     );
-    // const ret = [];
 
     // Display errors
     const err = ret.filter((repo) => repo !== null);
@@ -158,8 +153,11 @@ async function main() {
 
     sentence = `\n- ${repoNoUpdate.join(n())}\n\nThe above repoitories doesn't update. Do you want update them ?}`;
     const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
-    const spin = new Spinner({ prefixText: "Pull master from GitHub for each repository", spinner: "dots" });
-    spin.start("Wait");
+    const spin = new Spinner({
+        prefixText: "Pull master from GitHub for each repository", 
+        spinner: "dots"
+    }).start("Wait");
+
     if (updateOrNot) {
         await Promise.all(
             repoNoUpdate.map((repoName) => pull(repoName))
