@@ -15,20 +15,22 @@ const Lock = require("@slimio/lock");
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const lockerDep = new Lock({ max: 3 });
 const lockerPull = new Lock({ max: 8 });
+const GITHUB_ORGA = process.env.GITHUB_ORGA;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const _URL = `https://github.com/${GITHUB_ORGA}/`;
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
 
 /**
- * @func envFileExist
+ * @func getToken
  * @desc Check if .env exist and if there is a github token.
  * @returns {{}|{token:String}}
  */
-function envFileExist() {
+function getToken() {
     const envExist = existsSync(join(__dirname, "..", ".env"));
-    const envToken = process.env.GITHUB_TOKEN;
 
-    return envExist && envToken !== undefined ? { token: envToken } : {};
+    return envExist && GITHUB_TOKEN !== undefined ? { token: GITHUB_TOKEN } : {};
 }
 
 /**
@@ -37,18 +39,21 @@ function envFileExist() {
  * @desc Clone & pull master
  * @param {!string} repo Name of the repository
  * @param {!number} index Numero of the repository
- * @returns {string}
+ * @returns {Promise<string|null>}
  */
 async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, repoName);
-    const url = `https://github.com/${process.env.ORGA}/${repoName}`;
-    const spinner = new Spinner({ prefixText: cyan().bold(`${index + 1}. ${repoName}`), spinner: "dots" });
+    const url = `${_URL}${repoName}`;
+    const spinner = new Spinner({
+        prefixText: cyan().bold(`${index + 1}. ${repoName}`),
+        spinner: "dots"
+    });
     const optsClone = Object.assign({
         dir, url,
         singleBranch: true,
         oauth2format: "github"
-    }, envFileExist());
+    }, getToken());
     const optsPull = Object.assign(optsClone, { ref: "master" });
     const free = await lockerDep.lock();
 
@@ -81,7 +86,7 @@ async function cloneRepo(repo, index) {
  * @async
  * @func pkgLockExist
  * @desc Verify if package-lock exist in the directory
- * @returns {string}
+ * @returns {Promise<string>}
  */
 async function pkgLockExist() {
     try {
@@ -99,7 +104,7 @@ async function pkgLockExist() {
  * @func log
  * @desc Log local commits
  * @param {!String} name Name of the repository
- * @returns {number}
+ * @returns {Promise<number>}
  */
 async function log(name) {
     const { committer: { timestamp } } = (await git.log({
@@ -116,19 +121,32 @@ async function log(name) {
  * @func pull
  * @desc Pull from gitHub
  * @param {!String} repoName Name of the repository
- * @returns {void}
+ * @param {Boolean} needSpin Need spinner or not
+ * @returns {Promise<void>}
  */
-async function pull(repoName) {
+async function pull(repoName, needSpin) {
+    let spinner;
     const free = await lockerPull.lock();
     const dir = join(CWD, repoName);
-    const url = `https://github.com/${process.env.ORGA}/${repoName}`;
+    const url = `${_URL}${repoName}`;
     const optsPull = Object.assign({
         dir, url,
         singleBranch: true,
         ref: "master"
-    }, envFileExist());
+    }, getToken());
+
+    if (needSpin) {
+        spinner = new Spinner({
+            prefixText: cyan().bold(`${index + 1}. ${repoName}`),
+            spinner: "dots"
+        });
+        spinner.start("Pull master from GitHub");
+    }
 
     await git.pull(optsPull);
+    if (needSpin) {
+        spinner.succeed("OK");
+    }
     free();
 }
 
@@ -137,7 +155,7 @@ async function pull(repoName) {
  * @func npmInstall
  * @desc Spawn a new node cmd
  * @param {!string} dir Path of the directory
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function npmInstall(dir) {
     const cmd = await pkgLockExist();
@@ -149,4 +167,4 @@ async function npmInstall(dir) {
     });
 }
 
-module.exports = { cloneRepo, envFileExist, log, pull };
+module.exports = { cloneRepo, getToken, log, pull };

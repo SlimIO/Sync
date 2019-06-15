@@ -13,7 +13,7 @@ const qoa = require("qoa");
 const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
-const { cloneRepo, envFileExist, log, pull } = require("../src/utils");
+const { cloneRepo, getToken, log, pull } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -109,13 +109,14 @@ async function main() {
     console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
     await question(`Do you want execut Sync in ${CWD} ?`);
 
-    const spinner = new Spinner({ 
+    const spinner = new Spinner({
         prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`),
         spinner: "dots"
-    }).start("Work");
+    });
+    spinner.start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
-        repos(GITHUB_ORGA, envFileExist()),
+        repos(GITHUB_ORGA, getToken()),
         reposLocalFiltered()
     ]);
     spinner.succeed(`${remote.length} repositories found ==> \n\n`);
@@ -151,14 +152,15 @@ async function main() {
         }
     }
 
-    sentence = `\n- ${repoNoUpdate.join(n())}\n\nThe above repoitories doesn't update. Do you want update them ?}`;
+    const sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
     const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
     const spin = new Spinner({
         prefixText: "Pull master from GitHub for each repository", 
         spinner: "dots"
-    }).start("Wait");
+    });
 
     if (updateOrNot) {
+        spin.start("Wait");
         await Promise.all(
             repoNoUpdate.map((repoName) => pull(repoName))
         );
