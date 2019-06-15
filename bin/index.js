@@ -111,13 +111,13 @@ async function main() {
     let sentence = `Do you want execut Sync in ${CWD} ?`;
     await question(sentence);
 
-    const orga = process.env.ORGA;
+    const GITHUB_ORGA = process.env.GITHUB_ORGA;
     const token = envFileExist();
-    const spinner = new Spinner({ prefixText: cyan().bold(`Search repositories for ${orga}`), spinner: "dots" });
+    const spinner = new Spinner({ prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`), spinner: "dots" });
     spinner.start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
-        repos(orga, token),
+        repos(GITHUB_ORGA, token),
         reposLocalFiltered()
     ]);
     // const log = remote.filter((repos, index) => repos.name === "Sync");
