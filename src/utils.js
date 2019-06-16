@@ -90,7 +90,7 @@ async function cloneRepo(repo, index) {
  */
 async function fileExist(dir, fileName) {
     try {
-        await access(join(dir, "package-lock.json"));
+        await access(join(dir, fileName));
 
         return "ci";
     }
@@ -165,7 +165,7 @@ async function pull(repoName, needSpin = false) {
  * @returns {Promise<void>}
  */
 async function npmInstall(dir) {
-    const cmd = await fileExist(dir);
+    const cmd = await fileExist(dir, "package-lock.json") ? "ci" : "install";
 
     await new Promise((resolve, reject) => {
         const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { cwd: dir, stdio: "pipe" });
