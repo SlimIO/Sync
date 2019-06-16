@@ -123,9 +123,9 @@ async function main() {
 
     const reposRemoteArray = remote
         .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName))
+        .filter((repoName) => !reposLocalSet.has(repoName));
         // For tests
-        .filter((repo) => repo.length <= 3);
+        // .filter((repo) => repo.length <= 3);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
@@ -152,19 +152,22 @@ async function main() {
         }
     }
 
-    const sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
-    const updateOrNot = repoNoUpdate.length === 0 ? false : await question(sentence, "force");
-    const spin = new Spinner({
-        prefixText: "Pull master from GitHub for each repository",
-        spinner: "dots"
-    });
+    pullRepositories : if (repoNoUpdate.length > 0) {
+        const sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
+        const force = await question(sentence, "force");
+        if (!force) {
+            break pullRepositories;
+        }
 
-    if (updateOrNot) {
+        const spin = new Spinner({
+            prefixText: "Pull master from GitHub for each repository",
+            spinner: "dots"
+        });
         spin.start("Wait");
         await Promise.all(
-            repoNoUpdate.map((repoName) => pull(repoName))
+            repoNoUpdate.map((repoName) => pull(repoName, true))
         );
-        spin.succeed("\nPull OK\n");
+        spin.succeed("Pull OK");
     }
 }
 

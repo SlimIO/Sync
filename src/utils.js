@@ -69,13 +69,13 @@ async function cloneRepo(repo, index) {
         // spinner.text = "Installing dependencies";
         // await npmInstall(dir);
 
-        spinner.succeed();
+        spinner.succeed("Ok");
         free();
 
         return null;
     }
     catch ({ message }) {
-        spinner.failed();
+        spinner.failed("Failed");
         free();
 
         return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
@@ -107,13 +107,13 @@ async function pkgLockExist() {
  * @returns {Promise<number>}
  */
 async function log(name) {
-    const { committer: { timestamp } } = (await git.log({
+    const [firstCommit] = await git.log({
         gitdir: join(CWD, name, ".git"),
         depth: 1,
         ref: "master"
-    }))[0];
+    });
 
-    return timestamp;
+    return firstCommit.committer.timestamp;
 }
 
 /**
@@ -124,7 +124,7 @@ async function log(name) {
  * @param {Boolean} needSpin Need spinner or not
  * @returns {Promise<void>}
  */
-async function pull(repoName, needSpin) {
+async function pull(repoName, needSpin = false) {
     let spinner;
     const free = await lockerPull.lock();
     const dir = join(CWD, repoName);
@@ -137,17 +137,23 @@ async function pull(repoName, needSpin) {
 
     if (needSpin) {
         spinner = new Spinner({
-            prefixText: cyan().bold(`${index + 1}. ${repoName}`),
+            prefixText: cyan().bold(`${repoName}`),
             spinner: "dots"
         });
         spinner.start("Pull master from GitHub");
     }
 
-    await git.pull(optsPull);
-    if (needSpin) {
-        spinner.succeed("OK");
+    try {
+        await git.pull(optsPull);
+        if (needSpin) {
+            spinner.succeed("OK");
+        }
+        free();
     }
-    free();
+    catch (error) {
+        free();
+        spinner.failed(`Failed - ${error.message}`);
+    }
 }
 
 /**
