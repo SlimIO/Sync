@@ -22,6 +22,7 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 // Constants
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
+const EXCLUDES_REPOS = new Set(["governance", "n-api-ci"]);
 
 /**
  * @async
@@ -119,22 +120,24 @@ async function main() {
         repos(GITHUB_ORGA, getToken()),
         reposLocalFiltered()
     ]);
+    for (const repo of remote) {
+        repo.name = repo.name.toLowerCase();
+    }
 
-    const removeNAPI = await Promise.all(
+    const searchNAPI = await Promise.all(
         remote.map(readTomlRemote)
     );
-    reposLocalSet.has(removeNAPI.filter((repo) => repos !== null));
-
-    console.log(removeNAPI);
-    process.exit(1)
+    searchNAPI.filter((repo) => repo !== null)
+        .map((repo) => repo)
+        .map((repo) => EXCLUDES_REPOS.add(repo));
 
     const testUNIX = RegExp("nix", "i");
     const reposRemoteArray = remote
-        .filter(({ name, archived }) => !testUNIX.test(name) && !archived && !reposLocalSet.has(name.toLowerCase()))
-        .map(({ name }) => name.toLowerCase())
-        // .filter((repoName) => !reposLocalSet.has(repoName))
+        .filter(({ name, archived }) => !testUNIX.test(name) && !archived)
+        .filter(({ name }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name))
+        .map(({ name }) => name);
         // For tests
-        .filter((repo) => repo.length <= 3);
+        // .filter((repo) => repo.length <= 3);
     spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n\n`);
 
     const ret = await Promise.all(

@@ -184,20 +184,21 @@ async function readTomlRemote(remote) {
     try {
         const { data } = await http.get(URL, {
             headers: {
-                "User-Agent": "SlimIO",
+                "User-Agent": GITHUB_ORGA,
                 Authorization: `token ${GITHUB_TOKEN}`,
                 Accept: "application/vnd.github.v3.raw"
             }
         });
-        if (regEx.test(data)) {
-            return null;
-        }
 
-        return name;
+        if (regEx.test(data)) {
+            return name;
+        }
     }
     catch (error) {
         return null;
     }
+
+    return null;
 }
 
 module.exports = { cloneRepo, getToken, log, pull, readTomlRemote };
