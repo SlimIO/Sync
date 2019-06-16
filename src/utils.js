@@ -145,14 +145,12 @@ async function pull(repoName, needSpin = false) {
 
     try {
         await git.pull(optsPull);
-        if (needSpin) {
-            spinner.succeed("OK");
-        }
+        if (needSpin) spinner.succeed("OK");
         free();
     }
     catch (error) {
+        if (needSpin) spinner.failed(`Failed - ${error.message}`);
         free();
-        spinner.failed(`Failed - ${error.message}`);
     }
 }
 
