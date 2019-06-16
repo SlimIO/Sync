@@ -13,7 +13,7 @@ const qoa = require("qoa");
 const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
-const { cloneRepo, getToken, log, pull } = require("../src/utils");
+const { cloneRepo, getToken, log, pull, readTomlRemote } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -119,6 +119,14 @@ async function main() {
         repos(GITHUB_ORGA, getToken()),
         reposLocalFiltered()
     ]);
+
+    const removeNAPI = await Promise.all(
+        remote.map(readTomlRemote)
+    );
+    reposLocalSet.has(removeNAPI.filter((repo) => repos !== null));
+
+    console.log(removeNAPI);
+    process.exit(1)
 
     const testUNIX = RegExp("nix", "i");
     const reposRemoteArray = remote

@@ -10,6 +10,7 @@ const Spinner = require("@slimio/async-cli-spinner");
 const { cyan, red, green } = require("kleur");
 const { get } = require("node-emoji");
 const Lock = require("@slimio/lock");
+const http = require("httpie");
 
 // Constant
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
@@ -45,6 +46,7 @@ async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, repoName);
     const url = `${_URL}${repoName}`;
+
     const optsClone = Object.assign({
         dir, url,
         singleBranch: true,
@@ -92,10 +94,10 @@ async function fileExist(dir, fileName) {
     try {
         await access(join(dir, fileName));
 
-        return "ci";
+        return true;
     }
     catch (error) {
-        return "install";
+        return false;
     }
 }
 
@@ -174,4 +176,28 @@ async function npmInstall(dir) {
     });
 }
 
-module.exports = { cloneRepo, getToken, log, pull };
+async function readTomlRemote(remote) {
+    const { name } = remote;
+    const regEx = RegExp("napi", "i");
+    const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
+
+    try {
+        const { data } = await http.get(URL, {
+            headers: {
+                "User-Agent": "SlimIO",
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3.raw"
+            }
+        });
+        if (regEx.test(data)) {
+            return null;
+        }
+
+        return name;
+    }
+    catch (error) {
+        return null;
+    }
+}
+
+module.exports = { cloneRepo, getToken, log, pull, readTomlRemote };
