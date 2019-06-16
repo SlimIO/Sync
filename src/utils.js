@@ -38,28 +38,26 @@ function getToken() {
  * @func cloneRepo
  * @desc Clone & pull master
  * @param {!string} repo Name of the repository
- * @param {!number} index Numero of the repository
+ * @param {number} index Numero of the repository
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, repoName);
     const url = `${_URL}${repoName}`;
-    const spinner = new Spinner({
-        prefixText: cyan().bold(`${index + 1}. ${repoName}`),
-        spinner: "dots"
-    });
     const optsClone = Object.assign({
         dir, url,
         singleBranch: true,
         oauth2format: "github"
     }, getToken());
-    const optsPull = Object.assign(optsClone, { ref: "master" });
     const free = await lockerDep.lock();
 
     try {
+        const spinner = new Spinner({
+            prefixText: cyan().bold(`${index + 1}. ${repoName}`),
+            spinner: "dots"
+        });
         spinner.start();
-
         spinner.text = "Cloning from GitHub";
         await git.clone(optsClone);
 
@@ -84,11 +82,13 @@ async function cloneRepo(repo, index) {
 
 /**
  * @async
- * @func pkgLockExist
+ * @func fileExist
  * @desc Verify if package-lock exist in the directory
+ * @param {!string} dir Path of the file
+ * @param {!string} fileName Name of the file
  * @returns {Promise<string>}
  */
-async function pkgLockExist() {
+async function fileExist(dir, fileName) {
     try {
         await access(join(dir, "package-lock.json"));
 
@@ -139,17 +139,20 @@ async function pull(repoName, needSpin = false) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`),
             spinner: "dots"
-        });
-        spinner.start("Pull master from GitHub");
+        }).start("Pull master from GitHub");
     }
 
     try {
         await git.pull(optsPull);
-        if (needSpin) spinner.succeed("OK");
+        if (needSpin) {
+            spinner.succeed("OK");
+        }
         free();
     }
     catch (error) {
-        if (needSpin) spinner.failed(`Failed - ${error.message}`);
+        if (needSpin) {
+            spinner.failed(`Failed - ${error.message}`);
+        }
         free();
     }
 }
@@ -162,7 +165,7 @@ async function pull(repoName, needSpin = false) {
  * @returns {Promise<void>}
  */
 async function npmInstall(dir) {
-    const cmd = await pkgLockExist();
+    const cmd = await fileExist(dir);
 
     await new Promise((resolve, reject) => {
         const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { cwd: dir, stdio: "pipe" });

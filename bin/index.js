@@ -119,13 +119,15 @@ async function main() {
         repos(GITHUB_ORGA, getToken()),
         reposLocalFiltered()
     ]);
-    spinner.succeed(`${remote.length} repositories found ==> \n\n`);
 
+    const testUNIX = RegExp("nix", "i");
     const reposRemoteArray = remote
-        .map((repo) => repo.name.toLowerCase())
-        .filter((repoName) => !reposLocalSet.has(repoName));
+        .filter(({ name, archived }) => !testUNIX.test(name) && !archived && !reposLocalSet.has(name.toLowerCase()))
+        .map(({ name }) => name.toLowerCase())
+        // .filter((repoName) => !reposLocalSet.has(repoName))
         // For tests
-        // .filter((repo) => repo.length <= 3);
+        .filter((repo) => repo.length <= 3);
+    spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n\n`);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
@@ -162,8 +164,7 @@ async function main() {
         const spin = new Spinner({
             prefixText: "Pull master from GitHub for each repository",
             spinner: "dots"
-        });
-        spin.start("Wait");
+        }).start("Wait");
         await Promise.all(
             repoNoUpdate.map((repoName) => pull(repoName, true))
         );
