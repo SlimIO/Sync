@@ -2,15 +2,13 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { existsSync, promises: { readdir, readFile, stat, access } } = require("fs");
-const fs = require("fs");
+const { readdir, stat, access } = require("fs").promises;
 
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
-const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
 const { cloneRepo, getToken, logRepoLocAndRemote,
@@ -110,10 +108,6 @@ async function main() {
         repo.name = repo.name.toLowerCase();
     });
 
-    for (const { name, archived } of remote) {
-        console.log(name, archived);
-    }
-    process.exit(1)
     const searchNAPI = await Promise.all(
         remote.map(readTomlRemote)
     );
@@ -171,6 +165,9 @@ async function main() {
             repoNoUpdateFiltered.map((repoName) => pullMaster(repoName, true))
         );
     }
+
+    // Npm outdated
+
 }
 
 main().catch(console.error);

@@ -14,8 +14,8 @@ const http = require("httpie");
 
 // Constant
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
-const lockerDep = new Lock({ max: 3 });
-const lockerPull = new Lock({ max: 8 });
+const LOCKER_DEP_DL = new Lock({ max: 3 });
+const LOCKER_PULL_MASTER = new Lock({ max: 8 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const _URL = `https://github.com/${GITHUB_ORGA}/`;
@@ -52,7 +52,7 @@ async function cloneRepo(repo, index) {
         singleBranch: true,
         oauth2format: "github"
     }, getToken());
-    const free = await lockerDep.lock();
+    const free = await LOCKER_DEP_DL.lock();
 
     try {
         const spinner = new Spinner({
@@ -106,7 +106,7 @@ async function fileExist(dir, fileName) {
  * @func logRepoLocAndRemote
  * @desc Log local commits
  * @param {!String} repoName Name of the repository
- * @returns {Promise<number>}
+ * @returns {Promise<string|Boolean>}
  */
 async function logRepoLocAndRemote(repoName) {
     try {
@@ -154,7 +154,7 @@ async function logRepoLocAndRemote(repoName) {
  */
 async function pullMaster(repoName, needSpin = false) {
     let spinner;
-    const free = await lockerPull.lock();
+    const free = await LOCKER_PULL_MASTER.lock();
     const dir = join(CWD, repoName);
     const url = `${_URL}${repoName}`;
     const optsPull = Object.assign({
