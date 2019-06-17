@@ -103,12 +103,12 @@ async function fileExist(dir, fileName) {
 
 /**
  * @async
- * @func log
+ * @func logRepoLocAndRemote
  * @desc Log local commits
  * @param {!String} name Name of the repository
  * @returns {Promise<number>}
  */
-async function log(name) {
+async function logRepoLocAndRemote(name) {
     const [firstCommit] = await git.log({
         gitdir: join(CWD, name, ".git"),
         depth: 1,
@@ -126,7 +126,7 @@ async function log(name) {
  * @param {Boolean} needSpin Need spinner or not
  * @returns {Promise<void>}
  */
-async function pull(repoName, needSpin = false) {
+async function pullMaster(repoName, needSpin = false) {
     let spinner;
     const free = await lockerPull.lock();
     const dir = join(CWD, repoName);
@@ -212,4 +212,4 @@ async function readTomlRemote(remote) {
     return false;
 }
 
-module.exports = { cloneRepo, getToken, log, pull, readTomlRemote };
+module.exports = { cloneRepo, getToken, logRepoLocAndRemote, pullMaster, readTomlRemote };

@@ -13,7 +13,8 @@ const qoa = require("qoa");
 const Lock = require("@slimio/lock");
 
 // Require Internal Dependencies
-const { cloneRepo, getToken, log, pull, readTomlRemote } = require("../src/utils");
+const { cloneRepo, getToken, logRepoLocAndRemote,
+    pullMaster, readTomlRemote } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
