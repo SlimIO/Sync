@@ -118,22 +118,30 @@ async function logRepoLocAndRemote(repoName) {
                 Accept: "application/vnd.github.v3.raw"
             }
         });
-
         const [firstCommitLocal] = await git.log({
             gitdir: join(CWD, repoName, ".git"),
             depth: 1,
             ref: "master"
         });
+        const { sha, commit } = firstCommitRemote;
+        const { oid, committer } = firstCommitLocal;
 
-        if (firstCommitRemote.sha === firstCommitLocal.oid) {
-            return `${repoName} est à jour`;
+        // Equal commit, update OK
+        if (sha === oid) {
+            return false;
         }
+
+        // Date local repo > date remote repo, update OK
+        if (committer.timestamp > Date.parse(commit.committer.date) / 1000) {
+            return false;
+        }
+
+        // No update
+        return repoName;
     }
     catch (error) {
-        return `Error ==> ${error.message}`;
+        return `${repoName} - Error ==> ${error.message}`;
     }
-
-    return null;
 }
 
 /**

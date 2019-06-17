@@ -154,11 +154,18 @@ async function main() {
     }
 
     // Check update on existing repositories
+    const spin = new Spinner({
+        prefixText: "Search update for local repositories.",
+        spinner: "dots"
+    });
+    spin.start("Wait");
+
     reposLocalArray = [];
-    reposLocalSet.forEach((repo) => reposRemoteArray.push(repo));
+    reposLocalSet.forEach((repo) => reposLocalArray.push(repo));
     const repoNoUpdate = await Promise.all(
         reposLocalArray.map(logRepoLocAndRemote)
     );
+    spin.succeed();
     console.log(repoNoUpdate, "exit process");
     process.exit(1);
     // repoNoUpdateFiltered = repoNoUpdate.filter((name) => name !== false);
