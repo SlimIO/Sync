@@ -163,14 +163,9 @@ async function main() {
             break pullRepositories;
         }
 
-        const spin = new Spinner({
-            prefixText: cyan().bold("Pull master from GitHub for each repository"),
-            spinner: "dots"
-        }).start("Wait");
         await Promise.all(
             repoNoUpdateFiltered.map((repoName) => pullMaster(repoName, true))
         );
-        spin.succeed("Pull OK");
     }
 }
 
