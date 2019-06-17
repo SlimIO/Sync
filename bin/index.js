@@ -154,20 +154,28 @@ async function main() {
     }
 
     // Check update on existing repositories
-    const repoNoUpdate = [];
-    for (const { name, updated_at } of remote) {
-        if (!reposLocalSet.has(name.toLowerCase())) {
-            continue;
-        }
-        const timestamp = await log(name);
+    reposLocalArray = [];
+    reposLocalSet.forEach((repo) => reposRemoteArray.push(repo));
+    const repoNoUpdate = await Promise.all(
+        reposLocalArray.map(logRepoLocAndRemote)
+    );
+    console.log(repoNoUpdate, "exit process");
+    process.exit(1);
+    // repoNoUpdateFiltered = repoNoUpdate.filter((name) => name !== false);
+    // for (const { name, updated_at } of remote) {
+    //     if (!reposLocalSet.has(name.toLowerCase())) {
+    //         continue;
+    //     }
+    //     const timestamp = await log(name);
 
-        if (!compareDates(new Date(updated_at), new Date(timestamp * 1000), name)) {
-            repoNoUpdate.push(name);
-        }
-    }
+    //     if (!compareDates(new Date(updated_at), new Date(timestamp * 1000), name)) {
+    //         repoNoUpdate.push(name);
+    //     }
+    // }
 
-    pullRepositories : if (repoNoUpdate.length > 0) {
-        const sentence = `\n- ${repoNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
+
+    pullRepositories : if (repoNoUpdateFiltered.length > 0) {
+        const sentence = `\n- ${repoNoUpdateFiltered.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
         const force = await question(sentence, "force");
         if (!force) {
             break pullRepositories;
@@ -178,7 +186,7 @@ async function main() {
             spinner: "dots"
         }).start("Wait");
         await Promise.all(
-            repoNoUpdate.map((repoName) => pull(repoName, true))
+            repoNoUpdateFiltered.map((repoName) => pull(repoName, true))
         );
         spin.succeed("Pull OK");
     }

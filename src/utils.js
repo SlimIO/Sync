@@ -64,7 +64,7 @@ async function cloneRepo(repo, index) {
         await git.clone(optsClone);
 
         spinner.text = "Pull master from GitHub";
-        await pull(repoName);
+        await pullMaster(repoName);
 
         // spinner.text = "Installing dependencies";
         // await npmInstall(dir);
@@ -105,22 +105,40 @@ async function fileExist(dir, fileName) {
  * @async
  * @func logRepoLocAndRemote
  * @desc Log local commits
- * @param {!String} name Name of the repository
+ * @param {!String} repoName Name of the repository
  * @returns {Promise<number>}
  */
-async function logRepoLocAndRemote(name) {
-    const [firstCommit] = await git.log({
-        gitdir: join(CWD, name, ".git"),
-        depth: 1,
-        ref: "master"
-    });
+async function logRepoLocAndRemote(repoName) {
+    try {
+        const URL = `https://api.github.com/repos/${GITHUB_ORGA}/${repoName}/commits`;
+        const { data: [firstCommitRemote] } = await http.get(URL, {
+            headers: {
+                "User-Agent": GITHUB_ORGA,
+                Authorization: `token ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3.raw"
+            }
+        });
 
-    return firstCommit.committer.timestamp;
+        const [firstCommitLocal] = await git.log({
+            gitdir: join(CWD, repoName, ".git"),
+            depth: 1,
+            ref: "master"
+        });
+
+        if (firstCommitRemote.sha === firstCommitLocal.oid) {
+            return `${repoName} est à jour`;
+        }
+    }
+    catch (error) {
+        return `Error ==> ${error.message}`;
+    }
+
+    return null;
 }
 
 /**
  * @async
- * @func pull
+ * @func pullMaster
  * @desc Pull from gitHub
  * @param {!String} repoName Name of the repository
  * @param {Boolean} needSpin Need spinner or not
