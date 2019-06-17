@@ -7,7 +7,7 @@ const { spawn } = require("child_process");
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
 const Spinner = require("@slimio/async-cli-spinner");
-const { cyan, red, green } = require("kleur");
+const { cyan, red } = require("kleur");
 const { get } = require("node-emoji");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
