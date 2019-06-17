@@ -174,7 +174,7 @@ async function pullMaster(repoName, needSpin = false) {
     try {
         await git.pull(optsPull);
         if (needSpin) {
-            spinner.succeed("OK");
+            spinner.succeed("Pull master OK");
         }
         free();
     }

@@ -106,10 +106,14 @@ async function main() {
         repos(GITHUB_ORGA, getToken()),
         reposLocalFiltered()
     ]);
-    for (const repo of remote) {
+    remote.forEach((repo) => {
         repo.name = repo.name.toLowerCase();
-    }
+    });
 
+    for (const { name, archived } of remote) {
+        console.log(name, archived);
+    }
+    process.exit(1)
     const searchNAPI = await Promise.all(
         remote.map(readTomlRemote)
     );
@@ -124,7 +128,7 @@ async function main() {
         .map(({ name }) => name);
         // For tests
         // .filter((repo) => repo.length <= 3);
-    spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n\n`);
+    spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n`);
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
@@ -151,7 +155,7 @@ async function main() {
         reposLocalArray.map(logRepoLocAndRemote)
     );
     repoNoUpdateFiltered = repoNoUpdate.filter((repoName) => repoName !== false);
-    spin.succeed();
+    spin.succeed(`${repoNoUpdateFiltered.length} found\n`);
 
     pullRepositories : if (repoNoUpdateFiltered.length > 0) {
         const sentence = [
