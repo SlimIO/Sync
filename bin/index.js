@@ -12,7 +12,7 @@ const qoa = require("qoa");
 
 // Require Internal Dependencies
 const { cloneRepo, getToken, logRepoLocAndRemote,
-    pullMaster, readTomlRemote } = require("../src/utils");
+    pullMaster, readTomlRemote, npmOutdated } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -49,7 +49,7 @@ async function getSlimioToml(dir) {
  * @param {string} force Allows not exit even in case of negative respone
  * @returns {void|boolean}
  */
-async function question(sentence, force) {
+async function question(sentence, force = false) {
     const confirm = { type: "confirm",
         accept: "y",
         deny: "n",
@@ -57,7 +57,7 @@ async function question(sentence, force) {
         query: yellow(sentence)
     };
 
-    const { validQuestion } = await qoa.prompt([Object.assign(confirm, question)]);
+    const { validQuestion } = await qoa.prompt([confirm]);
 
     if (force) {
         return validQuestion;
@@ -119,9 +119,9 @@ async function main() {
     const reposRemoteArray = remote
         .filter(({ name, archived }) => !testUNIX.test(name) && !archived)
         .filter(({ name }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name))
-        .map(({ name }) => name);
+        .map(({ name }) => name)
         // For tests
-        // .filter((repo) => repo.length <= 3);
+        .filter((repo) => repo.length <= 3);
     spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n`);
 
     const ret = await Promise.all(
@@ -167,7 +167,13 @@ async function main() {
     }
 
     // Npm outdated
+    const reposArray = await readdir(CWD);
+    console.log(reposArray);
+    const outDated = await Promise.all(
+        reposArray.map(npmOutdated)
+    );
 
+    console.log("outDated", "prout");
 }
 
 main().catch(console.error);

@@ -2,7 +2,7 @@
 const { join } = require("path");
 const fs = require("fs");
 const { existsSync, promises: { access } } = require("fs");
-const { spawn } = require("child_process");
+const { spawn, spawnSync } = require("child_process");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
@@ -16,6 +16,7 @@ const http = require("httpie");
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const LOCKER_DEP_DL = new Lock({ max: 3 });
 const LOCKER_PULL_MASTER = new Lock({ max: 8 });
+const LOCKER_SPAWN_OUTDATED = new Lock({ max: 20 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const _URL = `https://github.com/${GITHUB_ORGA}/`;
@@ -203,6 +204,19 @@ async function npmInstall(dir) {
     });
 }
 
+async function npmOutdated(repoName) {
+    // const free = await LOCKER_SPAWN_OUTDATED.lock();
+    const retStdOut = [];
+    const outDated = await new Promise((resolve, reject) => {
+        const ls = spawn(`npm${EXEC_SUFFIX}`, ["outdated", ["--json"]], { cwd: join(CWD, repoName), stdio: "inherit" });
+        ls.stdout.on("data", retStdOut.push);
+        ls.once("close", resolve);
+    });
+    // free();
+
+    return outDated.toString();
+}
+
 /**
  * @typedef {Object} infosRepo
  * @property {string} name Name of repository
@@ -216,7 +230,7 @@ async function npmInstall(dir) {
  */
 async function readTomlRemote(remote) {
     const { name } = remote;
-    const regEx = RegExp("napi", "i");
+    const regEx = /napi/i;
     const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
 
     try {
@@ -239,4 +253,4 @@ async function readTomlRemote(remote) {
     return false;
 }
 
-module.exports = { cloneRepo, getToken, logRepoLocAndRemote, pullMaster, readTomlRemote };
+module.exports = { cloneRepo, getToken, logRepoLocAndRemote, pullMaster, readTomlRemote, npmOutdated };
