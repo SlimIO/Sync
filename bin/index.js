@@ -44,21 +44,6 @@ async function getSlimioToml(dir) {
 }
 
 /**
- * @func compareDates
- * @desc Compare the two date passed in arguments
- * @param {!Date} date1 First date
- * @param {!Date} date2 Second date
- * @returns {boolean}
- */
-function compareDates(date1, date2) {
-    const day = date1.getDate() === date2.getDate();
-    const hours = date1.getHours() === date2.getHours();
-    const minutes = date1.getMinutes() === date2.getMinutes();
-
-    return day && hours && minutes;
-}
-
-/**
  * @async
  * @func question
  * @desc Question for the dev
@@ -183,7 +168,7 @@ async function main() {
             spinner: "dots"
         }).start("Wait");
         await Promise.all(
-            repoNoUpdateFiltered.map((repoName) => pull(repoName, true))
+            repoNoUpdateFiltered.map((repoName) => pullMaster(repoName, true))
         );
         spin.succeed("Pull OK");
     }

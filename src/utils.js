@@ -167,7 +167,8 @@ async function pullMaster(repoName, needSpin = false) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`),
             spinner: "dots"
-        }).start("Pull master from GitHub");
+        });
+        spinner.start("Pull master from GitHub");
     }
 
     try {
