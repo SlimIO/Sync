@@ -155,7 +155,7 @@ async function main() {
 
     // Check update on existing repositories
     const spin = new Spinner({
-        prefixText: "Search update for local repositories.",
+        prefixText: cyan().bold("Search update for local repositories."),
         spinner: "dots"
     });
     spin.start("Wait");
@@ -165,31 +165,21 @@ async function main() {
     const repoNoUpdate = await Promise.all(
         reposLocalArray.map(logRepoLocAndRemote)
     );
+    repoNoUpdateFiltered = repoNoUpdate.filter((repoName) => repoName !== false);
     spin.succeed();
-    console.log(repoNoUpdate, "exit process");
-    process.exit(1);
-    // repoNoUpdateFiltered = repoNoUpdate.filter((name) => name !== false);
-    // for (const { name, updated_at } of remote) {
-    //     if (!reposLocalSet.has(name.toLowerCase())) {
-    //         continue;
-    //     }
-    //     const timestamp = await log(name);
-
-    //     if (!compareDates(new Date(updated_at), new Date(timestamp * 1000), name)) {
-    //         repoNoUpdate.push(name);
-    //     }
-    // }
-
 
     pullRepositories : if (repoNoUpdateFiltered.length > 0) {
-        const sentence = `\n- ${repoNoUpdateFiltered.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`;
+        const sentence = [
+            `\n- ${repoNoUpdateFiltered.join("\n- ")}\n\n`,
+            "The above repoitories doesn't update. Do you want update them ?`"
+        ].join("");
         const force = await question(sentence, "force");
         if (!force) {
             break pullRepositories;
         }
 
         const spin = new Spinner({
-            prefixText: "Pull master from GitHub for each repository",
+            prefixText: cyan().bold("Pull master from GitHub for each repository"),
             spinner: "dots"
         }).start("Wait");
         await Promise.all(
