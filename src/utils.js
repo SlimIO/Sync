@@ -176,6 +176,17 @@ async function npmInstall(dir) {
     });
 }
 
+/**
+ * @typedef {Object} infosRepo
+ * @property {string} name Name of repository
+ */
+/**
+ * @async
+ * @func readTomlRemote
+ * @desc Request slimio.toml remote repos and search NAPI project
+ * @param {infosRepo} remote Infos repository
+ * @returns {Promise<string|boolean>}
+ */
 async function readTomlRemote(remote) {
     const { name } = remote;
     const regEx = RegExp("napi", "i");
@@ -195,10 +206,10 @@ async function readTomlRemote(remote) {
         }
     }
     catch (error) {
-        return null;
+        return false;
     }
 
-    return null;
+    return false;
 }
 
 module.exports = { cloneRepo, getToken, log, pull, readTomlRemote };

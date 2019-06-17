@@ -22,7 +22,7 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 // Constants
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const EXCLUDES_REPOS = new Set(["governance", "n-api-ci"]);
+const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
 
 /**
  * @async
@@ -127,7 +127,7 @@ async function main() {
     const searchNAPI = await Promise.all(
         remote.map(readTomlRemote)
     );
-    searchNAPI.filter((repo) => repo !== null)
+    searchNAPI.filter((repo) => repo !== false)
         .map((repo) => repo)
         .map((repo) => EXCLUDES_REPOS.add(repo));
 
