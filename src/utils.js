@@ -262,4 +262,11 @@ async function readTomlRemote(remote) {
     return false;
 }
 
-module.exports = { cloneRepo, getToken, logRepoLocAndRemote, pullMaster, readTomlRemote, npmOutdated };
+module.exports = {
+    cloneRepo,
+    getToken,
+    logRepoLocAndRemote,
+    pullMaster,
+    readTomlRemote,
+    npmOutdated
+};
