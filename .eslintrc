@@ -2,7 +2,6 @@
     "extends": "@slimio/eslint-config",
     "rules": {
         "max-lines-per-function": "off",
-        "id-length": "off",
-        "curly": "off"
+        "id-length": "off"
     }
 }

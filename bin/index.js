@@ -115,7 +115,7 @@ async function main() {
         .map((repo) => repo)
         .map((repo) => EXCLUDES_REPOS.add(repo));
 
-    const testUNIX = RegExp("nix", "i");
+    const testUNIX = /nix/i;
     const reposRemoteArray = remote
         .filter(({ name, archived }) => !testUNIX.test(name) && !archived)
         .filter(({ name }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name))
@@ -168,12 +168,11 @@ async function main() {
 
     // Npm outdated
     const reposArray = await readdir(CWD);
-    console.log(reposArray);
     const outDated = await Promise.all(
         reposArray.map(npmOutdated)
     );
 
-    console.log("outDated", "prout");
+    console.log(outDated);
 }
 
 main().catch(console.error);

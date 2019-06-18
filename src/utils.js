@@ -206,15 +206,19 @@ async function npmInstall(dir) {
 
 async function npmOutdated(repoName) {
     // const free = await LOCKER_SPAWN_OUTDATED.lock();
-    const retStdOut = [];
     const outDated = await new Promise((resolve, reject) => {
-        const ls = spawn(`npm${EXEC_SUFFIX}`, ["outdated", ["--json"]], { cwd: join(CWD, repoName), stdio: "inherit" });
-        ls.stdout.on("data", retStdOut.push);
-        ls.once("close", resolve);
+        let rawData = "";
+
+        const ls = spawn(`npm${EXEC_SUFFIX}`, ["outdated", ["--json"]], { cwd: join(CWD, repoName), stdio: "pipe" });
+        ls.stdout.on("data", (chunk) => {
+            rawData += chunk;
+        });
+        ls.once("close", () => resolve(rawData));
+        ls.once("error", reject);
     });
     // free();
 
-    return outDated.toString();
+    return outDated;
 }
 
 /**
@@ -230,7 +234,8 @@ async function npmOutdated(repoName) {
  */
 async function readTomlRemote(remote) {
     const { name } = remote;
-    const regEx = /napi/i;
+    const regEx = /unix/i;
+    const platform = process.platform;
     const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
 
     try {
@@ -242,7 +247,11 @@ async function readTomlRemote(remote) {
             }
         });
 
-        if (regEx.test(data)) {
+        if (platform === "win32" && regEx.test(data)) {
+            return name;
+        }
+
+        if (platform !== "win32" && !regEx.test(data)) {
             return name;
         }
     }
