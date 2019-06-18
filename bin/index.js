@@ -20,4 +20,18 @@ prog
         await commands.install();
     });
 
+prog
+    .command("outdated")
+    .describe("Check the npm registry to see if any (or, specific) installed packages are currently outdated.")
+    .action(async() => {
+        // soon
+    });
+
+prog
+    .command("psp")
+    .describe("Launch project structure policy")
+    .action(async() => {
+        await commands.psp();
+    })
+
 prog.parse(process.argv);
