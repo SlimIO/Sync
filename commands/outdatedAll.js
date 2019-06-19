@@ -10,6 +10,21 @@ const { getSlimioToml } = require("../src/utils");
 // Constants
 const CWD = process.cwd();
 
+/**
+ * @typedef {Object} dataPackage
+ * @property {string} current Current version of the package
+ * @property {string} latest latest version of the package
+ */
+/**
+ * @property {string} current Current version of the package parsed
+ * @property {string} latest latest version of the package parsed
+ */
+/**
+ * @func
+ * @desc Parse string
+ * @param {!dataPackage} dataPkg Data on a package
+ * @returns {{current, latest}}
+ */
 function parseSemver(dataPkg) {
     const { current, latest } = dataPkg;
     currentParsed = isNaN(parseFloat(current)) ? current.slice(1) : current;
@@ -18,7 +33,13 @@ function parseSemver(dataPkg) {
     return { current: currentParsed.split("."), latest: latestParsed.split(".") };
 }
 
-async function outdatedTheRepo(repo) {
+/**
+ * @async
+ * @func getMinorAndMajor
+ * @param {!String} repo Repository name
+ * @returns {Promise<{name, major, minor} | {name, err}>}
+ */
+async function getMinorAndMajor(repo) {
     const recap = { major: 0, minor: 0 };
     try {
         const path = join(CWD, repo);
@@ -65,6 +86,12 @@ async function outdatedTheRepo(repo) {
     }
 }
 
+/**
+ * @async
+ * @func outdatedAll
+ * @desc Log datas in the console
+ * @returns {Promise<void>}
+ */
 async function outdatedAll() {
     console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
 
@@ -75,7 +102,7 @@ async function outdatedAll() {
     const reposSlimIO = getRepoWithToml.filter((name) => name !== false);
 
     const ret = await Promise.all(
-        reposSlimIO.map(outdatedTheRepo)
+        reposSlimIO.map(getMinorAndMajor)
     );
 
     for (const { name, major, minor, err } of ret) {
