@@ -10,19 +10,58 @@ const { getSlimioToml } = require("../src/utils");
 // Constants
 const CWD = process.cwd();
 
+function parseSemver(dataPkg) {
+    const { current, latest } = dataPkg;
+    currentParsed = isNaN(parseFloat(current)) ? current.slice(1) : current;
+    latestParsed = isNaN(parseFloat(latest)) ? latest.slice(1) : latest;
+
+    return { current: currentParsed.split("."), latest: latestParsed.split(".") };
+}
+
 async function outdatedTheRepo(repo) {
+    const recap = { major: 0, minor: 0 };
     try {
         const path = join(CWD, repo);
-        access(join(path, "package.json"));
+        await access(join(path, "package.json"));
 
-        const data = await outdated(path, {
+        const dataPkg = await outdated(path, {
             devDependencies: true,
             token: process.env.GITHUB_TOKEN
         });
-        console.log(JSON.stringify(data, null, 4));
+        const packages = Object.keys(dataPkg);
+
+        for (const pkg of packages) {
+            const { current, latest } = parseSemver(dataPkg[pkg]);
+            if (current[0] === 0 && latest[0] === 0) {
+                if (current[1] < latest[1]) {
+                    recap.major += 1;
+                }
+                if (current[2] < lastest[2]) {
+                    recap.minor += 1;
+                }
+                continue;
+            }
+
+            if (current[0] < latest[0]) {
+                recap.major += 1;
+                continue;
+            }
+
+            if (current[0] === latest[0]) {
+                if (current[1] < latest[1]) {
+                    recap.minor += 1;
+                    continue;
+                }
+                if (current[2] < latest[2]) {
+                    recap.minor += 1;
+                }
+            }
+        }
+
+        return Object.assign({ name: repo }, recap);
     }
     catch (error) {
-        console.log(`${green(repo)} : ${red("Error")} => ${error.message}`);
+        return { name: repo, err: error.message };
     }
 }
 
@@ -35,9 +74,23 @@ async function outdatedAll() {
     );
     const reposSlimIO = getRepoWithToml.filter((name) => name !== false);
 
-    await Promise.all(
+    const ret = await Promise.all(
         reposSlimIO.map(outdatedTheRepo)
     );
+
+    for (const { name, major, minor, err } of ret) {
+        if (err) {
+            console.log(`${red(name)} : Error => ${err}`);
+            continue;
+        }
+
+        if (minor === 0 && major === 0) {
+            continue;
+        }
+        const colorMin = minor > 0 ? yellow(minor) : minor;
+        const colorMaj = major > 0 ? red(major) : major;
+        console.log(`${green(name)} : ${gray("Minor =>")} ${colorMin}, ${gray("Major =>")} ${colorMaj}`);
+    }
 }
 
 module.exports = outdatedAll;

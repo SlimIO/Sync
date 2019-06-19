@@ -108,7 +108,7 @@ async function install() {
         .filter(({ name }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name))
         .map(({ name }) => name)
         // For tests
-        .filter((repo) => repo.length <= 3);
+        // .filter((repo) => repo.length <= 3);
     spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n`);
 
     const ret = await Promise.all(
