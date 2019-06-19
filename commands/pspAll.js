@@ -10,22 +10,40 @@ const { getSlimioToml } = require("../src/utils");
 // Constants
 const CWD = process.cwd();
 
+/**
+ * @async
+ * @func forMapping
+ * @desc Active psp in the folder
+ * @param {!String} repo Name of the local repository
+ * @returns {Promise<void>}
+ */
 async function forMapping(repo) {
-    const { warn, crit } = await psp({
-        CWD: join(CWD, repo),
-        forceMode: true,
-        isCLI: false,
-        verbose: false
-    });
+    try {
+        const { warn, crit } = await psp({
+            CWD: join(CWD, repo),
+            forceMode: true,
+            isCLI: false,
+            verbose: false
+        });
 
-    if (warn === 0 && crit === 0) {
-        return;
+        if (warn === 0 && crit === 0) {
+            return;
+        }
+        const colorWarn = warn > 0 ? yellow(warn) : warn;
+        const colorCrit = crit > 0 ? red(crit) : crit;
+        console.log(`${green(repo)} : ${gray("warn =>")} ${colorWarn}, ${gray("crit =>")} ${colorCrit}`);
     }
-    const colorWarn = warn > 0 ? yellow(warn) : warn;
-    const colorCrit = crit > 0 ? red(crit) : crit;
-    console.log(`${green(repo)} : ${gray("warn =>")} ${colorWarn}, ${gray("crit =>")} ${colorCrit}`);
+    catch (error) {
+        console.log(`${green(repo)} : Error => ${error.message}`);
+    }
 }
 
+/**
+ * @async
+ * @func pspAll
+ * @desc Active psp in the folder
+ * @returns {Promise<void>}
+ */
 async function pspAll() {
     console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
 
@@ -34,8 +52,7 @@ async function pspAll() {
         reposCWD.map(getSlimioToml)
     );
     const reposSlimIO = getRepoWithToml.filter((name) => name !== false);
-    // console.log(reposSlimIO);
-    // process.exit(1)
+
     await Promise.all(
         reposSlimIO.map(forMapping)
     );
