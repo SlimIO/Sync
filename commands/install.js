@@ -73,6 +73,12 @@ async function reposLocalFiltered() {
     return new Set(result.filter((name) => name !== false));
 }
 
+/**
+ * @async
+ * @func install
+ * @desc Clone - pull master and installing dependencies for the all projects SlimIO
+ * @returns {Promise<void>}
+ */
 async function install() {
     console.log(`\n > Executing ${yellow("slimio-sync install")} at: ${cyan().bold(CWD)}\n`);
     await question(`Do you want execut Sync in ${CWD} ?`);
