@@ -1,6 +1,6 @@
 // Require Third-party dependencies
 const { join } = require("path");
-const { readdir, access } = require("fs").promises;
+const { readdir } = require("fs").promises;
 const psp = require("@slimio/psp");
 const { red, green, yellow, cyan, gray } = require("kleur");
 
@@ -12,12 +12,12 @@ const CWD = process.cwd();
 
 /**
  * @async
- * @func forMapping
+ * @func pspTheRepo
  * @desc Active psp in the folder
  * @param {!String} repo Name of the local repository
  * @returns {Promise<void>}
  */
-async function forMapping(repo) {
+async function pspTheRepo(repo) {
     try {
         const { warn, crit } = await psp({
             CWD: join(CWD, repo),
@@ -34,7 +34,7 @@ async function forMapping(repo) {
         console.log(`${green(repo)} : ${gray("warn =>")} ${colorWarn}, ${gray("crit =>")} ${colorCrit}`);
     }
     catch (error) {
-        console.log(`${green(repo)} : Error => ${error.message}`);
+        console.log(`${green(repo)} : ${red("Error")} => ${error.message}`);
     }
 }
 
@@ -54,7 +54,7 @@ async function pspAll() {
     const reposSlimIO = getRepoWithToml.filter((name) => name !== false);
 
     await Promise.all(
-        reposSlimIO.map(forMapping)
+        reposSlimIO.map(pspTheRepo)
     );
 }
 
