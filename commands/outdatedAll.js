@@ -3,6 +3,7 @@ const { join } = require("path");
 const { readdir, access } = require("fs").promises;
 const outdated = require("fast-outdated");
 const { red, green, yellow, cyan, gray } = require("kleur");
+const { diff } = require("semver");
 
 // Require Internal Dependencies
 const { getSlimioToml } = require("../src/utils");
@@ -16,10 +17,6 @@ const CWD = process.cwd();
  * @property {string} latest latest version of the package
  */
 /**
- * @property {string} current Current version of the package parsed
- * @property {string} latest latest version of the package parsed
- */
-/**
  * @func
  * @desc Parse string
  * @param {!dataPackage} dataPkg Data on a package
@@ -30,7 +27,7 @@ function parseSemver(dataPkg) {
     currentParsed = isNaN(parseFloat(current)) ? current.slice(1) : current;
     latestParsed = isNaN(parseFloat(latest)) ? latest.slice(1) : latest;
 
-    return { current: currentParsed.split("."), latest: latestParsed.split(".") };
+    return { current: currentParsed, latest: latestParsed };
 }
 
 /**
@@ -53,29 +50,16 @@ async function getMinorAndMajor(repo) {
 
         for (const pkg of packages) {
             const { current, latest } = parseSemver(dataPkg[pkg]);
-            if (current[0] === 0 && latest[0] === 0) {
-                if (current[1] < latest[1]) {
-                    recap.major += 1;
-                }
-                if (current[2] < lastest[2]) {
-                    recap.minor += 1;
-                }
+            const getDiff = diff(current, latest);
+
+            if (getDiff === "null") {
                 continue;
             }
-
-            if (current[0] < latest[0]) {
+            else if (getDiff === "major") {
                 recap.major += 1;
-                continue;
             }
-
-            if (current[0] === latest[0]) {
-                if (current[1] < latest[1]) {
-                    recap.minor += 1;
-                    continue;
-                }
-                if (current[2] < latest[2]) {
-                    recap.minor += 1;
-                }
+            else {
+                recap.minor += 1;
             }
         }
 

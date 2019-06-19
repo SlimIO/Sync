@@ -35,7 +35,8 @@
         "node-emoji": "^1.10.0",
         "qoa": "^0.2.0",
         "repos": "^2.0.0",
-        "sade": "^1.5.1"
+        "sade": "^1.5.1",
+        "semver": "^6.1.1"
     },
     "devDependencies": {
         "@commitlint/cli": "^8.0.0",
