@@ -31,7 +31,7 @@ prog
     .command("psp")
     .describe("Launch project structure policy")
     .action(async() => {
-        await commands.psp();
-    })
+        await commands.pspAll();
+    });
 
 prog.parse(process.argv);

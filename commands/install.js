@@ -13,7 +13,7 @@ const sade = require("sade");
 
 // Require Internal Dependencies
 const { cloneRepo, getToken, logRepoLocAndRemote,
-    pullMaster, readTomlRemote, npmOutdated } = require("../src/utils");
+    pullMaster, readTomlRemote, getSlimioToml } = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -23,24 +23,6 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
-
-/**
- * @async
- * @func getSlimioToml
- * @desc Verify if .toml exist in the folder
- * @param {!String} dir Folder checked
- * @returns {Boolean}
- */
-async function getSlimioToml(dir) {
-    try {
-        await access(join(CWD, dir, "slimio.toml"));
-
-        return dir;
-    }
-    catch (error) {
-        return false;
-    }
-}
 
 /**
  * @async
@@ -92,8 +74,12 @@ async function reposLocalFiltered() {
 }
 
 async function install() {
-    console.log(`\n > Executing SlimIO Sync at: ${cyan().bold(CWD)}\n`);
+    console.log(`\n > Executing ${yellow("slimio-sync install")} at: ${cyan().bold(CWD)}\n`);
     await question(`Do you want execut Sync in ${CWD} ?`);
+
+    if (GITHUB_ORGA === undefined) {
+        throw new Error(".env file must contain a field GITHUB_ORGA=YOUR_ORGANISARION");
+    }
 
     const spinner = new Spinner({
         prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`),
@@ -102,7 +88,7 @@ async function install() {
     spinner.start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
-        repos(GITHUB_ORGA, getToken()),
+        repos(GITHUB_ORGA, await getToken()),
         reposLocalFiltered()
     ]);
     remote.forEach((repo) => {

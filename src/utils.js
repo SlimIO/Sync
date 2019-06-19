@@ -1,7 +1,7 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const { existsSync, promises: { access } } = require("fs");
+const { access } = require("fs").promises;
 const { spawn, spawnSync } = require("child_process");
 
 // Require Third-Party dependencies
@@ -25,14 +25,20 @@ const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
 
 /**
+ * @async
  * @func getToken
  * @desc Check if .env exist and if there is a github token.
  * @returns {{}|{token:String}}
  */
-function getToken() {
-    const envExist = existsSync(join(__dirname, "..", ".env"));
+async function getToken() {
+    try {
+        await access(join(__dirname, "..", ".env"));
 
-    return envExist && GITHUB_TOKEN !== undefined ? { token: GITHUB_TOKEN } : {};
+        return GITHUB_TOKEN === undefined ? {} : { token: GITHUB_TOKEN };
+    }
+    catch (error) {
+        return {};
+    }
 }
 
 /**
@@ -52,14 +58,14 @@ async function cloneRepo(repo, index) {
         dir, url,
         singleBranch: true,
         oauth2format: "github"
-    }, getToken());
+    }, await getToken());
     const free = await LOCKER_DEP_DL.lock();
+    const spinner = new Spinner({
+        prefixText: cyan().bold(`${index + 1}. ${repoName}`),
+        spinner: "dots"
+    });
 
     try {
-        const spinner = new Spinner({
-            prefixText: cyan().bold(`${index + 1}. ${repoName}`),
-            spinner: "dots"
-        });
         spinner.start();
         spinner.text = "Cloning from GitHub";
         await git.clone(optsClone);
@@ -162,7 +168,7 @@ async function pullMaster(repoName, needSpin = false) {
         dir, url,
         singleBranch: true,
         ref: "master"
-    }, getToken());
+    }, await getToken());
 
     if (needSpin) {
         spinner = new Spinner({
@@ -204,21 +210,22 @@ async function npmInstall(dir) {
     });
 }
 
-async function npmOutdated(repoName) {
-    // const free = await LOCKER_SPAWN_OUTDATED.lock();
-    const outDated = await new Promise((resolve, reject) => {
-        let rawData = "";
+/**
+ * @async
+ * @func getSlimioToml
+ * @desc Verify if .toml exist in the folder
+ * @param {!String} dir Folder checked
+ * @returns {Boolean}
+ */
+async function getSlimioToml(dir) {
+    try {
+        await access(join(CWD, dir, "slimio.toml"));
 
-        const ls = spawn(`npm${EXEC_SUFFIX}`, ["outdated", ["--json"]], { cwd: join(CWD, repoName), stdio: "pipe" });
-        ls.stdout.on("data", (chunk) => {
-            rawData += chunk;
-        });
-        ls.once("close", () => resolve(rawData));
-        ls.once("error", reject);
-    });
-    // free();
-
-    return outDated;
+        return dir;
+    }
+    catch (error) {
+        return false;
+    }
 }
 
 /**
@@ -268,5 +275,5 @@ module.exports = {
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,
-    npmOutdated
+    getSlimioToml
 };
