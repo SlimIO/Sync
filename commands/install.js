@@ -84,14 +84,12 @@ async function install() {
     await question(`Do you want execut Sync in ${CWD} ?`);
 
     if (GITHUB_ORGA === undefined) {
-        throw new Error(".env file must contain a field GITHUB_ORGA=YOUR_ORGANISARION");
+        throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
 
     const spinner = new Spinner({
-        prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`),
-        spinner: "dots"
-    });
-    spinner.start("Work");
+        prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`)
+    }).start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
         repos(GITHUB_ORGA, await getToken()),
@@ -128,10 +126,8 @@ async function install() {
 
     // Check update on existing repositories
     const spin = new Spinner({
-        prefixText: cyan().bold("Search update for local repositories."),
-        spinner: "dots"
-    });
-    spin.start("Wait");
+        prefixText: cyan().bold("Search update for local repositories.")
+    }).start("Wait");
 
     reposLocalArray = [];
     reposLocalSet.forEach((repo) => reposLocalArray.push(repo));

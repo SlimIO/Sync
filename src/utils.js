@@ -61,8 +61,7 @@ async function cloneRepo(repo, index) {
     }, await getToken());
     const free = await LOCKER_DEP_DL.lock();
     const spinner = new Spinner({
-        prefixText: cyan().bold(`${index + 1}. ${repoName}`),
-        spinner: "dots"
+        prefixText: cyan().bold(`${index + 1}. ${repoName}`)
     });
 
     try {
@@ -172,10 +171,8 @@ async function pullMaster(repoName, needSpin = false) {
 
     if (needSpin) {
         spinner = new Spinner({
-            prefixText: cyan().bold(`${repoName}`),
-            spinner: "dots"
-        });
-        spinner.start("Pull master from GitHub");
+            prefixText: cyan().bold(`${repoName}`)
+        }).start("Pull master from GitHub");
     }
 
     try {
