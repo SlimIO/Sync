@@ -101,17 +101,14 @@ async function install() {
         repo.name = repo.name.toLowerCase();
     });
 
-    const searchNAPI = await Promise.all(
+    const searchPlatform = await Promise.all(
         remote.map(readTomlRemote)
     );
-    searchNAPI.filter((repo) => repo !== false)
-        .map((repo) => repo)
+    searchPlatform.filter((repo) => repo !== false)
         .map((repo) => EXCLUDES_REPOS.add(repo));
 
-    const testUNIX = /nix/i;
     const reposRemoteArray = remote
-        .filter(({ name, archived }) => !testUNIX.test(name) && !archived)
-        .filter(({ name }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name))
+        .filter(({ name, archived }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name) && !archived)
         .map(({ name }) => name)
         // For tests
         // .filter((repo) => repo.length <= 3);
