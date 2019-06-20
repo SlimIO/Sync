@@ -1,8 +1,8 @@
 // Require Third-party dependencies
 const { join } = require("path");
-const { readdir, access } = require("fs").promises;
+const { readdir } = require("fs").promises;
 const outdated = require("fast-outdated");
-const { red, green, yellow, cyan, gray } = require("kleur");
+const { red, green, yellow, cyan, underline: ul } = require("kleur");
 const { diff } = require("semver");
 
 // Require Internal Dependencies
@@ -68,7 +68,8 @@ async function outdatedAll() {
         getRepoWithToml.filter((name) => name !== false).map(getMinorAndMajor)
     );
 
-    const maxLenRepo = wordLength(getRepoWithToml);
+    const mxLenRep = wordLength(getRepoWithToml);
+    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Minor:")}   ${ul("Major:")}\n`);
     for (const { name, major, minor, err } of ret) {
         if (err) {
             console.log(`${red(name)} : Error => ${err}`);
@@ -79,9 +80,9 @@ async function outdatedAll() {
             continue;
         }
 
-        const repo = `${green(name)}${" ".repeat(maxLenRepo - name.length)}`;
-        const min = `${gray("Minor:")} ${minor > 0 ? yellow(minor) : minor},${" ".repeat(12 - `"Minor:" ${minor},`.length)}`;
-        console.log(`${repo} ${min} ${gray("Major:")} ${major > 0 ? red(major) : major}`);
+        const repo = `${green(name)}${" ".repeat(mxLenRep - name.length)}`;
+        const min = `${" ".repeat(5 - minor.toString().length)}${minor > 0 ? yellow(minor) : minor}`;
+        console.log(`${repo} ${min}   ${" ".repeat(5 - major.toString().length)} ${major > 0 ? red(major) : major}`);
     }
 }
 
