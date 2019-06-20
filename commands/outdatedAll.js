@@ -31,18 +31,9 @@ function cleanRange(version) {
  * @func wordLength
  * @desc Analyze a array and find the longest string
  * @param {string[]} arrayString Array to analyze
- * @param {string} target Target for minor or major of the ret Object, value = min or maj
  * @return {number}
  */
-function wordLength(arrayString = [], target) {
-    if (target === "min") {
-        return arrayString.sort((a, b) => a.minor.length - b.minor.length).pop().length;
-    }
-
-    if (target === "maj") {
-        return arrayString.sort((a, b) => a.major.length - b.major.length).pop().length;
-    }
-
+function wordLength(arrayString = []) {
     return arrayString.sort((a, b) => a.length - b.length).pop().length;
 }
 
@@ -88,9 +79,6 @@ async function outdatedAll() {
     );
 
     const maxLenRepo = wordLength(getRepoWithToml);
-    const maxLenMin = wordLength(ret, "min");
-    const maxLenMaj = wordLength(ret, "maj");
-
     for (const { name, major, minor, err } of ret) {
         if (err) {
             console.log(`${red(name)} : Error => ${err}`);
@@ -102,8 +90,8 @@ async function outdatedAll() {
         }
 
         const repo = `${green(name)}${" ".repeat(maxLenRepo - name.length)}`;
-        const min = `${gray("Minor:")} ${yellow(minor)},${" ".repeat(maxLenMin - minor.length)}`;
-        console.log(`${repo} ${min}  ${gray("Major:")} ${red(major)}`);
+        const min = `${gray("Minor:")} ${yellow(minor)},${" ".repeat(12 - `"Minor:" ${minor},`.length)}`;
+        console.log(`${repo} ${min} ${gray("Major:")} ${red(major)}`);
     }
 }
 
