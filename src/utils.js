@@ -118,7 +118,7 @@ async function logRepoLocAndRemote(repoName) {
         const { data: [firstCommitRemote] } = await http.get(URL, {
             headers: {
                 "User-Agent": GITHUB_ORGA,
-                Authorization: GITHUB_TOKEN ? `token ${GITHUB_TOKEN}` : "",
+                Authorization: `token ${GITHUB_TOKEN}`,
                 Accept: "application/vnd.github.v3.raw"
             }
         });
