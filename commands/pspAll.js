@@ -2,7 +2,7 @@
 const { join } = require("path");
 const { readdir } = require("fs").promises;
 const psp = require("@slimio/psp");
-const { red, green, yellow, cyan, underline: ul } = require("kleur");
+const { red, green, yellow, cyan, white, underline: ul } = require("kleur");
 
 // Require Internal Dependencies
 const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
@@ -42,20 +42,22 @@ async function pspTheRepo(repo) {
 async function pspAll() {
     console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
 
-    reposCWD = await readdir(CWD);
-    const getRepoWithToml = await Promise.all(reposCWD.map(getSlimioToml));
+    const reposCWD = await readdir(CWD);
+    const getRepoWithToml = (
+        await Promise.all(reposCWD.map(getSlimioToml))
+    ).filter((name) => name !== false);
 
-    const ret = await Promise.all(
-        getRepoWithToml.filter((name) => name !== false).map(pspTheRepo)
-    );
+    const ret = (
+        await Promise.all(getRepoWithToml.map(pspTheRepo))
+    ).sort((a, b) => b.crit - a.crit);
+    const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
 
-    const mxLenRep = wordMaxLength(getRepoWithToml);
-    const reject = [];
-
-    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Warn:")}   ${ul("Crit:")}\n`);
+    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Crit:")}   ${ul("Warn:")}\n`);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
-            reject.push(`${red(name)} : Error => ${err}`);
+            setImmediate(() => {
+                console.log(`${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
+            });
             continue;
         }
 
@@ -63,11 +65,10 @@ async function pspAll() {
             continue;
         }
 
-        const repo = `${green(name)}${ripit(mxLenRep, name)}`;
-        const min = `${ripit(5, warn)}${warn > 0 ? yellow(warn) : warn}`;
-        console.log(`${repo} ${min}  ${ripit(5, crit)} ${crit > 0 ? red(crit) : crit}`);
+        const warnCount = `${ripit(5, warn)}${warn > 0 ? yellow().bold(warn) : white().bold(warn)}`;
+        const critCount = `${ripit(5, crit)}${crit > 0 ? red().bold(crit) : white().bold(crit)}`;
+        console.log(`${green(name)}${ripit(mxLenRep, name)} ${critCount}  ${warnCount}`);
     }
-    reject.forEach((err) => console.log(err));
 }
 
 

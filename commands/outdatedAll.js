@@ -1,8 +1,11 @@
-// Require Third-party dependencies
+// Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
+const { performance } = require("perf_hooks");
+
+// Require Third-party dependencies
 const outdated = require("fast-outdated");
-const { red, green, yellow, cyan, underline: ul } = require("kleur");
+const { red, green, yellow, cyan, white, underline: ul } = require("kleur");
 const { diff } = require("semver");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
@@ -37,14 +40,16 @@ function cleanRange(version) {
  */
 async function getMinorAndMajor(repo) {
     try {
-        const recap = { name: repo, major: 0, minor: 0 };
+        const recap = { name: repo, major: 0, minor: 0, patch: 0 };
         const dataPkg = await outdated(join(CWD, repo), {
             devDependencies: true,
             token: NPM_TOKEN
         });
 
+        // console.log(dataPkg);
         for (const { current, latest } of Object.values(dataPkg)) {
-            recap[diff(cleanRange(current), latest) === "major" ? "major" : "minor"] += 1;
+            // console.log(diff(cleanRange(current), latest));
+            recap[diff(cleanRange(current), latest)] += 1;
         }
 
         return recap;
@@ -62,23 +67,31 @@ async function getMinorAndMajor(repo) {
  */
 async function outdatedAll() {
     console.log(`\n > Executing ${yellow("slimio-sync outdated")} at: ${cyan().bold(CWD)}\n`);
-    const spinner = new Spinner({
-        prefixText: "Outdated for each repository"
-    }).start("Wait");
+    const start = performance.now();
+    const spin = new Spinner({
+        prefixText: "Searching for outdated dependencies in sub directories"
+    }).start("");
 
     const reposCWD = await readdir(CWD);
-    const getRepoWithToml = await Promise.all(reposCWD.map(getSlimioToml));
+    const getRepoWithToml = (
+        await Promise.all(reposCWD.map(getSlimioToml))
+    ).filter((name) => name !== false);
 
-    const ret = await Promise.all(
-        getRepoWithToml.filter((name) => name !== false).map(getMinorAndMajor)
+    const ret = (
+        await Promise.all(getRepoWithToml.map(getMinorAndMajor))
+    ).sort((a, b) => b.major - a.major);
+    const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
+    const end = performance.now() - start;
+    spin.succeed(
+        `Successfully retrieved ${green().bold(ret.length)} repositories in ${cyan().bold(end.toFixed(2))} millisecondes !`
     );
 
-    const mxLenRep = wordMaxLength(getRepoWithToml);
-    const reject = [];
-    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Minor:")}   ${ul("Major:")}\n`);
-    for (const { name, major, minor, err } of ret) {
+    console.log(`\n ${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Major:")}   ${ul("Minor:")}   ${ul("Patch:")}\n`);
+    for (const { name, major, minor, patch, err } of ret) {
         if (err) {
-            reject.push(`${red(name)} : Error => ${err}`);
+            setImmediate(() => {
+                console.log(` ${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
+            });
             continue;
         }
 
@@ -86,12 +99,11 @@ async function outdatedAll() {
             continue;
         }
 
-        const repo = `${green(name)}${ripit(mxLenRep, name)}`;
-        const min = `${ripit(5, minor)}${minor > 0 ? yellow(minor) : minor}`;
-        console.log(`${repo} ${min}   ${ripit(5, major)} ${major > 0 ? red(major) : major}`);
+        const majorCount = `${ripit(5, major)} ${major > 0 ? yellow().bold(major) : white().bold(major)}`;
+        const minorCount = `${ripit(5, minor)}${white().bold(minor)}`;
+        const patchCount = `${ripit(5, patch)} ${white().bold(patch)}`;
+        console.log(` ${green(name)}${ripit(mxLenRep, name)} ${majorCount}   ${minorCount}   ${patchCount}`);
     }
-    reject.forEach((err) => console.log(err));
-    spinner.succeed("OK");
 }
 
 module.exports = outdatedAll;
