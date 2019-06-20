@@ -4,9 +4,11 @@ const { readdir } = require("fs").promises;
 const outdated = require("fast-outdated");
 const { red, green, yellow, cyan, underline: ul } = require("kleur");
 const { diff } = require("semver");
+const Spinner = require("@slimio/async-cli-spinner");
+Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
-const { getSlimioToml, wordLength } = require("../src/utils");
+const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
 
 // Constants
 const CWD = process.cwd();
@@ -60,6 +62,9 @@ async function getMinorAndMajor(repo) {
  */
 async function outdatedAll() {
     console.log(`\n > Executing ${yellow("slimio-sync outdated")} at: ${cyan().bold(CWD)}\n`);
+    const spinner = new Spinner({
+        prefixText: "Outdated for each repository"
+    }).start("Wait");
 
     const reposCWD = await readdir(CWD);
     const getRepoWithToml = await Promise.all(reposCWD.map(getSlimioToml));
@@ -68,7 +73,7 @@ async function outdatedAll() {
         getRepoWithToml.filter((name) => name !== false).map(getMinorAndMajor)
     );
 
-    const mxLenRep = wordLength(getRepoWithToml);
+    const mxLenRep = wordMaxLength(getRepoWithToml);
     const reject = [];
     console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Minor:")}   ${ul("Major:")}\n`);
     for (const { name, major, minor, err } of ret) {
@@ -81,11 +86,12 @@ async function outdatedAll() {
             continue;
         }
 
-        const repo = `${green(name)}${" ".repeat(mxLenRep - name.length)}`;
-        const min = `${" ".repeat(5 - minor.toString().length)}${minor > 0 ? yellow(minor) : minor}`;
-        console.log(`${repo} ${min}   ${" ".repeat(5 - major.toString().length)} ${major > 0 ? red(major) : major}`);
+        const repo = `${green(name)}${ripit(mxLenRep, name)}`;
+        const min = `${ripit(5, minor)}${minor > 0 ? yellow(minor) : minor}`;
+        console.log(`${repo} ${min}   ${ripit(5, major)} ${major > 0 ? red(major) : major}`);
     }
     reject.forEach((err) => console.log(err));
+    spinner.succeed("OK");
 }
 
 module.exports = outdatedAll;

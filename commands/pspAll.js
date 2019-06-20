@@ -5,7 +5,7 @@ const psp = require("@slimio/psp");
 const { red, green, yellow, cyan, underline: ul } = require("kleur");
 
 // Require Internal Dependencies
-const { getSlimioToml, wordLength } = require("../src/utils");
+const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
 
 // Constants
 const CWD = process.cwd();
@@ -49,8 +49,9 @@ async function pspAll() {
         getRepoWithToml.filter((name) => name !== false).map(pspTheRepo)
     );
 
-    const mxLenRep = wordLength(getRepoWithToml);
+    const mxLenRep = wordMaxLength(getRepoWithToml);
     const reject = [];
+
     console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Warn:")}   ${ul("Crit:")}\n`);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
@@ -62,9 +63,9 @@ async function pspAll() {
             continue;
         }
 
-        const repo = `${green(name)}${" ".repeat(mxLenRep - name.length)}`;
-        const min = `${" ".repeat(5 - warn.toString().length)}${warn > 0 ? yellow(warn) : warn}`;
-        console.log(`${repo} ${min}  ${" ".repeat(5 - crit.toString().length)} ${crit > 0 ? red(crit) : crit}`);
+        const repo = `${green(name)}${ripit(mxLenRep, name)}`;
+        const min = `${ripit(5, warn)}${warn > 0 ? yellow(warn) : warn}`;
+        console.log(`${repo} ${min}  ${ripit(5, crit)} ${crit > 0 ? red(crit) : crit}`);
     }
     reject.forEach((err) => console.log(err));
 }

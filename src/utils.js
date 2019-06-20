@@ -6,11 +6,12 @@ const { spawn } = require("child_process");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
-const Spinner = require("@slimio/async-cli-spinner");
 const { cyan, red } = require("kleur");
 const { get } = require("node-emoji");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
+const Spinner = require("@slimio/async-cli-spinner");
+Spinner.DEFAULT_SPINNER = "dots";
 
 // Constant
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
@@ -263,22 +264,29 @@ async function readTomlRemote(remote) {
     return false;
 }
 
+function ripit(nb, elem) {
+    const len = Number.isInteger(elem) ? elem.toString().length : elem.length;
+
+    return " ".repeat(nb - len);
+}
+
 /**
- * @func wordLength
+ * @func wordMaxLength
  * @desc Analyze a array and find the longest string
  * @param {string[]} arrayString Array to analyze
  * @return {number}
  */
-function wordLength(arrayString = []) {
+function wordMaxLength(arrayString = []) {
     return arrayString.sort((a, b) => a.length - b.length).pop().length;
 }
 
 module.exports = {
     cloneRepo,
     getToken,
+    getSlimioToml,
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,
-    getSlimioToml,
-    wordLength
+    ripit,
+    wordMaxLength
 };

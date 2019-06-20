@@ -7,9 +7,9 @@ const { readdir, stat } = require("fs").promises;
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
+const qoa = require("qoa");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
-const qoa = require("qoa");
 
 // Require Internal Dependencies
 const { cloneRepo,
