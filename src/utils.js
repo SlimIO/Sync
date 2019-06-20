@@ -264,6 +264,13 @@ async function readTomlRemote(remote) {
     return false;
 }
 
+/**
+ * @func
+ * @desc Reapeat n times space string
+ * @param {!number} nb Number 1
+ * @param {!string|number} elem Number 2 for difference
+ * @returns {string}
+ */
 function ripit(nb, elem) {
     const len = Number.isInteger(elem) ? elem.toString().length : elem.length;
 
