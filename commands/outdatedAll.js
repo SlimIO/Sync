@@ -69,10 +69,11 @@ async function outdatedAll() {
     );
 
     const mxLenRep = wordLength(getRepoWithToml);
+    const reject = [];
     console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Minor:")}   ${ul("Major:")}\n`);
     for (const { name, major, minor, err } of ret) {
         if (err) {
-            console.log(`${red(name)} : Error => ${err}`);
+            reject.push(`${red(name)} : Error => ${err}`);
             continue;
         }
 
@@ -84,6 +85,7 @@ async function outdatedAll() {
         const min = `${" ".repeat(5 - minor.toString().length)}${minor > 0 ? yellow(minor) : minor}`;
         console.log(`${repo} ${min}   ${" ".repeat(5 - major.toString().length)} ${major > 0 ? red(major) : major}`);
     }
+    reject.forEach((err) => console.log(err));
 }
 
 module.exports = outdatedAll;
