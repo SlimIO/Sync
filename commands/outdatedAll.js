@@ -69,7 +69,7 @@ async function getMinorAndMajor(repo) {
  * @returns {Promise<void>}
  */
 async function outdatedAll() {
-    console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
+    console.log(`\n > Executing ${yellow("slimio-sync outdated")} at: ${cyan().bold(CWD)}\n`);
 
     const reposCWD = await readdir(CWD);
     const getRepoWithToml = await Promise.all(reposCWD.map(getSlimioToml));
@@ -90,8 +90,8 @@ async function outdatedAll() {
         }
 
         const repo = `${green(name)}${" ".repeat(maxLenRepo - name.length)}`;
-        const min = `${gray("Minor:")} ${yellow(minor)},${" ".repeat(12 - `"Minor:" ${minor},`.length)}`;
-        console.log(`${repo} ${min} ${gray("Major:")} ${red(major)}`);
+        const min = `${gray("Minor:")} ${minor > 0 ? yellow(minor) : minor},${" ".repeat(12 - `"Minor:" ${minor},`.length)}`;
+        console.log(`${repo} ${min} ${gray("Major:")} ${major > 0 ? red(major) : major}`);
     }
 }
 
