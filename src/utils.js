@@ -34,7 +34,7 @@ async function getToken() {
     try {
         await access(join(__dirname, "..", ".env"));
 
-        return GITHUB_TOKEN === undefined ? {} : { token: GITHUB_TOKEN };
+        return GITHUB_TOKEN ? { token: GITHUB_TOKEN, oauth2format: "github" } : {};
     }
     catch (error) {
         return {};
@@ -53,11 +53,9 @@ async function cloneRepo(repo, index) {
     const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
     const dir = join(CWD, repoName);
     const url = `${_URL}${repoName}`;
-
     const optsClone = Object.assign({
         dir, url,
-        singleBranch: true,
-        oauth2format: "github"
+        singleBranch: true
     }, await getToken());
     const free = await LOCKER_DEP_DL.lock();
     const spinner = new Spinner({

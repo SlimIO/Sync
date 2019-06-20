@@ -8,6 +8,7 @@ const { readdir, stat } = require("fs").promises;
 const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
+Spinner.DEFAULT_SPINNER = "dots";
 const qoa = require("qoa");
 
 // Require Internal Dependencies
@@ -27,17 +28,14 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 // eslint-disable-next-line global-require
-const EXCLUDES_REPOS = new Set(require("../src/excludeRepo.json").exlds);
-
-console.log(EXCLUDES_REPOS);
-process.exit(1)
+const EXCLUDES_REPOS = new Set(require("../src/excludedRepo.json").exlds);
 
 /**
  * @async
  * @func question
- * @desc Question for the dev
+ * @desc Question for the user
  * @param {!string} sentence Sentence
- * @param {string} force Allows not exit even in case of negative respone
+ * @param {boolean} force Allows not exit even in case of negative respone
  * @returns {void|boolean}
  */
 async function question(sentence, force = false) {
@@ -48,7 +46,7 @@ async function question(sentence, force = false) {
         query: yellow(sentence)
     };
 
-    const { validQuestion } = await qoa.prompt([confirm]);
+    const { validQuestion } = await qoa.confirm(confirm);
 
     if (force) {
         return validQuestion;
@@ -88,7 +86,7 @@ async function reposLocalFiltered() {
  * @returns {Promise<void>}
  */
 async function install() {
-    console.log(`\n > Executing ${yellow("slimio-sync install")} at: ${cyan().bold(CWD)}\n`);
+    console.log(`\n > Executing ${cyan().bold("slimio-sync install")} at: ${cyan().bold(CWD)}\n`);
     await question(`Do you want execut Sync in ${CWD} ?`);
 
     if (GITHUB_ORGA === undefined) {
