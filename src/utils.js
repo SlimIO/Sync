@@ -2,7 +2,7 @@
 const { join } = require("path");
 const fs = require("fs");
 const { access } = require("fs").promises;
-const { spawn, spawnSync } = require("child_process");
+const { spawn } = require("child_process");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
@@ -16,7 +16,6 @@ const http = require("httpie");
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const LOCKER_DEP_DL = new Lock({ max: 3 });
 const LOCKER_PULL_MASTER = new Lock({ max: 8 });
-const LOCKER_SPAWN_OUTDATED = new Lock({ max: 20 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const _URL = `https://github.com/${GITHUB_ORGA}/`;
@@ -118,7 +117,7 @@ async function logRepoLocAndRemote(repoName) {
         const { data: [firstCommitRemote] } = await http.get(URL, {
             headers: {
                 "User-Agent": GITHUB_ORGA,
-                Authorization: `token ${GITHUB_TOKEN}`,
+                Authorization: GITHUB_TOKEN ? `token ${GITHUB_TOKEN}` : "",
                 Accept: "application/vnd.github.v3.raw"
             }
         });
