@@ -266,11 +266,22 @@ async function readTomlRemote(remote) {
     return false;
 }
 
+/**
+ * @func wordLength
+ * @desc Analyze a array and find the longest string
+ * @param {string[]} arrayString Array to analyze
+ * @return {number}
+ */
+function wordLength(arrayString = []) {
+    return arrayString.sort((a, b) => a.length - b.length).pop().length;
+}
+
 module.exports = {
     cloneRepo,
     getToken,
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,
-    getSlimioToml
+    getSlimioToml,
+    wordLength
 };

@@ -6,7 +6,7 @@ const { red, green, yellow, cyan, gray } = require("kleur");
 const { diff } = require("semver");
 
 // Require Internal Dependencies
-const { getSlimioToml } = require("../src/utils");
+const { getSlimioToml, wordLength } = require("../src/utils");
 
 // Constants
 const CWD = process.cwd();
@@ -25,16 +25,6 @@ function cleanRange(version) {
     }
 
     return version;
-}
-
-/**
- * @func wordLength
- * @desc Analyze a array and find the longest string
- * @param {string[]} arrayString Array to analyze
- * @return {number}
- */
-function wordLength(arrayString = []) {
-    return arrayString.sort((a, b) => a.length - b.length).pop().length;
 }
 
 /**
