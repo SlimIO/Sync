@@ -2,18 +2,22 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { readdir, stat, access } = require("fs").promises;
+const { readdir, stat } = require("fs").promises;
 
 // Require Third Party dependencies
 const repos = require("repos");
 const { cyan, red, yellow } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 const qoa = require("qoa");
-const sade = require("sade");
 
 // Require Internal Dependencies
-const { cloneRepo, getToken, logRepoLocAndRemote,
-    pullMaster, readTomlRemote, getSlimioToml } = require("../src/utils");
+const { cloneRepo,
+    getToken,
+    logRepoLocAndRemote,
+    pullMaster,
+    readTomlRemote,
+    getSlimioToml
+} = require("../src/utils");
 
 // Globals
 require("make-promises-safe");
@@ -22,7 +26,11 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 // Constants
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
+// eslint-disable-next-line global-require
+const EXCLUDES_REPOS = new Set(require("../src/excludeRepo.json").exlds);
+
+console.log(EXCLUDES_REPOS);
+process.exit(1)
 
 /**
  * @async
