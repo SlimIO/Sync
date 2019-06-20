@@ -59,7 +59,15 @@ If no SlimIO projects are present on your computer, installation may take a litt
 <summary>outdated</summary>
 <br/>
 
-Checks for each folder (repository SlimIO) the versions dependencies (current / latest).
+Checks for each folder the versions dependencies (current / latest) and log a report in the terminal.
+
+</details>
+
+<details>
+<summary>psp</summary>
+<br/>
+
+Use [psp](https://github.com/SlimIO/psp) for each folder and log a report in terminal. 
 
 </details>
 
