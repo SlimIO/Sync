@@ -10,13 +10,14 @@ const { getSlimioToml } = require("../src/utils");
 
 // Constants
 const CWD = process.cwd();
+const NPM_TOKEN = process.env.NPM_TOKEN;
 
 /**
- * @typedef {Object} dataPackage
- * @property {string} current Current version of the package
- * @property {string} latest latest version of the package
+ * @func cleanRange
+ * @desc Clean version
+ * @param {!string} version Current version
+ * @returns {string}
  */
-
 function cleanRange(version) {
     const firstChar = version.charAt(0);
     if (firstChar === "^" || firstChar === "<" || firstChar === ">" || firstChar === "=") {
@@ -24,6 +25,25 @@ function cleanRange(version) {
     }
 
     return version;
+}
+
+/**
+ * @func wordLength
+ * @desc Analyze a array and find the longest string
+ * @param {string[]} arrayString Array to analyze
+ * @param {string} target Target for minor or major of the ret Object, value = min or maj
+ * @return {number}
+ */
+function wordLength(arrayString = [], target) {
+    if (target === "min") {
+        return arrayString.sort((a, b) => a.minor.length - b.minor.length).pop().length;
+    }
+
+    if (target === "maj") {
+        return arrayString.sort((a, b) => a.major.length - b.major.length).pop().length;
+    }
+
+    return arrayString.sort((a, b) => a.length - b.length).pop().length;
 }
 
 /**
@@ -37,7 +57,7 @@ async function getMinorAndMajor(repo) {
         const recap = { name: repo, major: 0, minor: 0 };
         const dataPkg = await outdated(join(CWD, repo), {
             devDependencies: true,
-            token: process.env.GITHUB_TOKEN
+            token: NPM_TOKEN
         });
 
         for (const { current, latest } of Object.values(dataPkg)) {
@@ -67,6 +87,10 @@ async function outdatedAll() {
         getRepoWithToml.filter((name) => name !== false).map(getMinorAndMajor)
     );
 
+    const maxLenRepo = wordLength(getRepoWithToml);
+    const maxLenMin = wordLength(ret, "min");
+    const maxLenMaj = wordLength(ret, "maj");
+
     for (const { name, major, minor, err } of ret) {
         if (err) {
             console.log(`${red(name)} : Error => ${err}`);
@@ -76,7 +100,10 @@ async function outdatedAll() {
         if (minor === 0 && major === 0) {
             continue;
         }
-        console.log(`${green(name)} : ${gray("Minor =>")} ${yellow(minor)}, ${gray("Major =>")} ${red(major)}`);
+
+        const repo = `${green(name)}${" ".repeat(maxLenRepo - name.length)}`;
+        const min = `${gray("Minor:")} ${yellow(minor)},${" ".repeat(maxLenMin - minor.length)}`;
+        console.log(`${repo} ${min}  ${gray("Major:")} ${red(major)}`);
     }
 }
 
