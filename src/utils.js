@@ -3,10 +3,11 @@ const { join } = require("path");
 const fs = require("fs");
 const { access } = require("fs").promises;
 const { spawn } = require("child_process");
+const { performance } = require("perf_hooks");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
-const { cyan, red } = require("kleur");
+const { cyan, red, white, green } = require("kleur");
 const { get } = require("node-emoji");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
@@ -59,10 +60,11 @@ async function cloneRepo(repo, index) {
     }, await getToken());
     const free = await LOCKER_DEP_DL.lock();
     const spinner = new Spinner({
-        prefixText: cyan().bold(`${index + 1}. ${repoName}`)
+        prefixText: white().bold(repoName)
     });
 
     try {
+        const start = performance.now();
         spinner.start();
         spinner.text = "Cloning from GitHub";
         await git.clone(optsClone);
@@ -73,7 +75,8 @@ async function cloneRepo(repo, index) {
         // spinner.text = "Installing dependencies";
         // await npmInstall(dir);
 
-        spinner.succeed("Ok");
+        const time = green().bold(`${(performance.now() - start).toFixed(2)}`);
+        spinner.succeed(`Fetched and installed in ${time} milliseconds.`);
         free();
 
         return null;

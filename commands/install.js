@@ -3,10 +3,11 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const { readdir, stat } = require("fs").promises;
+const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { cyan, red, yellow } = require("kleur");
+const { cyan, red, yellow, green, white } = require("kleur");
 const qoa = require("qoa");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
@@ -87,13 +88,15 @@ async function reposLocalFiltered() {
  */
 async function install() {
     await question(`Do you want execut Sync in ${CWD} ?`);
+    console.log("");
 
     if (GITHUB_ORGA === undefined) {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
 
+    const start = performance.now();
     const spinner = new Spinner({
-        prefixText: cyan().bold(`Search repositories for ${GITHUB_ORGA}`)
+        prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories`)
     }).start("Work");
 
     const [remote, reposLocalSet] = await Promise.all([
@@ -115,7 +118,10 @@ async function install() {
         .map(({ name }) => name)
         // For tests
         // .filter((repo) => repo.length <= 3);
-    spinner.succeed(`${reposRemoteArray.length} repositories found ==> \n`);
+
+    const time = cyan().bold(`${(performance.now() - start).toFixed(2)}`);
+    spinner.succeed(`Successfully fetched ${green().bold(reposRemoteArray.length)} repositories in ${time} milliseconds.\n`);
+    console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     const ret = await Promise.all(
         reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
@@ -130,6 +136,7 @@ async function install() {
     }
 
     // Check update on existing repositories
+    console.log("");
     const spin = new Spinner({
         prefixText: cyan().bold("Search update for local repositories.")
     }).start("Wait");
