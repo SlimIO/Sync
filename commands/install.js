@@ -86,7 +86,6 @@ async function reposLocalFiltered() {
  * @returns {Promise<void>}
  */
 async function install() {
-    console.log(`\n > Executing ${cyan().bold("slimio-sync install")} at: ${cyan().bold(CWD)}\n`);
     await question(`Do you want execut Sync in ${CWD} ?`);
 
     if (GITHUB_ORGA === undefined) {

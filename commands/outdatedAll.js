@@ -66,7 +66,6 @@ async function getMinorAndMajor(repo) {
  * @returns {Promise<void>}
  */
 async function outdatedAll() {
-    console.log(`\n > Executing ${yellow("slimio-sync outdated")} at: ${cyan().bold(CWD)}\n`);
     const start = performance.now();
     const spin = new Spinner({
         prefixText: "Searching for outdated dependencies in sub directories"

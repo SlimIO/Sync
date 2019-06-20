@@ -40,8 +40,6 @@ async function pspTheRepo(repo) {
  * @returns {Promise<void>}
  */
 async function pspAll() {
-    console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
-
     const reposCWD = await readdir(CWD);
     const getRepoWithToml = (
         await Promise.all(reposCWD.map(getSlimioToml))
@@ -52,11 +50,11 @@ async function pspAll() {
     ).sort((a, b) => b.crit - a.crit);
     const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
 
-    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Crit:")}   ${ul("Warn:")}\n`);
+    console.log(`\n ${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Crit:")}   ${ul("Warn:")}\n`);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
             setImmediate(() => {
-                console.log(`${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
+                console.log(` ${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
             });
             continue;
         }
@@ -67,7 +65,7 @@ async function pspAll() {
 
         const warnCount = `${ripit(5, warn)}${warn > 0 ? yellow().bold(warn) : white().bold(warn)}`;
         const critCount = `${ripit(5, crit)}${crit > 0 ? red().bold(crit) : white().bold(crit)}`;
-        console.log(`${green(name)}${ripit(mxLenRep, name)} ${critCount}  ${warnCount}`);
+        console.log(` ${green(name)}${ripit(mxLenRep, name)} ${critCount}  ${warnCount}`);
     }
 }
 
