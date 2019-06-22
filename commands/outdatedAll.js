@@ -4,7 +4,7 @@ const { readdir } = require("fs").promises;
 const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
-const outdated = require("fast-outdated");
+const { outdated, clearCache } = require("fast-outdated");
 const { red, green, yellow, cyan, grey, white } = require("kleur");
 const { diff } = require("semver");
 const Spinner = require("@slimio/async-cli-spinner");
@@ -16,21 +16,6 @@ const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
 // Constants
 const CWD = process.cwd();
 const NPM_TOKEN = process.env.NPM_TOKEN;
-
-/**
- * @func cleanRange
- * @desc Clean version
- * @param {!string} version Current version
- * @returns {string}
- */
-function cleanRange(version) {
-    const firstChar = version.charAt(0);
-    if (firstChar === "^" || firstChar === "<" || firstChar === ">" || firstChar === "=") {
-        return version.slice(version.charAt(1) === "=" ? 2 : 1);
-    }
-
-    return version;
-}
 
 /**
  * @async
@@ -46,10 +31,8 @@ async function getMinorAndMajor(repo) {
             token: NPM_TOKEN
         });
 
-        // console.log(dataPkg);
         for (const { current, latest } of Object.values(dataPkg)) {
-            // console.log(diff(cleanRange(current), latest));
-            recap[diff(cleanRange(current), latest)] += 1;
+            recap[diff(current, latest)] += 1;
         }
 
         return recap;
@@ -76,6 +59,7 @@ async function outdatedAll() {
         await Promise.all(reposCWD.map(getSlimioToml))
     ).filter((name) => name !== false);
 
+    clearCache();
     const ret = (
         await Promise.all(getRepoWithToml.map(getMinorAndMajor))
     ).sort((left, right) => right.major - left.major || right.minor - left.minor);
