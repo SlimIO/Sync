@@ -1,13 +1,17 @@
 {
     "opts": {
         "encoding": "utf8",
-        "destination": "./docs/",
+        "destination": "./jsdoc/",
         "recurse": true,
         "template": "node_modules/@escommunity/minami"
     },
     "source": {
         "include": [
-            "index.js"
+            "./bin/index.js",
+            "./commands/index.js",
+            "./commands/install.js",
+            "./commands/outdatedAll.js",
+            "./commands/pspAll.js"
         ],
         "exclude": [
             "node_modules",
