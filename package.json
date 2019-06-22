@@ -1,7 +1,7 @@
 {
     "name": "@slimio/sync",
     "version": "0.1.0",
-    "description": "",
+    "description": "SlimIO Projects Synchroniser/Manager",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
@@ -15,7 +15,12 @@
         "type": "git",
         "url": "git+https://github.com/SlimIO/Sync.git"
     },
-    "keywords": [],
+    "keywords": [
+        "slimio",
+        "sync",
+        "manager",
+        "update"
+    ],
     "author": "SlimIO",
     "license": "MIT",
     "bugs": {

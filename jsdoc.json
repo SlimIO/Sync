@@ -11,7 +11,8 @@
             "./commands/index.js",
             "./commands/install.js",
             "./commands/outdatedAll.js",
-            "./commands/pspAll.js"
+            "./commands/pspAll.js",
+            "./src/utils.js"
         ],
         "exclude": [
             "node_modules",
