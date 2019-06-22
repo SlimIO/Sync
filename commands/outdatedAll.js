@@ -5,7 +5,7 @@ const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
 const outdated = require("fast-outdated");
-const { red, green, yellow, cyan, white, underline: ul } = require("kleur");
+const { red, green, yellow, cyan, grey, white } = require("kleur");
 const { diff } = require("semver");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
@@ -78,14 +78,15 @@ async function outdatedAll() {
 
     const ret = (
         await Promise.all(getRepoWithToml.map(getMinorAndMajor))
-    ).sort((a, b) => b.major - a.major);
+    ).sort((a, b) => b.major - a.major || b.minor - a.minor);
     const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
     const end = performance.now() - start;
     spin.succeed(
-        `Successfully retrieved ${green().bold(ret.length)} repositories in ${cyan().bold(end.toFixed(2))} millisecondes !`
+        `Fetched ${green().bold(ret.length)} repositories in ${cyan().bold(end.toFixed(2))} millisecondes !`
     );
 
-    console.log(`\n ${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Major:")}   ${ul("Minor:")}   ${ul("Patch:")}\n`);
+    const ul = white().bold().underline;
+    console.log(`\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Major")}   ${ul("Minor")}   ${ul("Patch")}\n`);
     for (const { name, major, minor, patch, err } of ret) {
         if (err) {
             setImmediate(() => {
@@ -94,14 +95,15 @@ async function outdatedAll() {
             continue;
         }
 
-        if (minor === 0 && major === 0) {
+        if (minor === 0 && major === 0 && patch === 0) {
             continue;
         }
 
-        const majorCount = `${ripit(5, major)} ${major > 0 ? yellow().bold(major) : white().bold(major)}`;
-        const minorCount = `${ripit(5, minor)}${white().bold(minor)}`;
-        const patchCount = `${ripit(5, patch)} ${white().bold(patch)}`;
+        const majorCount = `${ripit(3, major)}${major > 0 ? yellow().bold(major) : grey().bold("0")}`;
+        const minorCount = `${ripit(5, minor)}${minor > 0 ? white().bold(minor) : grey().bold("0")}`;
+        const patchCount = `${ripit(5, patch)}${patch > 0 ? white().bold(patch) : grey().bold("0")}`;
         console.log(` ${green(name)}${ripit(mxLenRep, name)} ${majorCount}   ${minorCount}   ${patchCount}`);
+        console.log(grey().bold(` ${"-".repeat(mxLenRep + 22)}`));
     }
 }
 

@@ -1,13 +1,18 @@
-// Require Third-party dependencies
+// Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
+const { performance } = require("perf_hooks");
+
+// Require Third-party dependencies
 const psp = require("@slimio/psp");
-const { red, green, yellow, cyan, white, underline: ul } = require("kleur");
+const { red, green, yellow, grey, white, cyan } = require("kleur");
+const Spinner = require("@slimio/async-cli-spinner");
+Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
 const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
 
-// Constants
+// CONSTANTS
 const CWD = process.cwd();
 
 /**
@@ -40,6 +45,11 @@ async function pspTheRepo(repo) {
  * @returns {Promise<void>}
  */
 async function pspAll() {
+    const start = performance.now();
+    const spin = new Spinner({
+        prefixText: "Retrieving psp reports on all sub directories"
+    }).start("");
+
     const reposCWD = await readdir(CWD);
     const getRepoWithToml = (
         await Promise.all(reposCWD.map(getSlimioToml))
@@ -47,10 +57,16 @@ async function pspAll() {
 
     const ret = (
         await Promise.all(getRepoWithToml.map(pspTheRepo))
-    ).sort((a, b) => b.crit - a.crit);
+    ).sort((a, b) => b.crit - a.crit || b.warn - a.warn);
+
+    const end = cyan().bold((performance.now() - start).toFixed(2));
+    spin.succeed(
+        `Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`
+    );
     const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
 
-    console.log(`\n ${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Crit:")}   ${ul("Warn:")}\n`);
+    const ul = white().bold().underline;
+    console.log(`\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Crit")}     ${ul("Warn")}\n`);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
             setImmediate(() => {
@@ -63,9 +79,10 @@ async function pspAll() {
             continue;
         }
 
-        const warnCount = `${ripit(5, warn)}${warn > 0 ? yellow().bold(warn) : white().bold(warn)}`;
-        const critCount = `${ripit(5, crit)}${crit > 0 ? red().bold(crit) : white().bold(crit)}`;
-        console.log(` ${green(name)}${ripit(mxLenRep, name)} ${critCount}  ${warnCount}`);
+        const warnCount = `${ripit(9, warn)}${warn > 0 ? yellow().bold(warn) : grey().bold("0")}`;
+        const critCount = `${ripit(3, crit)}${crit > 0 ? red().bold(crit) : grey().bold("0")}`;
+        console.log(` ${green(name)}${ripit(mxLenRep, name)}${critCount}${warnCount}`);
+        console.log(grey().bold(` ${"-".repeat(mxLenRep + 14)}`));
     }
 }
 
