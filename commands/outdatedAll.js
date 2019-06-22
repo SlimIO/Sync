@@ -99,8 +99,8 @@ async function outdatedAll() {
             continue;
         }
 
-        const majorCount = `${ripit(3, major)}${major > 0 ? yellow().bold(major) : grey().bold("0")}`;
-        const minorCount = `${ripit(5, minor)}${minor > 0 ? white().bold(minor) : grey().bold("0")}`;
+        const majorCount = `${ripit(3, major)}${major > 0 ? red().bold(major) : grey().bold("0")}`;
+        const minorCount = `${ripit(5, minor)}${minor > 0 ? yellow().bold(minor) : grey().bold("0")}`;
         const patchCount = `${ripit(5, patch)}${patch > 0 ? white().bold(patch) : grey().bold("0")}`;
         console.log(` ${green(name)}${ripit(mxLenRep, name)} ${majorCount}   ${minorCount}   ${patchCount}`);
         console.log(grey().bold(` ${"-".repeat(mxLenRep + 22)}`));
