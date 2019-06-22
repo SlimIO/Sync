@@ -49,7 +49,7 @@ process:
 - Pull master branch for each repository
 - Installs the dependencies for each repository
 
-If some repository were already present locally, the `install` command checks for updates and pull master branch if necessary.  
+If some repository were already present locally, the `install` command checks for updates and pull master branch if necessary.
 
 If no SlimIO projects are present on your computer, installation may take a little while
 
@@ -67,9 +67,30 @@ Checks for each folder the versions dependencies (current / latest) and log a re
 <summary>psp</summary>
 <br/>
 
-Use [psp](https://github.com/SlimIO/psp) for each folder and log a report in terminal. 
+Use [psp](https://github.com/SlimIO/psp) for each folder and log a report in terminal.
 
 </details>
+
+## Dependencies
+
+|Name|Refactoring|Security Risk|Usage|
+|---|---|---|---|
+|[@slimio/async-cli-spinner](https://github.com/SlimIO/Async-cli-spinner)|Minor|Low|Multi async cli spinner|
+|[@slimio/lazy](https://github.com/SlimIO/Lazy)|Minor|Low|Setup lazy props on Objects|
+|[@slimio/lock](https://github.com/SlimIO/Lock#readme)|Minor|High|TBC|
+|[@slimio/psp](https://github.com/SlimIO/psp#readme)|Minor|High|TBC|
+|[dotenv](https://github.com/motdotla/dotenv)|Minor|Low|Env file|
+|[fast-outdated](https://github.com/fraxken/fast-outdated#readme)|⚠️Major|High|TBC|
+|[httpie](https://github.com/jakubroztocil/httpie)|Minor|Low|	HTTP request|
+|[isomorphic-git](https://isomorphic-git.org/)|⚠️Major|High|TBC|
+|[kleur](https://github.com/lukeed/kleur)|Minor|Low|TTY color|
+|[make-promises-safe](https://github.com/mcollina/make-promises-safe#readme)|⚠️Major|Low|TBC|
+|[node-emoji](https://github.com/omnidan/node-emoji#readme)|⚠️Major|High|TBC|
+|[qoa](https://github.com/klaussinani/qoa#readme)|⚠️Major|Low|TBC|
+|[repos](https://github.com/jonschlinkert/repos)|⚠️Major|Low|Get all GIT repositories|
+|[sade](https://github.com/lukeed/sade#readme)|⚠️Major|High|TBC|
+|[semver](https://github.com/npm/node-semver)|⚠️Major|Low|SemVer validation|
+
 
 ## License
 MIT
