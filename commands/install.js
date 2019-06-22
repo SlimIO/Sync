@@ -60,16 +60,20 @@ async function question(sentence, force = false) {
  * @async
  * @func reposLocalFiltered
  * @desc Filters local repositories
+ * @param {Boolean} [searchForToml=true] search for a .toml file at the root of each directories
  * @returns {Set<String>}
  */
-async function reposLocalFiltered() {
+async function reposLocalFiltered(searchForToml = true) {
     const localDir = await readdir(CWD);
-    const reposLocalStat = await Promise.all(
-        localDir.map((name) => stat(join(CWD, name)))
-    );
+    const reposLocalStat = await Promise.all(localDir.map((name) => stat(join(CWD, name))));
     const reposLocal = localDir
         .filter((name, idx) => reposLocalStat[idx].isDirectory())
         .map((name) => name.toLowerCase());
+
+    if (!searchForToml) {
+        return new Set(reposLocal);
+    }
+
     const result = await Promise.all(reposLocal.map((name) => getSlimioToml(name)));
 
     return new Set(result.filter((name) => name !== false));
