@@ -38,6 +38,18 @@ $ slimio-sync outdated
 $ slimio-sync psp
 ```
 
+## Windows users
+Windows Defender will be a problem for the install command.
+
+```powershell
+Write-Host "Excluding appdata NPM folder and Node.JS install folder from Windows Defender."
+Add-MpPreference -ExclusionPath ([System.Environment]::ExpandEnvironmentVariables("%APPDATA%\npm\"))
+Add-MpPreference -ExclusionPath (Get-ItemProperty "HKLM:SOFTWARE\Node.js" | Select-Object -Property InstallPath)
+
+Write-Host "Excluding node related executables from Windows Defender."
+("node", "node.exe", "Expo XDE.exe", "yarn", "yarn.exe") | foreach {Add-MpPreference -ExclusionProcess $_}
+```
+
 ## API
 
 <details>

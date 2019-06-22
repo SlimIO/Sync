@@ -7,7 +7,7 @@ const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
 const repos = require("repos");
-const { cyan, red, yellow, green, white } = require("kleur");
+const { cyan, red, yellow, green, grey, white } = require("kleur");
 const qoa = require("qoa");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
@@ -67,8 +67,7 @@ async function reposLocalFiltered(searchForToml = true) {
     const localDir = await readdir(CWD);
     const reposLocalStat = await Promise.all(localDir.map((name) => stat(join(CWD, name))));
     const reposLocal = localDir
-        .filter((name, idx) => reposLocalStat[idx].isDirectory())
-        .map((name) => name.toLowerCase());
+        .filter((name, idx) => reposLocalStat[idx].isDirectory());
 
     if (!searchForToml) {
         return new Set(reposLocal);
@@ -84,9 +83,10 @@ async function reposLocalFiltered(searchForToml = true) {
  * @func updateRepositories
  * @desc pull and update repositories
  * @param {String[]} localRepositories local repositories
+ * @param {Object} token token
  * @returns {Promise<void>}
  */
-async function updateRepositories(localRepositories) {
+async function updateRepositories(localRepositories, token) {
     console.log("");
     const spin = new Spinner({
         prefixText: cyan().bold("Searching for update in local repositories.")
@@ -104,7 +104,9 @@ async function updateRepositories(localRepositories) {
             break pullRepositories;
         }
 
-        await Promise.all(repoWithNoUpdate.map((repoName) => pullMaster(repoName, true)));
+        await Promise.all(
+            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, token }))
+        );
     }
 }
 
@@ -128,34 +130,43 @@ async function install() {
     }).start("Work");
 
     // Retrieve local and remote repositories
+    const token = await getToken();
     const [remote, reposLocalSet] = await Promise.all([
-        repos(GITHUB_ORGA, await getToken()),
+        repos(GITHUB_ORGA, token),
         reposLocalFiltered()
     ]);
-    const filteredRemote = remote.filter((row) => !row.archived).map((row) => row.name.toLowerCase());
 
     // Remove specific projects depending on the current OS
+    const skipInstallation = new Set();
     try {
-        (await Promise.all(filteredRemote.map(readTomlRemote)))
+        (await Promise.all(remote.map(readTomlRemote)))
             .filter((repo) => repo !== false)
-            .map((repo) => EXCLUDES_REPOS.add(repo));
+            .map((repo) => skipInstallation.add(repo));
     }
     catch (err) {
         // Ignore
     }
 
     // Filter to retrieve repositories that are not cloned in locals
-    const remoteToClone = remote.filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name));
+    const remoteToClone = remote
+        .filter((row) => !row.archived)
+        .map((row) => row.name)
+        .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()));
 
-    const fetchTime = cyan().bold(`${(performance.now() - fetchTimer).toFixed(2)}`);
-    spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime} milliseconds.\n`);
+    const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
+    spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);
+
+    console.log(white().bold(` > Number of local repositories: ${yellow().bold(reposLocalSet.size)}`));
+    console.log(grey().bold("   ------------------------------------"));
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     // Clone and install projects
-    await Promise.all(remoteToClone.map((repos, index) => cloneRepo(repos, index)));
+    await Promise.all(
+        remoteToClone.map((repoName) => cloneRepo(repoName, { skipInstall: skipInstallation.has(repoName), token }))
+    );
 
     // Update repositories
-    await updateRepositories([...reposLocalSet]);
+    // await updateRepositories([...reposLocalSet], token);
 }
 
 module.exports = install;
