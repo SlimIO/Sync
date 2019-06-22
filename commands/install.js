@@ -77,6 +77,35 @@ async function reposLocalFiltered() {
 
 /**
  * @async
+ * @func updateRepositories
+ * @desc pull and update repositories
+ * @param {String[]} localRepositories local repositories
+ * @returns {Promise<void>}
+ */
+async function updateRepositories(localRepositories) {
+    console.log("");
+    const spin = new Spinner({
+        prefixText: cyan().bold("Searching for update in local repositories.")
+    }).start("Wait");
+
+    const repoWithNoUpdate = (await Promise.all(
+        localRepositories.map(logRepoLocAndRemote)
+    )).filter((repoName) => repoName !== false);
+    spin.succeed(`${repoWithNoUpdate.length} must be updated!\n`);
+
+    pullRepositories : if (repoWithNoUpdate.length > 0) {
+        const force = await question(
+            `\n- ${repoWithNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`, "force");
+        if (!force) {
+            break pullRepositories;
+        }
+
+        await Promise.all(repoWithNoUpdate.map((repoName) => pullMaster(repoName, true)));
+    }
+}
+
+/**
+ * @async
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
  * @returns {Promise<void>}
@@ -121,31 +150,8 @@ async function install() {
     // Clone and install projects
     await Promise.all(remoteToClone.map((repos, index) => cloneRepo(repos, index)));
 
-    // Check update on existing repositories
-    console.log("");
-    const spin = new Spinner({
-        prefixText: cyan().bold("Search update for local repositories.")
-    }).start("Wait");
-
-    const repoWithNoUpdate = (await Promise.all(
-        [...reposLocalSet].map(logRepoLocAndRemote)
-    )).filter((repoName) => repoName !== false);
-    spin.succeed(`${repoWithNoUpdate.length} found\n`);
-
-    pullRepositories : if (repoWithNoUpdate.length > 0) {
-        const sentence = [
-            `\n- ${repoWithNoUpdate.join("\n- ")}\n\n`,
-            "The above repoitories doesn't update. Do you want update them ?`"
-        ].join("");
-        const force = await question(sentence, "force");
-        if (!force) {
-            break pullRepositories;
-        }
-
-        await Promise.all(
-            repoWithNoUpdate.map((repoName) => pullMaster(repoName, true))
-        );
-    }
+    // Update repositories
+    await updateRepositories([...reposLocalSet]);
 }
 
 module.exports = install;
