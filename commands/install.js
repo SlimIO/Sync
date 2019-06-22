@@ -13,7 +13,8 @@ const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
-const { cloneRepo,
+const {
+    cloneRepo,
     getToken,
     logRepoLocAndRemote,
     pullMaster,
@@ -21,11 +22,7 @@ const { cloneRepo,
     getSlimioToml
 } = require("../src/utils");
 
-// Globals
-require("make-promises-safe");
-require("dotenv").config({ path: join(__dirname, "..", ".env") });
-
-// Constants
+// CONSTANTS
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
@@ -35,18 +32,17 @@ const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
  * @func question
  * @desc Question for the user
  * @param {!string} sentence Sentence
- * @param {boolean} force Allows not exit even in case of negative respone
+ * @param {boolean} [force=false] Allows not exit even in case of negative respone
  * @returns {void|boolean}
  */
 async function question(sentence, force = false) {
-    const confirm = { type: "confirm",
+    const { validQuestion } = await qoa.confirm({
+        type: "confirm",
         accept: "y",
         deny: "n",
         handle: "validQuestion",
         query: yellow(sentence)
-    };
-
-    const { validQuestion } = await qoa.confirm(confirm);
+    });
 
     if (force) {
         return validQuestion;
@@ -64,7 +60,7 @@ async function question(sentence, force = false) {
  * @async
  * @func reposLocalFiltered
  * @desc Filters local repositories
- * @returns {String[]}
+ * @returns {Set<String>}
  */
 async function reposLocalFiltered() {
     const localDir = await readdir(CWD);
@@ -86,53 +82,44 @@ async function reposLocalFiltered() {
  * @returns {Promise<void>}
  */
 async function install() {
+    if (typeof GITHUB_ORGA === "undefined") {
+        throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
+    }
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
 
-    if (GITHUB_ORGA === undefined) {
-        throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
-    }
-
-    const start = performance.now();
+    // Start a spinner
+    const fetchTimer = performance.now();
     const spinner = new Spinner({
         prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories`)
     }).start("Work");
 
+    // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
         repos(GITHUB_ORGA, await getToken()),
         reposLocalFiltered()
     ]);
-    remote.forEach((repo) => {
-        repo.name = repo.name.toLowerCase();
-    });
+    const filteredRemote = remote.filter((row) => !row.archived).map((row) => row.name.toLowerCase());
 
-    const searchPlatform = await Promise.all(
-        remote.map(readTomlRemote)
-    );
-    searchPlatform.filter((repo) => repo !== false)
-        .map((repo) => EXCLUDES_REPOS.add(repo));
+    // Remove specific projects depending on the current OS
+    try {
+        (await Promise.all(filteredRemote.map(readTomlRemote)))
+            .filter((repo) => repo !== false)
+            .map((repo) => EXCLUDES_REPOS.add(repo));
+    }
+    catch (err) {
+        // Ignore
+    }
 
-    const reposRemoteArray = remote
-        .filter(({ name, archived }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name) && !archived)
-        .map(({ name }) => name);
-        // For tests
-        // .filter((repo) => repo.length <= 3);
+    // Filter to retrieve repositories that are not cloned in locals
+    const remoteToClone = remote.filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name));
 
-    const time = cyan().bold(`${(performance.now() - start).toFixed(2)}`);
-    spinner.succeed(`Successfully fetched ${green().bold(reposRemoteArray.length)} repositories in ${time} milliseconds.\n`);
+    const fetchTime = cyan().bold(`${(performance.now() - fetchTimer).toFixed(2)}`);
+    spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime} milliseconds.\n`);
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
-    const ret = await Promise.all(
-        reposRemoteArray.map((repos, index) => cloneRepo(repos, index))
-    );
-
-    // Display errors
-    const err = ret.filter((repo) => repo !== null);
-    if (err.length !== 0) {
-        console.log("\n\n", `${cyan("Error(s) recap ==>")}\n`);
-        err.map((err) => console.log(err));
-        await question("\nThere were errors during the clone, do you want continue ?");
-    }
+    // Clone and install projects
+    await Promise.all(remoteToClone.map((repos, index) => cloneRepo(repos, index)));
 
     // Check update on existing repositories
     console.log("");
@@ -140,17 +127,14 @@ async function install() {
         prefixText: cyan().bold("Search update for local repositories.")
     }).start("Wait");
 
-    reposLocalArray = [];
-    reposLocalSet.forEach((repo) => reposLocalArray.push(repo));
-    const repoNoUpdate = await Promise.all(
-        reposLocalArray.map(logRepoLocAndRemote)
-    );
-    repoNoUpdateFiltered = repoNoUpdate.filter((repoName) => repoName !== false);
-    spin.succeed(`${repoNoUpdateFiltered.length} found\n`);
+    const repoWithNoUpdate = (await Promise.all(
+        [...reposLocalSet].map(logRepoLocAndRemote)
+    )).filter((repoName) => repoName !== false);
+    spin.succeed(`${repoWithNoUpdate.length} found\n`);
 
-    pullRepositories : if (repoNoUpdateFiltered.length > 0) {
+    pullRepositories : if (repoWithNoUpdate.length > 0) {
         const sentence = [
-            `\n- ${repoNoUpdateFiltered.join("\n- ")}\n\n`,
+            `\n- ${repoWithNoUpdate.join("\n- ")}\n\n`,
             "The above repoitories doesn't update. Do you want update them ?`"
         ].join("");
         const force = await question(sentence, "force");
@@ -159,7 +143,7 @@ async function install() {
         }
 
         await Promise.all(
-            repoNoUpdateFiltered.map((repoName) => pullMaster(repoName, true))
+            repoWithNoUpdate.map((repoName) => pullMaster(repoName, true))
         );
     }
 }

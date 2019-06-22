@@ -77,15 +77,12 @@ async function cloneRepo(repo, index) {
 
         const time = green().bold(`${(performance.now() - start).toFixed(2)}`);
         spinner.succeed(`Fetched and installed in ${time} milliseconds.`);
-        free();
-
-        return null;
     }
     catch ({ message }) {
-        spinner.failed("Failed");
+        spinner.failed(`Installation failed: ${message}`);
+    }
+    finally {
         free();
-
-        return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }
 }
 

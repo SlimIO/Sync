@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+const { join } = require("path");
 require("make-promises-safe");
+require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Require Third-party Dependencies
 const sade = require("sade");
