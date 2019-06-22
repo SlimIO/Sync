@@ -97,12 +97,11 @@ Use [psp](https://github.com/SlimIO/psp) for each folder and log a report in ter
 |[isomorphic-git](https://isomorphic-git.org/)|⚠️Major|High|TBC|
 |[kleur](https://github.com/lukeed/kleur)|Minor|Low|TTY color|
 |[make-promises-safe](https://github.com/mcollina/make-promises-safe#readme)|⚠️Major|Low|TBC|
-|[node-emoji](https://github.com/omnidan/node-emoji#readme)|⚠️Major|High|TBC|
 |[qoa](https://github.com/klaussinani/qoa#readme)|⚠️Major|Low|TBC|
 |[repos](https://github.com/jonschlinkert/repos)|⚠️Major|Low|Get all GIT repositories|
 |[sade](https://github.com/lukeed/sade#readme)|⚠️Major|High|TBC|
 |[semver](https://github.com/npm/node-semver)|⚠️Major|Low|SemVer validation|
-
+|[premove](https://github.com/lukeed/premove#readme)|Minor|Low|Remove dir/files recursively|
 
 ## License
 MIT

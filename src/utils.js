@@ -7,8 +7,8 @@ const { performance } = require("perf_hooks");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
-const { cyan, red, white, green } = require("kleur");
-const { get } = require("node-emoji");
+const { cyan, white, green } = require("kleur");
+const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
@@ -56,6 +56,7 @@ async function cloneRepo(repoName, options = {}) {
     const { skipInstall = false, token = {} } = options;
 
     const free = await LOCKER_DEP_DL.lock();
+    const dir = join(CWD, repoName);
     const spinner = new Spinner({
         prefixText: white().bold(repoName)
     }).start("Cloning from GitHub");
@@ -65,7 +66,7 @@ async function cloneRepo(repoName, options = {}) {
 
         // Clone
         await git.clone({
-            dir: join(CWD, repoName),
+            dir,
             url: new URL(repoName, ORGA_URL).href,
             singleBranch: true,
             ...token
@@ -85,6 +86,7 @@ async function cloneRepo(repoName, options = {}) {
     }
     catch (error) {
         spinner.failed(`Installation failed: ${error.message}`);
+        await premove(dir);
     }
     finally {
         free();
