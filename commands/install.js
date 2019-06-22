@@ -28,8 +28,7 @@ require("dotenv").config({ path: join(__dirname, "..", ".env") });
 // Constants
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
-// eslint-disable-next-line global-require
-const EXCLUDES_REPOS = new Set(require("../src/excludedRepo.json").exlds);
+const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
 
 /**
  * @async
