@@ -75,6 +75,6 @@
         "branches": 90
     },
     "bin": {
-        "slimio-sync": "./bin/index.js"
+        "psync": "./bin/index.js"
     }
 }

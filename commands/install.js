@@ -25,6 +25,7 @@ const {
 // CONSTANTS
 const CWD = process.cwd();
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
+const ALLOW_TOML = typeof process.env.TOML === "undefined" ? false : process.env.TOML === "true";
 const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
 
 /**
@@ -69,7 +70,7 @@ async function reposLocalFiltered(searchForToml = true) {
     const reposLocal = localDir
         .filter((name, idx) => reposLocalStat[idx].isDirectory());
 
-    if (!searchForToml) {
+    if (!searchForToml || !ALLOW_TOML) {
         return new Set(reposLocal);
     }
 
@@ -138,13 +139,15 @@ async function install() {
 
     // Remove specific projects depending on the current OS
     const skipInstallation = new Set();
-    try {
-        (await Promise.all(remote.map(readTomlRemote)))
-            .filter((repo) => repo !== false)
-            .map((repo) => skipInstallation.add(repo));
-    }
-    catch (err) {
-        // Ignore
+    if (ALLOW_TOML) {
+        try {
+            (await Promise.all(remote.map(readTomlRemote)))
+                .filter((repo) => repo !== false)
+                .map((repo) => skipInstallation.add(repo));
+        }
+        catch (err) {
+            // Ignore
+        }
     }
 
     // Filter to retrieve repositories that are not cloned in locals

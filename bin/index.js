@@ -11,7 +11,7 @@ const { white, yellow, cyan } = require("kleur");
 // Require Internal Dependencies
 const commands = require("../commands");
 
-console.log(white().bold(`\n > Executing ${yellow().bold("slimio-sync psp")} at: ${cyan().bold(process.cwd())}\n`));
+console.log(white().bold(`\n > Executing ${yellow().bold("psync")} at: ${cyan().bold(process.cwd())}\n`));
 const prog = sade("slimio-sync").version("0.1.0");
 
 prog

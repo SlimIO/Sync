@@ -25,6 +25,7 @@ If you want to download private SlimIO repository, create a local .env file with
 GITHUB_TOKEN=
 GITHUB_ORGA=
 NPM_TOKEN=
+TOML=true
 ```
 
 If you don't know how to get a personnal token, please follow [Github Guide](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) and [Npm Guide](https://docs.npmjs.com/creating-and-viewing-authentication-tokens).
