@@ -78,7 +78,7 @@ async function outdatedAll() {
 
     const ret = (
         await Promise.all(getRepoWithToml.map(getMinorAndMajor))
-    ).sort((a, b) => b.major - a.major || b.minor - a.minor);
+    ).sort((left, right) => right.major - left.major || right.minor - left.minor);
     const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
     const end = performance.now() - start;
     spin.succeed(

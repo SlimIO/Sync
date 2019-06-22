@@ -57,7 +57,7 @@ async function pspAll() {
 
     const ret = (
         await Promise.all(getRepoWithToml.map(pspTheRepo))
-    ).sort((a, b) => b.crit - a.crit || b.warn - a.warn);
+    ).sort((left, right) => right.crit - left.crit || right.warn - left.warn);
 
     const end = cyan().bold((performance.now() - start).toFixed(2));
     spin.succeed(

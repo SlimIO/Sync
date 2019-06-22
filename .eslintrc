@@ -1,6 +1,3 @@
 {
-    "extends": "@slimio/eslint-config",
-    "rules": {
-        "id-length": "off"
-    }
+    "extends": "@slimio/eslint-config"
 }

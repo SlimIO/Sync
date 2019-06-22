@@ -287,7 +287,7 @@ function ripit(nb, elem) {
  * @return {number}
  */
 function wordMaxLength(arrayString = []) {
-    return arrayString.sort((a, b) => a.length - b.length).pop().length;
+    return arrayString.sort((left, right) => left.length - right.length).pop().length;
 }
 
 module.exports = {
