@@ -115,7 +115,7 @@ async function install() {
 
     const reposRemoteArray = remote
         .filter(({ name, archived }) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name) && !archived)
-        .map(({ name }) => name)
+        .map(({ name }) => name);
         // For tests
         // .filter((repo) => repo.length <= 3);
 
