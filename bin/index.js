@@ -22,14 +22,14 @@ prog
     .option("-u, --update", "Use only the pull of the master branch for the all repositories SlimIO.")
     .option("-d, --dev", "Ignore dependencies installation for developpement of the Sync.")
     .action(async(options) => {
-        const setOpts = new Set(["c", "u", "d"]);
+        const setOpts = new Set(["clone", "update", "dev"]);
         const opts = {};
 
         Object.keys(options)
-            .filter((key) => key.length === 1 && key !== "_" && setOpts.has(key))
+            .filter((key) => key.length !== 1 && setOpts.has(key))
             .map((key) => Reflect.set(opts, key, true));
 
-        await commands.install({ c, p, d, dev });
+        await commands.install(opts);
     });
 
 prog

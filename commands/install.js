@@ -96,7 +96,7 @@ async function updateRepositories(localRepositories, token) {
     const repoWithNoUpdate = (await Promise.all(
         localRepositories.map(logRepoLocAndRemote)
     )).filter((repoName) => repoName !== false);
-    spin.succeed(`${repoWithNoUpdate.length} must be updated!\n`);
+    spin.succeed(`${repoWithNoUpdate.length} repositories found!\n`);
 
     pullRepositories : if (repoWithNoUpdate.length > 0) {
         const force = await question(
@@ -116,23 +116,36 @@ async function updateRepositories(localRepositories, token) {
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
  * @param {Object} optsCmd Commandes options
+ * @param {boolean} optsCmd.update Just for update
+ * @param {boolean} optsCmd.clone Just for clone
+ * @param {boolean} optsCmd.dev Ignore dependencies installtion
  * @returns {Promise<void>}
  */
 async function install(optsCmd) {
     if (typeof GITHUB_ORGA === "undefined") {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
+    const { update = false, clone = false, dev = false } = optsCmd;
+
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
 
     // Start a spinner
     const fetchTimer = performance.now();
-    const spinner = new Spinner({
-        prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories`)
-    }).start("Work");
-
-    // Retrieve local and remote repositories
     const token = await getToken();
+    const spinner = new Spinner({
+        prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories.`)
+    });
+
+    // Cmd update
+    if (update) {
+        await updateRepositories([...await reposLocalFiltered()], token);
+
+        return;
+    }
+    // Start Spinner
+    spinner.start("Work");
+    // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
         repos(GITHUB_ORGA, token),
         reposLocalFiltered()
@@ -140,7 +153,7 @@ async function install(optsCmd) {
 
     // Remove specific projects depending on the current OS
     const skipInstallation = new Set();
-    if (ALLOW_TOML) {
+    if (ALLOW_TOML && !dev && !update) {
         try {
             (await Promise.all(remote.map(readTomlRemote)))
                 .filter((repo) => repo !== false)
@@ -165,12 +178,16 @@ async function install(optsCmd) {
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     // Clone and install projects
+
     await Promise.all(
-        remoteToClone.map((repoName) => cloneRepo(repoName, { skipInstall: skipInstallation.has(repoName), token }))
+        remoteToClone.map((repoName) => cloneRepo(repoName, {
+            skipInstall: skipInstallation.has(repoName),
+            token, clone, dev
+        }))
     );
 
     // Update repositories
-    // await updateRepositories([...reposLocalSet], token);
+    await updateRepositories([...reposLocalSet], token);
 }
 
 module.exports = install;

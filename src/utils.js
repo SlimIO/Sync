@@ -53,7 +53,7 @@ async function getToken() {
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
-    const { skipInstall = false, token = {} } = options;
+    const { skipInstall = false, token = {}, clone, dev } = options;
 
     const free = await LOCKER_DEP_DL.lock();
     const dir = join(CWD, repoName);
@@ -65,20 +65,25 @@ async function cloneRepo(repoName, options = {}) {
         const start = performance.now();
 
         // Clone
-        await git.clone({
-            dir,
-            url: new URL(repoName, ORGA_URL).href,
-            singleBranch: true,
-            ...token
-        });
+        cmdOptions: {
+            await git.clone({
+                dir,
+                url: new URL(repoName, ORGA_URL).href,
+                singleBranch: true,
+                ...token
+            });
+            if (clone) {
+                break cmdOptions;
+            }
 
-        // Pull master branch
-        spinner.text = "Pull master from GitHub";
-        await pullMaster(repoName, { needSpin: false, token });
+            // Pull master branch
+            spinner.text = "Pull master from GitHub";
+            await pullMaster(repoName, { needSpin: false, token });
 
-        if (!skipInstall) {
-            spinner.text = "Installing dependencies";
-            await npmInstall(repoName);
+            if (!skipInstall && !dev) {
+                spinner.text = "Installing dependencies";
+                await npmInstall(repoName);
+            }
         }
 
         const executionTime = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
