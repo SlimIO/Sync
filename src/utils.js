@@ -3,11 +3,12 @@ const { join } = require("path");
 const fs = require("fs");
 const { access } = require("fs").promises;
 const { spawn } = require("child_process");
+const { performance } = require("perf_hooks");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
-const { cyan, red } = require("kleur");
-const { get } = require("node-emoji");
+const { cyan, white, green } = require("kleur");
+const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
@@ -19,7 +20,7 @@ const LOCKER_DEP_DL = new Lock({ max: 3 });
 const LOCKER_PULL_MASTER = new Lock({ max: 8 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const _URL = `https://github.com/${GITHUB_ORGA}/`;
+const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
 git.plugins.set("fs", fs);
@@ -45,44 +46,50 @@ async function getToken() {
  * @async
  * @func cloneRepo
  * @desc Clone & pull master
- * @param {!string} repo Name of the repository
- * @param {number} index Numero of the repository
+ * @param {!string} repoName Name of the repository
+ * @param {Object} [options] options
+ * @param {Boolean} [options.skipInstall=false] skip npm installation
+ * @param {Object} [options.token] token
  * @returns {Promise<string|null>}
  */
-async function cloneRepo(repo, index) {
-    const repoName = `${repo.charAt(0).toUpperCase()}${repo.slice(1)}`;
-    const dir = join(CWD, repoName);
-    const url = `${_URL}${repoName}`;
-    const optsClone = Object.assign({
-        dir, url,
-        singleBranch: true
-    }, await getToken());
+async function cloneRepo(repoName, options = {}) {
+    const { skipInstall = false, token = {} } = options;
+
     const free = await LOCKER_DEP_DL.lock();
+    const dir = join(CWD, repoName);
     const spinner = new Spinner({
-        prefixText: cyan().bold(`${index + 1}. ${repoName}`)
-    });
+        prefixText: white().bold(repoName)
+    }).start("Cloning from GitHub");
 
     try {
-        spinner.start();
-        spinner.text = "Cloning from GitHub";
-        await git.clone(optsClone);
+        const start = performance.now();
 
+        // Clone
+        await git.clone({
+            dir,
+            url: new URL(repoName, ORGA_URL).href,
+            singleBranch: true,
+            ...token
+        });
+
+        // Pull master branch
         spinner.text = "Pull master from GitHub";
-        await pullMaster(repoName);
+        await pullMaster(repoName, { needSpin: false, token });
 
-        // spinner.text = "Installing dependencies";
-        // await npmInstall(dir);
+        if (!skipInstall) {
+            spinner.text = "Installing dependencies";
+            await npmInstall(repoName);
+        }
 
-        spinner.succeed("Ok");
-        free();
-
-        return null;
+        const executionTime = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
+        spinner.succeed(`Completed in ${executionTime}`);
     }
-    catch ({ message }) {
-        spinner.failed("Failed");
+    catch (error) {
+        spinner.failed(`Installation failed: ${error.message}`);
+        await premove(dir);
+    }
+    finally {
         free();
-
-        return `${red(get(":x:"))} ${repoName} - Error ==> ${message}`;
     }
 }
 
@@ -153,20 +160,16 @@ async function logRepoLocAndRemote(repoName) {
  * @func pullMaster
  * @desc Pull from gitHub
  * @param {!String} repoName Name of the repository
- * @param {Boolean} needSpin Need spinner or not
+ * @param {Object} [options] options
+ * @param {Boolean} [options.needSpin=false] Need spinner or not
+ * @param {Object} [options.token] token
  * @returns {Promise<void>}
  */
-async function pullMaster(repoName, needSpin = false) {
+async function pullMaster(repoName, options) {
+    const { needSpin = false, token = {} } = options;
+
     let spinner;
     const free = await LOCKER_PULL_MASTER.lock();
-    const dir = join(CWD, repoName);
-    const url = `${_URL}${repoName}`;
-    const optsPull = Object.assign({
-        dir, url,
-        singleBranch: true,
-        ref: "master"
-    }, await getToken());
-
     if (needSpin) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`)
@@ -174,16 +177,24 @@ async function pullMaster(repoName, needSpin = false) {
     }
 
     try {
-        await git.pull(optsPull);
+        await git.pull({
+            dir: join(CWD, repoName),
+            url: new URL(repoName, ORGA_URL).href,
+            singleBranch: true,
+            ref: "master",
+            ...token
+        });
+
         if (needSpin) {
             spinner.succeed("Pull master OK");
         }
-        free();
     }
     catch (error) {
         if (needSpin) {
             spinner.failed(`Failed - ${error.message}`);
         }
+    }
+    finally {
         free();
     }
 }
@@ -192,14 +203,16 @@ async function pullMaster(repoName, needSpin = false) {
  * @async
  * @func npmInstall
  * @desc Spawn a new node cmd
- * @param {!string} dir Path of the directory
+ * @param {!string} cwd Path of the directory
+ * @param {!string} stdio spawn stdio
  * @returns {Promise<void>}
  */
-async function npmInstall(dir) {
-    const cmd = await fileExist(dir, "package-lock.json") ? "ci" : "install";
+async function npmInstall(cwd, stdio = "ignore") {
+    const hasLock = await fileExist(cwd, "package-lock.json");
+    const cmd = `npm${EXEC_SUFFIX ? ".cmd" : ""}`;
 
     await new Promise((resolve, reject) => {
-        const subProcess = spawn(`npm${EXEC_SUFFIX ? ".cmd" : ""}`, [cmd], { cwd: dir, stdio: "pipe" });
+        const subProcess = spawn(cmd, [hasLock ? "ci" : "install"], { cwd, stdio });
         subProcess.once("close", resolve);
         subProcess.once("error", reject);
     });
@@ -234,13 +247,9 @@ async function getSlimioToml(dir) {
  * @param {infosRepo} remote Infos repository
  * @returns {Promise<string|boolean>}
  */
-async function readTomlRemote(remote) {
-    const { name } = remote;
-    const regEx = /unix/i;
-    const platform = process.platform;
-    const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
-
+async function readTomlRemote({ name }) {
     try {
+        const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
         const { data } = await http.get(URL, {
             headers: {
                 "User-Agent": GITHUB_ORGA,
@@ -249,19 +258,17 @@ async function readTomlRemote(remote) {
             }
         });
 
-        if (platform === "win32" && regEx.test(data)) {
+        const dataMatching = /platform\s+=\s+"unix"/i.test(data);
+        // eslint-disable-next-line
+        if ((process.platform === "win32" && dataMatching) || (process.platform !== "win32" && !dataMatching)) {
             return name;
         }
 
-        if (platform !== "win32" && !regEx.test(data)) {
-            return name;
-        }
+        return false;
     }
     catch (error) {
         return false;
     }
-
-    return false;
 }
 
 /**
@@ -284,7 +291,7 @@ function ripit(nb, elem) {
  * @return {number}
  */
 function wordMaxLength(arrayString = []) {
-    return arrayString.sort((a, b) => a.length - b.length).pop().length;
+    return arrayString.sort((left, right) => left.length - right.length).pop().length;
 }
 
 module.exports = {

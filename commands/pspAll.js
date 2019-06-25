@@ -1,13 +1,18 @@
-// Require Third-party dependencies
+// Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
+const { performance } = require("perf_hooks");
+
+// Require Third-party dependencies
 const psp = require("@slimio/psp");
-const { red, green, yellow, cyan, underline: ul } = require("kleur");
+const { red, green, yellow, grey, white, cyan } = require("kleur");
+const Spinner = require("@slimio/async-cli-spinner");
+Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
 const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
 
-// Constants
+// CONSTANTS
 const CWD = process.cwd();
 
 /**
@@ -40,22 +45,33 @@ async function pspTheRepo(repo) {
  * @returns {Promise<void>}
  */
 async function pspAll() {
-    console.log(`\n > Executing ${yellow("slimio-sync psp")} at: ${cyan().bold(CWD)}\n`);
+    const start = performance.now();
+    const spin = new Spinner({
+        prefixText: "Retrieving psp reports on all sub directories"
+    }).start("");
 
-    reposCWD = await readdir(CWD);
-    const getRepoWithToml = await Promise.all(reposCWD.map(getSlimioToml));
+    const reposCWD = await readdir(CWD);
+    const getRepoWithToml = (
+        await Promise.all(reposCWD.map(getSlimioToml))
+    ).filter((name) => name !== false);
 
-    const ret = await Promise.all(
-        getRepoWithToml.filter((name) => name !== false).map(pspTheRepo)
+    const ret = (
+        await Promise.all(getRepoWithToml.map(pspTheRepo))
+    ).sort((left, right) => right.crit - left.crit || right.warn - left.warn);
+
+    const end = cyan().bold((performance.now() - start).toFixed(2));
+    spin.succeed(
+        `Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`
     );
+    const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
 
-    const mxLenRep = wordMaxLength(getRepoWithToml);
-    const reject = [];
-
-    console.log(`\n${ul("Repository:")}${" ".repeat(mxLenRep - 11)} ${ul("Warn:")}   ${ul("Crit:")}\n`);
+    const ul = white().bold().underline;
+    console.log(`\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Crit")}     ${ul("Warn")}\n`);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
-            reject.push(`${red(name)} : Error => ${err}`);
+            setImmediate(() => {
+                console.log(` ${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
+            });
             continue;
         }
 
@@ -63,11 +79,11 @@ async function pspAll() {
             continue;
         }
 
-        const repo = `${green(name)}${ripit(mxLenRep, name)}`;
-        const min = `${ripit(5, warn)}${warn > 0 ? yellow(warn) : warn}`;
-        console.log(`${repo} ${min}  ${ripit(5, crit)} ${crit > 0 ? red(crit) : crit}`);
+        const warnCount = `${ripit(9, warn)}${warn > 0 ? yellow().bold(warn) : grey().bold("0")}`;
+        const critCount = `${ripit(3, crit)}${crit > 0 ? red().bold(crit) : grey().bold("0")}`;
+        console.log(` ${green(name)}${ripit(mxLenRep, name)}${critCount}${warnCount}`);
+        console.log(grey().bold(` ${"-".repeat(mxLenRep + 14)}`));
     }
-    reject.forEach((err) => console.log(err));
 }
 
 

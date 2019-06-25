@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 
-require("make-promises-safe");
-
-// Require Node.js dependencies
 const { join } = require("path");
+require("make-promises-safe");
+require("dotenv").config({ path: join(__dirname, "..", ".env") });
 
 // Require Third-party Dependencies
 const sade = require("sade");
+const { white, yellow, cyan } = require("kleur");
 
 // Require Internal Dependencies
 const commands = require("../commands");
 
-const prog = sade("slimio-sync");
+console.log(white().bold(`\n > Executing ${yellow().bold("psync")} at: ${cyan().bold(process.cwd())}\n`));
+const prog = sade("slimio-sync").version("0.1.0");
 
 prog
     .command("install")
