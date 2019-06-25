@@ -17,6 +17,10 @@ const prog = sade("slimio-sync").version("0.1.0");
 prog
     .command("install")
     .describe("Clone, pull master branch, install dependencies of the all SlimIO projects")
+    .option("-c, --clone", "Use only the clone for the all repositories SlimIO.")
+    .option("-p, --pull", "Use only the pull of the master branch for the all repositories SlimIO.")
+    .option("-d, --dependences", "Install the all dependences for the all projects.")
+    .option("--dev", "Ignore dependencies installation for developpement of the Sync.")
     .action(async() => {
         await commands.install();
     });
