@@ -53,7 +53,7 @@ async function getToken() {
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
-    const { skipInstall = false, token = {}, clone, dev } = options;
+    const { skipInstall = false, token = {}, clone } = options;
 
     const free = await LOCKER_DEP_DL.lock();
     const dir = join(CWD, repoName);
@@ -80,7 +80,7 @@ async function cloneRepo(repoName, options = {}) {
             spinner.text = "Pull master from GitHub";
             await pullMaster(repoName, { needSpin: false, token });
 
-            if (!skipInstall && !dev) {
+            if (!skipInstall) {
                 spinner.text = "Installing dependencies";
                 await npmInstall(repoName);
             }

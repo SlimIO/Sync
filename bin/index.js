@@ -20,9 +20,8 @@ prog
     .describe("Clone, pull master branch, install dependencies of the all SlimIO projects")
     .option("-c, --clone", "Use only the clone for the all repositories SlimIO.")
     .option("-u, --update", "Use only the pull of the master branch for the all repositories SlimIO.")
-    .option("-d, --dev", "Ignore dependencies installation for developpement of the Sync.")
     .action(async(options) => {
-        const setOpts = new Set(["clone", "update", "dev"]);
+        const setOpts = new Set(["clone", "update"]);
         const opts = {};
 
         Object.keys(options)

@@ -118,14 +118,13 @@ async function updateRepositories(localRepositories, token) {
  * @param {Object} optsCmd Commandes options
  * @param {boolean} optsCmd.update Just for update
  * @param {boolean} optsCmd.clone Just for clone
- * @param {boolean} optsCmd.dev Ignore dependencies installtion
  * @returns {Promise<void>}
  */
 async function install(optsCmd) {
     if (typeof GITHUB_ORGA === "undefined") {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
-    const { update = false, clone = false, dev = false } = optsCmd;
+    const { update = false, clone = false } = optsCmd;
 
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
@@ -153,7 +152,7 @@ async function install(optsCmd) {
 
     // Remove specific projects depending on the current OS
     const skipInstallation = new Set();
-    if (ALLOW_TOML && !dev && !update) {
+    if (ALLOW_TOML && !update) {
         try {
             (await Promise.all(remote.map(readTomlRemote)))
                 .filter((repo) => repo !== false)
@@ -182,7 +181,7 @@ async function install(optsCmd) {
     await Promise.all(
         remoteToClone.map((repoName) => cloneRepo(repoName, {
             skipInstall: skipInstallation.has(repoName),
-            token, clone, dev
+            token, clone
         }))
     );
 
