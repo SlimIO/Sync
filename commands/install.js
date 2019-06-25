@@ -115,9 +115,10 @@ async function updateRepositories(localRepositories, token) {
  * @async
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
+ * @param {Object} optsCmd Commandes options
  * @returns {Promise<void>}
  */
-async function install() {
+async function install(optsCmd) {
     if (typeof GITHUB_ORGA === "undefined") {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
