@@ -19,7 +19,8 @@ const {
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,
-    getSlimioToml
+    getSlimioToml,
+    wordMaxLength
 } = require("../src/utils");
 
 // CONSTANTS
@@ -177,11 +178,11 @@ async function install(optsCmd) {
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     // Clone and install projects
-
+    const space = wordMaxLength(Array.from(remoteToClone));
     await Promise.all(
         remoteToClone.map((repoName) => cloneRepo(repoName, {
             skipInstall: skipInstallation.has(repoName),
-            token, clone
+            token, clone, space
         }))
     );
 

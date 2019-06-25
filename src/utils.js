@@ -53,13 +53,14 @@ async function getToken() {
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
-    const { skipInstall = false, token = {}, clone } = options;
+    const { skipInstall = false, token = {}, clone, space = 20 } = options;
 
     const free = await LOCKER_DEP_DL.lock();
+    const pretty = ".".repeat(space - repoName.length);
     const dir = join(CWD, repoName);
     const spinner = new Spinner({
         prefixText: white().bold(repoName)
-    }).start("Cloning from GitHub");
+    }).start(`${pretty}Cloning from GitHub`);
 
     try {
         const start = performance.now();
@@ -77,20 +78,20 @@ async function cloneRepo(repoName, options = {}) {
             }
 
             // Pull master branch
-            spinner.text = "Pull master from GitHub";
+            spinner.text = `${pretty}Pull master from GitHub`;
             await pullMaster(repoName, { needSpin: false, token });
 
             if (!skipInstall) {
-                spinner.text = "Installing dependencies";
+                spinner.text = `${pretty}Installing dependencies`;
                 await npmInstall(repoName);
             }
         }
 
         const executionTime = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
-        spinner.succeed(`Completed in ${executionTime}`);
+        spinner.succeed(`${pretty}Completed in ${executionTime}`);
     }
     catch (error) {
-        spinner.failed(`Installation failed: ${error.message}`);
+        spinner.failed(`${pretty}Installation failed: ${error.message}`);
         await premove(dir);
     }
     finally {
