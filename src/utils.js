@@ -198,7 +198,7 @@ async function pullMaster(repoName, options) {
         });
 
         if (startNpmInstall) {
-            spinner.text = `${pretty}Installing dependencies`;
+            spinner.text = `${pretty}Update dependencies`;
             await npmInstall(repoName);
         }
         if (needSpin) {
