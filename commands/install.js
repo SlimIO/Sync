@@ -119,7 +119,7 @@ async function updateRepositories(localRepositories, token) {
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
  * @param {boolean} update Just for update
- * @param {boolean | number} dev Just for clone
+ * @param {boolean | number | string} dev Just for clone
  * @returns {Promise<void>}
  */
 async function install(update = false, dev = false) {
@@ -129,10 +129,7 @@ async function install(update = false, dev = false) {
     if (typeof update !== "boolean") {
         throw new Error("-u or --update commands have not to need arguments.");
     }
-    if (typeof dev !== "boolean" && typeof dev !== "number") {
-        throw new Error("-d or --dev commands's argument must be a boolean or so nothing.");
-    }
-    nbFilterForDev = typeof dev === "number" ? dev : Infinity;
+    const nbFilterForDev = typeof dev === "number" ? dev : Infinity;
 
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
@@ -158,6 +155,17 @@ async function install(update = false, dev = false) {
         reposLocalFiltered()
     ]);
 
+    const remoteSet = new Set(remote.map((repo) => repo.name.toLowerCase()));
+    const repoListOpt = typeof dev === "string" ? new Set([]) : remoteSet;
+    if (typeof dev === "string") {
+        const argsRepo = dev.split(",").map((arg) => arg.toLowerCase());
+        for (const repo of argsRepo) {
+            if (remoteSet.has(repo)) {
+                repoListOpt.add(repo);
+            }
+        }
+    }
+
     // Remove specific projects depending on the current OS
     const skipInstallation = new Set();
     if (ALLOW_TOML && !update) {
@@ -177,7 +185,7 @@ async function install(update = false, dev = false) {
         .map((row) => row.name)
         .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()))
         // Filter for dev
-        .filter((name, index) => index < nbFilterForDev);
+        .filter((name, index) => index < nbFilterForDev && repoListOpt.has(name.toLowerCase()));
 
     const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);

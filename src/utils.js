@@ -177,11 +177,11 @@ async function logRepoLocAndRemote(repoName) {
 async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {}, space = 20 } = options;
     const start = performance.now();
-
-    let spinner;
     const lockerPullMaster = new Lock({ max: startNpmInstall ? 3 : 8 });
     const pretty = ".".repeat(space - repoName.length);
     const free = await lockerPullMaster.lock();
+    let spinner;
+
     if (needSpin) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`)
