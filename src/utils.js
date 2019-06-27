@@ -17,7 +17,6 @@ Spinner.DEFAULT_SPINNER = "dots";
 // Constant
 require("dotenv").config({ path: join(__dirname, "..", ".env") });
 const LOCKER_DEP_DL = new Lock({ max: 3 });
-const LOCKER_PULL_MASTER = new Lock({ max: 8 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
@@ -178,6 +177,7 @@ async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {} } = options;
 
     let spinner;
+    const LOCKER_PULL_MASTER = new Lock({ max: startNpmInstall ? 3 : 8 });
     const free = await LOCKER_PULL_MASTER.lock();
     if (needSpin) {
         spinner = new Spinner({
@@ -194,6 +194,9 @@ async function pullMaster(repoName, options) {
             ...token
         });
 
+        if (startNpmInstall) {
+            spinner.text = "Installing dependencies";
+        }
         if (needSpin) {
             spinner.succeed("Pull master OK");
         }
