@@ -177,9 +177,6 @@ async function install(update = false, dev = false) {
         // Filter for dev
         .filter((name, index) => index < nbFilterForDev);
 
-    console.log(remoteToClone, dev);
-    process.exit(1);
-
     const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);
 
@@ -192,12 +189,13 @@ async function install(update = false, dev = false) {
     await Promise.all(
         remoteToClone.map((repoName) => cloneRepo(repoName, {
             skipInstall: skipInstallation.has(repoName),
-            token, clone, space
+            token, dev, space
         }))
     );
-
     // Update repositories
-    await updateRepositories([...reposLocalSet], token);
+    if (!dev) {
+        await updateRepositories([...reposLocalSet], token);
+    }
 }
 
 module.exports = install;

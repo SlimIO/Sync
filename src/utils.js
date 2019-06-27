@@ -49,11 +49,13 @@ async function getToken() {
  * @param {!string} repoName Name of the repository
  * @param {Object} [options] options
  * @param {Boolean} [options.skipInstall=false] skip npm installation
+ * @param {Boolean} [options.dev] token
  * @param {Object} [options.token] token
+ * @param {number} [options.space] token
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
-    const { skipInstall = false, token = {}, clone, space = 20 } = options;
+    const { skipInstall = false, token = {}, dev, space = 20 } = options;
 
     const free = await LOCKER_DEP_DL.lock();
     const pretty = ".".repeat(space - repoName.length);
@@ -73,7 +75,7 @@ async function cloneRepo(repoName, options = {}) {
                 singleBranch: true,
                 ...token
             });
-            if (clone) {
+            if (dev) {
                 break cmdOptions;
             }
 
