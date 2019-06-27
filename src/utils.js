@@ -171,15 +171,15 @@ async function logRepoLocAndRemote(repoName) {
  * @param {Boolean} [options.needSpin=false] Need spinner or not
  * @param {Boolean} [options.startNpmInstall=false] Need spinner or not
  * @param {Object} [options.token] token
- * @param {number} [options.space] Space between actions
+ * @param {number} [options.space] space
+ * @param {Lock} [options.locker] locker
  * @returns {Promise<void>}
  */
 async function pullMaster(repoName, options) {
-    const { needSpin = false, startNpmInstall = false, token = {}, space = 20 } = options;
+    const { needSpin = false, startNpmInstall = false, token = {}, space = 20, locker } = options;
     const start = performance.now();
-    const lockerPullMaster = new Lock({ max: startNpmInstall ? 3 : 8 });
     const pretty = ".".repeat(space - repoName.length);
-    const free = await lockerPullMaster.lock();
+    const free = await locker.lock();
     let spinner;
 
     if (needSpin) {

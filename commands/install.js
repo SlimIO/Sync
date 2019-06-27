@@ -9,6 +9,7 @@ const { performance } = require("perf_hooks");
 const repos = require("repos");
 const { cyan, red, yellow, green, grey, white } = require("kleur");
 const qoa = require("qoa");
+const Lock = require("@slimio/lock");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
@@ -113,8 +114,9 @@ async function updateRepositories(localRepositories, token) {
 
         const space = wordMaxLength(Array.from(repoWithNoUpdate));
         const startNpmInstall = await question("After pull, do you want update packages of these same repositories ?", "force");
+        const locker = new Lock({ max: startNpmInstall ? 3 : 8 });
         await Promise.all(
-            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, space }))
+            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, space, locker }))
         );
     }
 }
