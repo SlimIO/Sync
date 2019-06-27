@@ -175,6 +175,7 @@ async function logRepoLocAndRemote(repoName) {
  */
 async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {} } = options;
+    const start = performance.now();
 
     let spinner;
     const lockerPullMaster = new Lock({ max: startNpmInstall ? 3 : 8 });
@@ -199,7 +200,9 @@ async function pullMaster(repoName, options) {
             await npmInstall(repoName);
         }
         if (needSpin) {
-            spinner.succeed("Pull master OK");
+            const end = cyan().bold((performance.now() - start).toFixed(2));
+            const ifNpmI = startNpmInstall ? ` and installing dependencies in ${end} millisecondes !` : "";
+            spinner.succeed(`Successfully handled pull master${ifNpmI}`);
         }
     }
     catch (error) {
