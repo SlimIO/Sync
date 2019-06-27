@@ -116,16 +116,21 @@ async function updateRepositories(localRepositories, token) {
  * @async
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
- * @param {Object} optsCmd Commandes options
- * @param {boolean} optsCmd.update Just for update
- * @param {boolean} optsCmd.clone Just for clone
+ * @param {boolean} update Just for update
+ * @param {boolean | number} dev Just for clone
  * @returns {Promise<void>}
  */
-async function install(optsCmd) {
+async function install(update = false, dev = false) {
     if (typeof GITHUB_ORGA === "undefined") {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
-    const { update = false, clone = false } = optsCmd;
+    if (typeof update !== "boolean") {
+        throw new Error("-u or --update commands have not to need arguments.");
+    }
+    if (typeof dev !== "boolean" && typeof dev !== "number") {
+        throw new Error("-d or --dev commands's argument must be a boolean or so nothing.");
+    }
+    nbFilterForDev = typeof dev === "number" ? dev : Infinity;
 
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
@@ -168,7 +173,12 @@ async function install(optsCmd) {
     const remoteToClone = remote
         .filter((row) => !row.archived)
         .map((row) => row.name)
-        .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()));
+        .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()))
+        // Filter for dev
+        .filter((name, index) => index < nbFilterForDev);
+
+    console.log(remoteToClone, dev);
+    process.exit(1);
 
     const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);

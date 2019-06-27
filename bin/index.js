@@ -18,17 +18,10 @@ const prog = sade("slimio-sync").version("0.1.0");
 prog
     .command("install")
     .describe("Clone, pull master branch, install dependencies of the all SlimIO projects")
-    .option("-c, --clone", "Use only the clone for the all repositories SlimIO.")
     .option("-u, --update", "Use only the pull of the master branch for the all repositories SlimIO.")
+    .option("-d, --dev", "Use only the clone for a given number or the all repositories SlimIO if no number.")
     .action(async(options) => {
-        const setOpts = new Set(["clone", "update"]);
-        const opts = {};
-
-        Object.keys(options)
-            .filter((key) => key.length !== 1 && setOpts.has(key))
-            .map((key) => Reflect.set(opts, key, true));
-
-        await commands.install(opts);
+        await commands.install(options.u, options.d);
     });
 
 prog
