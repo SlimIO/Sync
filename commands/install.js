@@ -106,9 +106,10 @@ async function updateRepositories(localRepositories, token) {
             break pullRepositories;
         }
 
+        const space = wordMaxLength(Array.from(repoWithNoUpdate));
         const startNpmInstall = await question("After pull, do you want update packages of these same repositories ?");
         await Promise.all(
-            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token }))
+            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, space }))
         );
     }
 }

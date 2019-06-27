@@ -171,19 +171,21 @@ async function logRepoLocAndRemote(repoName) {
  * @param {Boolean} [options.needSpin=false] Need spinner or not
  * @param {Boolean} [options.startNpmInstall=false] Need spinner or not
  * @param {Object} [options.token] token
+ * @param {number} [options.space] Space between actions
  * @returns {Promise<void>}
  */
 async function pullMaster(repoName, options) {
-    const { needSpin = false, startNpmInstall = false, token = {} } = options;
+    const { needSpin = false, startNpmInstall = false, token = {}, space = 20 } = options;
     const start = performance.now();
 
     let spinner;
     const lockerPullMaster = new Lock({ max: startNpmInstall ? 3 : 8 });
+    const pretty = ".".repeat(space - repoName.length);
     const free = await lockerPullMaster.lock();
     if (needSpin) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`)
-        }).start("Pull master from GitHub");
+        }).start(`${pretty}Pull master from GitHub`);
     }
 
     try {
@@ -196,18 +198,18 @@ async function pullMaster(repoName, options) {
         });
 
         if (startNpmInstall) {
-            spinner.text = "Installing dependencies";
+            spinner.text = `${pretty}Installing dependencies`;
             await npmInstall(repoName);
         }
         if (needSpin) {
             const end = cyan().bold((performance.now() - start).toFixed(2));
             const ifNpmI = startNpmInstall ? ` and installing dependencies in ${end} millisecondes !` : "";
-            spinner.succeed(`Successfully handled pull master${ifNpmI}`);
+            spinner.succeed(`${pretty}Successfully handled pull master${ifNpmI}`);
         }
     }
     catch (error) {
         if (needSpin) {
-            spinner.failed(`Failed - ${error.message}`);
+            spinner.failed(`${pretty}Failed - ${error.message}`);
         }
     }
     finally {
