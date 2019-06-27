@@ -202,9 +202,8 @@ async function pullMaster(repoName, options) {
             await npmInstall(repoName);
         }
         if (needSpin) {
-            const end = cyan().bold((performance.now() - start).toFixed(2));
-            const ifNpmI = startNpmInstall ? ` and installing dependencies in ${end} millisecondes !` : "";
-            spinner.succeed(`${pretty}Successfully handled pull master${ifNpmI}`);
+            const time = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
+            spinner.succeed(`${pretty}Completed in ${time}`);
         }
     }
     catch (error) {

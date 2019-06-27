@@ -89,6 +89,11 @@ async function reposLocalFiltered(searchForToml = true) {
  * @returns {Promise<void>}
  */
 async function updateRepositories(localRepositories, token) {
+    if (localRepositories.length === 0) {
+        console.log("No repository to update\n");
+        process.exit(1);
+    }
+
     console.log("");
     const spin = new Spinner({
         prefixText: cyan().bold("Searching for update in local repositories.")
@@ -107,7 +112,7 @@ async function updateRepositories(localRepositories, token) {
         }
 
         const space = wordMaxLength(Array.from(repoWithNoUpdate));
-        const startNpmInstall = await question("After pull, do you want update packages of these same repositories ?");
+        const startNpmInstall = await question("After pull, do you want update packages of these same repositories ?", "force");
         await Promise.all(
             repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, space }))
         );
