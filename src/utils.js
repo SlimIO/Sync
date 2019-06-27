@@ -170,11 +170,12 @@ async function logRepoLocAndRemote(repoName) {
  * @param {!String} repoName Name of the repository
  * @param {Object} [options] options
  * @param {Boolean} [options.needSpin=false] Need spinner or not
+ * @param {Boolean} [options.startNpmInstall=false] Need spinner or not
  * @param {Object} [options.token] token
  * @returns {Promise<void>}
  */
 async function pullMaster(repoName, options) {
-    const { needSpin = false, token = {} } = options;
+    const { needSpin = false, startNpmInstall = false, token = {} } = options;
 
     let spinner;
     const free = await LOCKER_PULL_MASTER.lock();
