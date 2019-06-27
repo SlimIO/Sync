@@ -39,6 +39,15 @@ $ slimio-sync outdated
 $ slimio-sync psp
 ```
 
+Options for install command
+```bash
+# For developer
+slimio-sync install -d 25  # Clone 25 repositories
+slimio-sync install -d core,is,lazy,registry  # Clone these four repository
+# For update only
+slimio-sync install -u  # Approval for pull, approval for npm install
+```
+
 ## Windows users
 Windows Defender will be a problem for the install command.
 
