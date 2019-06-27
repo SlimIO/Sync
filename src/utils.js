@@ -177,8 +177,8 @@ async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {} } = options;
 
     let spinner;
-    const LOCKER_PULL_MASTER = new Lock({ max: startNpmInstall ? 3 : 8 });
-    const free = await LOCKER_PULL_MASTER.lock();
+    const lockerPullMaster = new Lock({ max: startNpmInstall ? 3 : 8 });
+    const free = await lockerPullMaster.lock();
     if (needSpin) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`)
@@ -196,6 +196,7 @@ async function pullMaster(repoName, options) {
 
         if (startNpmInstall) {
             spinner.text = "Installing dependencies";
+            await npmInstall(repoName);
         }
         if (needSpin) {
             spinner.succeed("Pull master OK");
