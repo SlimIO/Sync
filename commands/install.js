@@ -20,8 +20,7 @@ const {
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,
-    getSlimioToml,
-    wordMaxLength
+    getSlimioToml
 } = require("../src/utils");
 
 // CONSTANTS
@@ -95,29 +94,27 @@ async function updateRepositories(localRepositories, token) {
         process.exit(1);
     }
 
-    console.log("");
     const spin = new Spinner({
-        prefixText: cyan().bold("Searching for update in local repositories.")
-    }).start("Wait");
+        prefixText: white().bold("Searching outdated git repositories.")
+    }).start();
 
     const repoWithNoUpdate = (await Promise.all(
         localRepositories.map(logRepoLocAndRemote)
     )).filter((repoName) => repoName !== false);
-    spin.succeed(`${repoWithNoUpdate.length} repositories found!\n`);
+    spin.succeed(`${cyan().bold(repoWithNoUpdate.length)} repositories that need to be updated!`);
 
     pullRepositories : if (repoWithNoUpdate.length > 0) {
-        const force = await question(
-            `\n- ${repoWithNoUpdate.join("\n- ")}\n\nThe above repoitories doesn't update. Do you want update them ?`, "force");
+        // eslint-disable-next-line
+        const force = await question(`\n- ${repoWithNoUpdate.join("\n- ")}\n\nAbove repositories have their local master beyond origin/master. Do you want to pull?`, true);
         if (!force) {
             break pullRepositories;
         }
 
-        const space = wordMaxLength(Array.from(repoWithNoUpdate));
-        const startNpmInstall = await question("After pull, do you want update packages of these same repositories ?", "force");
-        const locker = new Lock({ max: startNpmInstall ? 3 : 8 });
-        await Promise.all(
-            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, space, locker }))
-        );
+        const startNpmInstall = await question("Do you want to run 'npm install' after each pull ?", true);
+        // const locker = new Lock({ max: startNpmInstall ? 3 : 8 });
+        // await Promise.all(
+        //     repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, locker }))
+        // );
     }
 }
 
@@ -125,18 +122,17 @@ async function updateRepositories(localRepositories, token) {
  * @async
  * @func install
  * @desc Clone - pull master and installing dependencies for the all projects SlimIO
- * @param {boolean} update Just for update
- * @param {boolean | number | string} dev Just for clone
+ * @param {Boolean} [update=false] Just for update
+ * @param {Boolean} [noInstall=false] Skip npm installation
+ * @param {Set<String>} pick A list of picked projects!
  * @returns {Promise<void>}
+ *
+ * @throws {Error}
  */
-async function install(update = false, dev = false) {
+async function install(update = false, noInstall = false, pick) {
     if (typeof GITHUB_ORGA === "undefined") {
         throw new Error(".env file must contain a field GITHUB_ORGA=yourOrganisation");
     }
-    if (typeof update !== "boolean") {
-        throw new Error("-u or --update commands have not to need arguments.");
-    }
-    const nbFilterForDev = typeof dev === "number" ? dev : Infinity;
 
     await question(`Do you want execut Sync in ${CWD} ?`);
     console.log("");
@@ -144,9 +140,6 @@ async function install(update = false, dev = false) {
     // Start a spinner
     const fetchTimer = performance.now();
     const token = await getToken();
-    const spinner = new Spinner({
-        prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories.`)
-    });
 
     // Cmd update
     if (update) {
@@ -154,22 +147,26 @@ async function install(update = false, dev = false) {
 
         return;
     }
+
     // Start Spinner
-    spinner.start("Work");
+    const spinner = new Spinner({
+        prefixText: white().bold(`Fetching ${cyan().bold(GITHUB_ORGA)} repositories.`)
+    }).start();
+
     // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
         repos(GITHUB_ORGA, token),
         reposLocalFiltered()
     ]);
 
+    /** @type {Set<String>} */
     const remoteSet = new Set(remote.map((repo) => repo.name.toLowerCase()));
-    const repoListOpt = typeof dev === "string" ? new Set([]) : remoteSet;
-    if (typeof dev === "string") {
-        const argsRepo = dev.split(",").map((arg) => arg.toLowerCase());
-        for (const repo of argsRepo) {
-            if (remoteSet.has(repo)) {
-                repoListOpt.add(repo);
-            }
+
+    /** @type {Set<String>} */
+    const repoListOpt = pick.size > 0 ? new Set() : remoteSet;
+    for (const repo of [...pick]) {
+        if (remoteSet.has(repo)) {
+            repoListOpt.add(repo);
         }
     }
 
@@ -192,7 +189,7 @@ async function install(update = false, dev = false) {
         .map((row) => row.name)
         .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()))
         // Filter for dev
-        .filter((name, index) => index < nbFilterForDev && repoListOpt.has(name.toLowerCase()));
+        .filter((name) => repoListOpt.has(name.toLowerCase()));
 
     const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);
@@ -202,15 +199,16 @@ async function install(update = false, dev = false) {
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     // Clone and install projects
-    const space = wordMaxLength(Array.from(remoteToClone));
     await Promise.all(
         remoteToClone.map((repoName) => cloneRepo(repoName, {
-            skipInstall: skipInstallation.has(repoName),
-            token, dev, space
+            skipInstall: skipInstallation.has(repoName) || noInstall,
+            token
         }))
     );
+
     // Update repositories
-    if (!dev) {
+    if (pick.size === 0) {
+        console.log("");
         await updateRepositories([...reposLocalSet], token);
     }
 }

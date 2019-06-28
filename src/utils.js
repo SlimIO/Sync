@@ -48,51 +48,44 @@ async function getToken() {
  * @param {!string} repoName Name of the repository
  * @param {Object} [options] options
  * @param {Boolean} [options.skipInstall=false] skip npm installation
- * @param {Boolean} [options.dev] token
  * @param {Object} [options.token] token
- * @param {number} [options.space] token
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
-    const { skipInstall = false, token = {}, dev, space = 20 } = options;
+    const { skipInstall = false, token = {} } = options;
 
-    const free = await LOCKER_DEP_DL.lock();
-    const pretty = ".".repeat(space - repoName.length);
+    const free = skipInstall ? () => void 0 : await LOCKER_DEP_DL.lock();
     const dir = join(CWD, repoName);
     const spinner = new Spinner({
         prefixText: white().bold(repoName)
-    }).start(`${pretty}Cloning from GitHub`);
+    }).start("Cloning from GitHub");
 
     try {
         const start = performance.now();
 
         // Clone
-        cmdOptions: {
-            await git.clone({
-                dir,
-                url: new URL(repoName, ORGA_URL).href,
-                singleBranch: true,
-                ...token
-            });
-            if (dev) {
-                break cmdOptions;
-            }
+        await git.clone({
+            dir,
+            url: new URL(repoName, ORGA_URL).href,
+            singleBranch: true,
+            ...token
+        });
 
-            // Pull master branch
-            spinner.text = `${pretty}Pull master from GitHub`;
-            await pullMaster(repoName, { needSpin: false, token });
+        // Pull master branch
+        spinner.text = "Pull master from GitHub";
+        await pullMaster(repoName, { needSpin: false, token });
 
-            if (!skipInstall) {
-                spinner.text = `${pretty}Installing dependencies`;
-                await npmInstall(repoName);
-            }
+        if (!skipInstall) {
+            spinner.text = "Installing dependencies";
+            await npmInstall(repoName);
         }
 
         const executionTime = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
-        spinner.succeed(`${pretty}Completed in ${executionTime}`);
+        spinner.succeed(`Completed in ${executionTime}`);
     }
     catch (error) {
-        spinner.failed(`${pretty}Installation failed: ${error.message}`);
+        console.log(error);
+        spinner.failed(`Installation failed: ${error.message}`);
         await premove(dir);
     }
     finally {
@@ -171,21 +164,19 @@ async function logRepoLocAndRemote(repoName) {
  * @param {Boolean} [options.needSpin=false] Need spinner or not
  * @param {Boolean} [options.startNpmInstall=false] Need spinner or not
  * @param {Object} [options.token] token
- * @param {number} [options.space] space
  * @param {Lock} [options.locker] locker
  * @returns {Promise<void>}
  */
 async function pullMaster(repoName, options) {
-    const { needSpin = false, startNpmInstall = false, token = {}, space = 20, locker } = options;
+    const { needSpin = false, startNpmInstall = false, token = {}, locker = null } = options;
     const start = performance.now();
-    const pretty = ".".repeat(space - repoName.length);
-    const free = await locker.lock();
+    const free = locker === null ? () => void 0 : await locker.lock();
     let spinner;
 
     if (needSpin) {
         spinner = new Spinner({
             prefixText: cyan().bold(`${repoName}`)
-        }).start(`${pretty}Pull master from GitHub`);
+        }).start("Pull master from GitHub");
     }
 
     try {
@@ -198,17 +189,17 @@ async function pullMaster(repoName, options) {
         });
 
         if (startNpmInstall) {
-            spinner.text = `${pretty}Update dependencies`;
+            spinner.text = "Update dependencies";
             await npmInstall(repoName);
         }
         if (needSpin) {
             const time = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
-            spinner.succeed(`${pretty}Completed in ${time}`);
+            spinner.succeed(`Completed in ${time}`);
         }
     }
     catch (error) {
         if (needSpin) {
-            spinner.failed(`${pretty}Failed - ${error.message}`);
+            spinner.failed(`Failed - ${error.message}`);
         }
     }
     finally {
