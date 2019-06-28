@@ -12,16 +12,16 @@ const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
-Spinner.DEFAULT_SPINNER = "dots";
 
-// Constant
-require("dotenv").config({ path: join(__dirname, "..", ".env") });
+// CONSTANTS
 const LOCKER_DEP_DL = new Lock({ max: 3 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
+
+Spinner.DEFAULT_SPINNER = "dots";
 git.plugins.set("fs", fs);
 
 /**
@@ -182,8 +182,8 @@ async function pullMaster(repoName, options) {
     try {
         await git.pull({
             dir: join(CWD, repoName),
-            url: new URL(repoName, ORGA_URL).href,
             singleBranch: true,
+            fastForwardOnly: true,
             ref: "master",
             ...token
         });
