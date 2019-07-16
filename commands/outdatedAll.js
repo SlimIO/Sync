@@ -1,3 +1,5 @@
+"use strict";
+
 // Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
@@ -19,8 +21,8 @@ const NPM_TOKEN = process.env.NPM_TOKEN;
 
 /**
  * @async
- * @func getMinorAndMajor
- * @param {!String} repo Repository name
+ * @function getMinorAndMajor
+ * @param {!string} repo Repository name
  * @returns {Promise<{name, major, minor} | {name, err}>}
  */
 async function getMinorAndMajor(repo) {
@@ -44,8 +46,8 @@ async function getMinorAndMajor(repo) {
 
 /**
  * @async
- * @func outdatedAll
- * @desc Log datas in the console
+ * @function outdatedAll
+ * @description Log datas in the console
  * @returns {Promise<void>}
  */
 async function outdatedAll() {

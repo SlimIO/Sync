@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+"use strict";
 
 // Require Node.js dependencies
 const { join } = require("path");
@@ -32,8 +33,8 @@ const EXCLUDES_REPOS = new Set(["governance", "n-api-ci", "blog"]);
 
 /**
  * @async
- * @func question
- * @desc Question for the user
+ * @function question
+ * @description Question for the user
  * @param {!string} sentence Sentence
  * @param {boolean} [force=false] Allows not exit even in case of negative respone
  * @returns {void|boolean}
@@ -61,10 +62,10 @@ async function question(sentence, force = false) {
 
 /**
  * @async
- * @func reposLocalFiltered
- * @desc Filters local repositories
- * @param {Boolean} [searchForToml=true] search for a .toml file at the root of each directories
- * @returns {Set<String>}
+ * @function reposLocalFiltered
+ * @description Filters local repositories
+ * @param {boolean} [searchForToml=true] search for a .toml file at the root of each directories
+ * @returns {Set<string>}
  */
 async function reposLocalFiltered(searchForToml = true) {
     const localDir = await readdir(CWD);
@@ -83,10 +84,10 @@ async function reposLocalFiltered(searchForToml = true) {
 
 /**
  * @async
- * @func updateRepositories
- * @desc pull and update repositories
- * @param {String[]} localRepositories local repositories
- * @param {Object} token token
+ * @function updateRepositories
+ * @description pull and update repositories
+ * @param {string[]} localRepositories local repositories
+ * @param {object} token token
  * @returns {Promise<void>}
  */
 async function updateRepositories(localRepositories, token) {
@@ -121,11 +122,11 @@ async function updateRepositories(localRepositories, token) {
 
 /**
  * @async
- * @func install
- * @desc Clone - pull master and installing dependencies for the all projects SlimIO
- * @param {Boolean} [update=false] Just for update
- * @param {Boolean} [noInstall=false] Skip npm installation
- * @param {Set<String>} pick A list of picked projects!
+ * @function install
+ * @description Clone - pull master and installing dependencies for the all projects SlimIO
+ * @param {boolean} [update=false] Just for update
+ * @param {boolean} [noInstall=false] Skip npm installation
+ * @param {Set<string>} pick A list of picked projects!
  * @returns {Promise<void>}
  *
  * @throws {Error}
@@ -160,10 +161,10 @@ async function install(update = false, noInstall = false, pick) {
         reposLocalFiltered()
     ]);
 
-    /** @type {Set<String>} */
+    /** @type {Set<string>} */
     const remoteSet = new Set(remote.map((repo) => repo.name.toLowerCase()));
 
-    /** @type {Set<String>} */
+    /** @type {Set<string>} */
     const repoListOpt = pick.size > 0 ? new Set() : remoteSet;
     for (const repo of [...pick]) {
         if (remoteSet.has(repo)) {

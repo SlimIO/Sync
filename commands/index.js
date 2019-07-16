@@ -1,3 +1,5 @@
+"use strict";
+
 /* eslint-disable global-require */
 // Require Thirds Party dependencies
 const lazy = require("@slimio/lazy");

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable id-length */
+"use strict";
 
 const { join } = require("path");
 require("make-promises-safe");

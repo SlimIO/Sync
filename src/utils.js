@@ -1,3 +1,5 @@
+"use strict";
+
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
@@ -26,9 +28,9 @@ git.plugins.set("fs", fs);
 
 /**
  * @async
- * @func getToken
- * @desc Check if .env exist and if there is a github token.
- * @returns {{}|{token:String}}
+ * @function getToken
+ * @description Check if .env exist and if there is a github token.
+ * @returns {{}|{token: string}}
  */
 async function getToken() {
     try {
@@ -43,12 +45,12 @@ async function getToken() {
 
 /**
  * @async
- * @func cloneRepo
- * @desc Clone & pull master
+ * @function cloneRepo
+ * @description Clone & pull master
  * @param {!string} repoName Name of the repository
- * @param {Object} [options] options
- * @param {Boolean} [options.skipInstall=false] skip npm installation
- * @param {Object} [options.token] token
+ * @param {object} [options] options
+ * @param {boolean} [options.skipInstall=false] skip npm installation
+ * @param {object} [options.token] token
  * @returns {Promise<string|null>}
  */
 async function cloneRepo(repoName, options = {}) {
@@ -95,8 +97,8 @@ async function cloneRepo(repoName, options = {}) {
 
 /**
  * @async
- * @func fileExist
- * @desc Verify if package-lock exist in the directory
+ * @function fileExist
+ * @description Verify if package-lock exist in the directory
  * @param {!string} dir Path of the file
  * @param {!string} fileName Name of the file
  * @returns {Promise<string>}
@@ -114,10 +116,10 @@ async function fileExist(dir, fileName) {
 
 /**
  * @async
- * @func logRepoLocAndRemote
- * @desc Log local commits
- * @param {!String} repoName Name of the repository
- * @returns {Promise<string|Boolean>}
+ * @function logRepoLocAndRemote
+ * @description Log local commits
+ * @param {!string} repoName Name of the repository
+ * @returns {Promise<string|boolean>}
  */
 async function logRepoLocAndRemote(repoName) {
     try {
@@ -157,13 +159,13 @@ async function logRepoLocAndRemote(repoName) {
 
 /**
  * @async
- * @func pullMaster
- * @desc Pull from gitHub
- * @param {!String} repoName Name of the repository
- * @param {Object} [options] options
- * @param {Boolean} [options.needSpin=false] Need spinner or not
- * @param {Boolean} [options.startNpmInstall=false] Need spinner or not
- * @param {Object} [options.token] token
+ * @function pullMaster
+ * @description Pull from gitHub
+ * @param {!string} repoName Name of the repository
+ * @param {object} [options] options
+ * @param {boolean} [options.needSpin=false] Need spinner or not
+ * @param {boolean} [options.startNpmInstall=false] Need spinner or not
+ * @param {object} [options.token] token
  * @param {Lock} [options.locker] locker
  * @returns {Promise<void>}
  */
@@ -209,8 +211,8 @@ async function pullMaster(repoName, options) {
 
 /**
  * @async
- * @func npmInstall
- * @desc Spawn a new node cmd
+ * @function npmInstall
+ * @description Spawn a new node cmd
  * @param {!string} cwd Path of the directory
  * @param {!string} stdio spawn stdio
  * @returns {Promise<void>}
@@ -228,10 +230,10 @@ async function npmInstall(cwd, stdio = "ignore") {
 
 /**
  * @async
- * @func getSlimioToml
- * @desc Verify if .toml exist in the folder
- * @param {!String} dir Folder checked
- * @returns {Boolean}
+ * @function getSlimioToml
+ * @description Verify if .toml exist in the folder
+ * @param {!string} dir Folder checked
+ * @returns {boolean}
  */
 async function getSlimioToml(dir) {
     try {
@@ -245,13 +247,13 @@ async function getSlimioToml(dir) {
 }
 
 /**
- * @typedef {Object} infosRepo
+ * @typedef {object} infosRepo
  * @property {string} name Name of repository
  */
 /**
  * @async
- * @func readTomlRemote
- * @desc Request slimio.toml remote repos and search NAPI project
+ * @function readTomlRemote
+ * @description Request slimio.toml remote repos and search NAPI project
  * @param {infosRepo} remote Infos repository
  * @returns {Promise<string|boolean>}
  */
@@ -280,8 +282,8 @@ async function readTomlRemote({ name }) {
 }
 
 /**
- * @func
- * @desc Reapeat n times space string
+ * @function
+ * @description Reapeat n times space string
  * @param {!number} nb Number 1
  * @param {!string|number} elem Number 2 for difference
  * @returns {string}
@@ -293,10 +295,10 @@ function ripit(nb, elem) {
 }
 
 /**
- * @func wordMaxLength
- * @desc Analyze a array and find the longest string
+ * @function wordMaxLength
+ * @description Analyze a array and find the longest string
  * @param {string[]} arrayString Array to analyze
- * @return {number}
+ * @returns {number}
  */
 function wordMaxLength(arrayString = []) {
     return arrayString.sort((left, right) => left.length - right.length).pop().length;

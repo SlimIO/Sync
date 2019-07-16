@@ -1,3 +1,5 @@
+"use strict";
+
 // Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
@@ -17,9 +19,9 @@ const CWD = process.cwd();
 
 /**
  * @async
- * @func pspTheRepo
- * @desc Active psp in the folder
- * @param {!String} repo Name of the local repository
+ * @function pspTheRepo
+ * @description Active psp in the folder
+ * @param {!string} repo Name of the local repository
  * @returns {Promise<{name, warn, crit}>}
  */
 async function pspTheRepo(repo) {
@@ -40,8 +42,8 @@ async function pspTheRepo(repo) {
 
 /**
  * @async
- * @func pspAll
- * @desc Active psp in the folder
+ * @function pspAll
+ * @description Active psp in the folder
  * @returns {Promise<void>}
  */
 async function pspAll() {
