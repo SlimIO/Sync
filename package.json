@@ -35,7 +35,7 @@
         "dotenv": "^8.0.0",
         "fast-outdated": "^2.0.0",
         "httpie": "^1.1.2",
-        "isomorphic-git": "^0.55.4",
+        "isomorphic-git": "^0.55.6",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
         "premove": "^1.0.0",
