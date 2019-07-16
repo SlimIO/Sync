@@ -7,6 +7,7 @@ const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
 const repos = require("repos");
+const premove = require("premove");
 const { cyan, red, yellow, green, grey, white } = require("kleur");
 const qoa = require("qoa");
 const Lock = require("@slimio/lock");
@@ -168,6 +169,11 @@ async function install(update = false, noInstall = false, pick) {
         if (remoteSet.has(repo)) {
             repoListOpt.add(repo);
         }
+    }
+
+    // Remove local pick
+    if (pick.size > 0) {
+        await Promise.all([...pick].map((name) => premove(join(CWD, name))));
     }
 
     // Remove specific projects depending on the current OS
