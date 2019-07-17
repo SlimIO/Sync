@@ -173,13 +173,11 @@ async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {}, locker = null } = options;
     const start = performance.now();
     const free = locker === null ? () => void 0 : await locker.lock();
-    let spinner;
 
-    if (needSpin) {
-        spinner = new Spinner({
-            prefixText: cyan().bold(`${repoName}`)
-        }).start("Pull master from GitHub");
-    }
+    const spinner = new Spinner({
+        verbose: needSpin,
+        prefixText: cyan().bold(`${repoName}`)
+    }).start("Pull master from GitHub");
 
     try {
         await git.pull({
@@ -194,15 +192,11 @@ async function pullMaster(repoName, options) {
             spinner.text = "Update dependencies";
             await npmInstall(repoName);
         }
-        if (needSpin) {
-            const time = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
-            spinner.succeed(`Completed in ${time}`);
-        }
+        const time = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
+        spinner.succeed(`Completed in ${time}`);
     }
     catch (error) {
-        if (needSpin) {
-            spinner.failed(`Failed - ${error.message}`);
-        }
+        spinner.failed(`Failed - ${error.message}`);
     }
     finally {
         free();
