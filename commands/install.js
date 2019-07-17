@@ -9,7 +9,7 @@ const { performance } = require("perf_hooks");
 // Require Third Party dependencies
 const repos = require("repos");
 const premove = require("premove");
-const { cyan, red, yellow, green, grey, white } = require("kleur");
+const { cyan, red, yellow, green, gray, white } = require("kleur");
 const qoa = require("qoa");
 const Lock = require("@slimio/lock");
 const Spinner = require("@slimio/async-cli-spinner");
@@ -202,7 +202,7 @@ async function install(update = false, noInstall = false, pick) {
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);
 
     console.log(white().bold(` > Number of local repositories: ${yellow().bold(reposLocalSet.size)}`));
-    console.log(grey().bold("   ------------------------------------"));
+    console.log(gray().bold("   ------------------------------------"));
     console.log(white().bold(" > Cloning all fetched repositories\n"));
 
     // Clone and install projects

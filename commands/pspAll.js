@@ -7,7 +7,7 @@ const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
 const psp = require("@slimio/psp");
-const { red, green, yellow, grey, white, cyan } = require("kleur");
+const { red, green, yellow, gray, white, cyan } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
@@ -81,10 +81,10 @@ async function pspAll() {
             continue;
         }
 
-        const warnCount = `${ripit(9, warn)}${warn > 0 ? yellow().bold(warn) : grey().bold("0")}`;
-        const critCount = `${ripit(3, crit)}${crit > 0 ? red().bold(crit) : grey().bold("0")}`;
+        const warnCount = `${ripit(9, warn)}${warn > 0 ? yellow().bold(warn) : gray().bold("0")}`;
+        const critCount = `${ripit(3, crit)}${crit > 0 ? red().bold(crit) : gray().bold("0")}`;
         console.log(` ${green(name)}${ripit(mxLenRep, name)}${critCount}${warnCount}`);
-        console.log(grey().bold(` ${"-".repeat(mxLenRep + 14)}`));
+        console.log(gray().bold(` ${"-".repeat(mxLenRep + 14)}`));
     }
 }
 

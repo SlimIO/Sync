@@ -7,7 +7,7 @@ const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
 const { outdated, clearCache } = require("fast-outdated");
-const { red, green, yellow, cyan, grey, white } = require("kleur");
+const { red, green, yellow, cyan, gray, white } = require("kleur");
 const { diff } = require("semver");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
@@ -85,11 +85,11 @@ async function outdatedAll() {
             continue;
         }
 
-        const majorCount = `${ripit(3, major)}${major > 0 ? red().bold(major) : grey().bold("0")}`;
-        const minorCount = `${ripit(5, minor)}${minor > 0 ? yellow().bold(minor) : grey().bold("0")}`;
-        const patchCount = `${ripit(5, patch)}${patch > 0 ? white().bold(patch) : grey().bold("0")}`;
+        const majorCount = `${ripit(3, major)}${major > 0 ? red().bold(major) : gray().bold("0")}`;
+        const minorCount = `${ripit(5, minor)}${minor > 0 ? yellow().bold(minor) : gray().bold("0")}`;
+        const patchCount = `${ripit(5, patch)}${patch > 0 ? white().bold(patch) : gray().bold("0")}`;
         console.log(` ${green(name)}${ripit(mxLenRep, name)} ${majorCount}   ${minorCount}   ${patchCount}`);
-        console.log(grey().bold(` ${"-".repeat(mxLenRep + 22)}`));
+        console.log(gray().bold(` ${"-".repeat(mxLenRep + 22)}`));
     }
 }
 
