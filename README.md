@@ -5,6 +5,8 @@
 
 SlimIO Synchronize. This tool has been created to help Developer and Integrator to work, download and verify each local SlimIO repositories.
 
+> Note: This project can work with any github Organisation (only the psp command is dedicated to SlimIO).
+
 ## Requirements
 - [Node.js](https://nodejs.org/en/) v10 or higher
 
@@ -69,37 +71,7 @@ Write-Host "Excluding node related executables from Windows Defender."
 > Note: powershell script extension is **ps1**.
 
 ## API
-
-<details>
-<summary>install</summary>
-<br/>
-
-process:
-- Clone the all repository of SlimIO
-- Pull master branch for each repository
-- Installs the dependencies for each repository
-
-If some repository were already present locally, the `install` command checks for updates and pull master branch if necessary.
-
-If no SlimIO projects are present on your computer, installation may take a little while
-
-</details>
-
-<details>
-<summary>outdated</summary>
-<br/>
-
-Checks for each folder the versions dependencies (current / latest) and log a report in the terminal.
-
-</details>
-
-<details>
-<summary>psp</summary>
-<br/>
-
-Use [psp](https://github.com/SlimIO/psp) for each folder and log a report in terminal.
-
-</details>
+TBC
 
 ## Dependencies
 
