@@ -10,6 +10,10 @@ SlimIO Synchronize. This tool has been created to help Developer and Integrator 
 
 > Note: This project can work with any github Organisation (only the psp command is dedicated to SlimIO).
 
+<p align="center">
+    <img src="https://i.imgur.com/pn8WNoW.gif">
+</p>
+
 ## Requirements
 - [Node.js](https://nodejs.org/en/) v10 or higher
 
