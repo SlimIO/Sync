@@ -12,15 +12,16 @@ SlimIO Synchronize. This tool has been created to help Developer and Integrator 
 
 ## Getting Started
 
-This package is available in the Node Package Repository and can be easily installed with [npm](https://docs.npmjs.com/getting-started/what-is-npm) or [yarn](https://yarnpkg.com).
+This package is not yet available on npm. Currently simple for our team to clone and run a link.
 
 ```bash
-$ npm i @slimio/sync
-# or
-$ yarn add @slimio/sync
+$ git clone https://github.com/SlimIO/Sync.git
+$ cd Sync
+$ npm ci
+$ npm link
 ```
 
-If you want to download private SlimIO repository, create a local .env file with the following content:
+If you want to download private SlimIO repository, create a local .env file at the root with the following vars:
 
 ```
 GITHUB_TOKEN=
