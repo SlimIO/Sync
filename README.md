@@ -1,13 +1,12 @@
-# sync
+# Sync
 ![version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/SlimIO/is/commit-activity)
 ![MIT](https://img.shields.io/github/license/mashape/apistatus.svg)
 
-SlimIO Synchronize. This tool has been created to help Developer and Integrator to work, download and verify each local SlimIO repository.
+SlimIO Synchronize. This tool has been created to help Developer and Integrator to work, download and verify each local SlimIO repositories.
 
 ## Requirements
-- Node.js v10 or higher
-- Administrative privilege for some commands.
+- [Node.js](https://nodejs.org/en/) v10 or higher
 
 ## Getting Started
 
@@ -32,24 +31,31 @@ If you don't know how to get a personnal token, please follow [Github Guide](htt
 
 ## Usage example
 ```bash
-$ slimio-sync install
+$ psync install
 # or
-$ slimio-sync outdated
+$ psync outdated
 # or
-$ slimio-sync psp
+$ psync psp
 ```
 
-Options for install command
+To show help just type
 ```bash
-# For developer
-slimio-sync install -d 25  # Clone 25 repositories
-slimio-sync install -d core,is,lazy,registry  # Clone these four repository
-# For update only
-slimio-sync install -u  # Approval for pull, approval for npm install
+$ psync --help
 ```
+
+## Synchronizing all projects (or some given projects).
+
+The **install** command has been build to install and sync all SlimIO projects automatically.
+
+To pickup some given project (by their github name):
+```bash
+psync install --pick Scheduler,Addon,Core
+```
+
+If your need is only to clone repositories (which is faster) just add the `--noinstall` option.
 
 ## Windows users
-Windows Defender will be a problem for the install command.
+Windows Defender must be a problem for the **install command**. The following script will prevent Windows Defender to scan Node.js or npm commands and binaries...
 
 ```powershell
 Write-Host "Excluding appdata NPM folder and Node.JS install folder from Windows Defender."
@@ -59,6 +65,8 @@ Add-MpPreference -ExclusionPath (Get-ItemProperty "HKLM:SOFTWARE\Node.js" | Sele
 Write-Host "Excluding node related executables from Windows Defender."
 ("node", "node.exe", "Expo XDE.exe", "yarn", "yarn.exe") | foreach {Add-MpPreference -ExclusionProcess $_}
 ```
+
+> Note: powershell script extension is **ps1**.
 
 ## API
 
