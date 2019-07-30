@@ -21,6 +21,11 @@
         "manager",
         "update"
     ],
+    "files": [
+        "bin/index.js",
+        "commands/*.js",
+        "src/*.js"
+    ],
     "author": "SlimIO",
     "license": "MIT",
     "bugs": {
