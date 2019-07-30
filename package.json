@@ -42,7 +42,7 @@
         "qoa": "^0.2.0",
         "repos": "^2.0.0",
         "sade": "^1.6.1",
-        "semver": "^6.2.0"
+        "semver": "^6.3.0"
     },
     "devDependencies": {
         "@commitlint/cli": "^8.1.0",
