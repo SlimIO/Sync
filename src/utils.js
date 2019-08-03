@@ -183,7 +183,6 @@ async function pullMaster(repoName, options) {
         await git.pull({
             dir: join(CWD, repoName),
             singleBranch: true,
-            fastForwardOnly: true,
             ref: "master",
             ...token
         });
