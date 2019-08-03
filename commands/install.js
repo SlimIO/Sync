@@ -159,7 +159,7 @@ async function install(update = false, noInstall = false, pick) {
 
     // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
-        fetchGithubRepositories(GITHUB_ORGA, token),
+        fetchGithubRepositories(GITHUB_ORGA, { ...token, kind: "orgs" }),
         reposLocalFiltered()
     ]);
 
