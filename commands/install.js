@@ -7,7 +7,7 @@ const { readdir, stat } = require("fs").promises;
 const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
-const repos = require("repos");
+const fetchGithubRepositories = require("fetch-github-repositories");
 const premove = require("premove");
 const { cyan, red, yellow, green, gray, white } = require("kleur");
 const qoa = require("qoa");
@@ -114,9 +114,11 @@ async function updateRepositories(localRepositories, token) {
 
         const startNpmInstall = await question("Do you want to run 'npm install' after each pull ?", true);
         const locker = new Lock({ max: startNpmInstall ? 3 : 8 });
-        await Promise.all(
-            repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, locker }))
-        );
+        // await Promise.all(
+        //     repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, locker }))
+        // );
+        const repoName = repoWithNoUpdate[0];
+        pullMaster(repoName, { needSpin: true, startNpmInstall, token, locker });
     }
 }
 
@@ -157,7 +159,7 @@ async function install(update = false, noInstall = false, pick) {
 
     // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
-        repos(GITHUB_ORGA, token),
+        fetchGithubRepositories(GITHUB_ORGA, token),
         reposLocalFiltered()
     ]);
 
