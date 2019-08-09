@@ -16,7 +16,7 @@ const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // CONSTANTS
-const LOCKER_DEP_DL = new Lock({ max: 3 });
+const LOCKER_DEP_DL = new Lock({ maxConcurrent: 3 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
@@ -56,7 +56,7 @@ async function getToken() {
 async function cloneRepo(repoName, options = {}) {
     const { skipInstall = false, token = {} } = options;
 
-    const free = skipInstall ? () => void 0 : await LOCKER_DEP_DL.lock();
+    const free = skipInstall ? () => void 0 : await LOCKER_DEP_DL.acquireOne();
     const dir = join(CWD, repoName);
     const spinner = new Spinner({
         prefixText: white().bold(repoName)
@@ -172,7 +172,7 @@ async function logRepoLocAndRemote(repoName) {
 async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {}, locker = null } = options;
     const start = performance.now();
-    const free = locker === null ? () => void 0 : await locker.lock();
+    const free = locker === null ? () => void 0 : await locker.acquireOne();
 
     const spinner = new Spinner({
         verbose: needSpin,

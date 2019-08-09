@@ -113,7 +113,7 @@ async function updateRepositories(localRepositories, token) {
         }
 
         const startNpmInstall = await question("Do you want to run 'npm install' after each pull ?", true);
-        const locker = new Lock({ max: startNpmInstall ? 3 : 8 });
+        const locker = new Lock({ maxConcurrent: startNpmInstall ? 3 : 8 });
         // await Promise.all(
         //     repoWithNoUpdate.map((repoName) => pullMaster(repoName, { needSpin: true, startNpmInstall, token, locker }))
         // );
