@@ -9,5 +9,6 @@ const commands = lazy.of({});
 commands.set("install", () => require("./install"));
 commands.set("pspAll", () => require("./pspAll"));
 commands.set("outdatedAll", () => require("./outdatedAll"));
+commands.set("git", () => require("./git"));
 
 module.exports = commands.value;

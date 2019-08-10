@@ -42,4 +42,11 @@ prog
         await commands.pspAll();
     });
 
+prog
+    .command("git")
+    .describe("Get current github organization repositories stats")
+    .action(async() => {
+        await commands.git();
+    });
+
 prog.parse(process.argv);
