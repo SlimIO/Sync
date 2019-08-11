@@ -29,7 +29,7 @@ async function git() {
 
     const token = await getToken();
     const ret = (
-        await fetchGithubRepositories(GITHUB_ORGA, token)
+        await fetchGithubRepositories(GITHUB_ORGA, { ...token, kind: "orgs" })
     ).sort((left, right) => right.open_issues - left.open_issues);
 
 
