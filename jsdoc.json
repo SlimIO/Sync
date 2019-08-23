@@ -12,6 +12,7 @@
             "./commands/install.js",
             "./commands/outdatedAll.js",
             "./commands/pspAll.js",
+            "./commands/git.js",
             "./src/utils.js"
         ],
         "exclude": [
