@@ -7,7 +7,7 @@ const { readdir, stat } = require("fs").promises;
 const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
-const fetchGithubRepositories = require("fetch-github-repositories");
+const { fetch } = require("fetch-github-repositories");
 const premove = require("premove");
 const { cyan, red, yellow, green, gray, white } = require("kleur");
 const qoa = require("qoa");
@@ -159,7 +159,7 @@ async function install(update = false, noInstall = false, pick) {
 
     // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
-        fetchGithubRepositories(GITHUB_ORGA, { ...token, kind: "orgs" }),
+        fetch(GITHUB_ORGA, { ...token, kind: "orgs" }),
         reposLocalFiltered()
     ]);
 
