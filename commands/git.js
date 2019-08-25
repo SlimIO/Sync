@@ -4,8 +4,8 @@
 const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
-const { red, green, yellow, gray, white, cyan } = require("kleur");
-const fetchGithubRepositories = require("fetch-github-repositories");
+const { green, yellow, gray, white, cyan } = require("kleur");
+const { fetch } = require("fetch-github-repositories");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
@@ -29,7 +29,7 @@ async function git() {
 
     const token = await getToken();
     const ret = (
-        await fetchGithubRepositories(GITHUB_ORGA, { ...token, kind: "orgs" })
+        await fetch(GITHUB_ORGA, { ...token, kind: "orgs" })
     ).sort((left, right) => right.open_issues - left.open_issues);
 
 
