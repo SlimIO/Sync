@@ -17,6 +17,7 @@ const { getToken, ripit } = require("../src/utils");
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const FILTER_DISPLAY = new Set(["greenkeeper[bot]", "snyk-bot"]);
+const PULL_URL_POSTFIX_LEN = "{/number}".length;
 
 /**
  * @async
@@ -66,13 +67,22 @@ async function git(includeAllUsers) {
 }
 
 /**
+ * @typedef {object} repository
+ * @property {string} name
+ * @property {Array<string>} pr
+ * @property {number} issues
+ */
+
+/**
  * @async
  * @function fetchPullRequests
- * @description retrieve information and create an object
- * @returns {object}
+ * @description fetch repository pull-requests on github
+ * @returns {Promise<repository>}
  */
 async function fetchPullRequests({ full_name, pulls_url, open_issues }) {
-    const pull = pulls_url.slice(0, pulls_url.length - 9);
+    // https://api.github.com/repos/SlimIO/Config/pulls{/number} (example of pulls_url)
+    //                                                 ▲ here we slice this from the URL.
+    const pull = pulls_url.slice(0, pulls_url.length - PULL_URL_POSTFIX_LEN);
 
     const { data } = await http.get(pull, {
         headers: {
