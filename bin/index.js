@@ -45,8 +45,9 @@ prog
 prog
     .command("git")
     .describe("Get current github organization repositories stats")
-    .action(async() => {
-        await commands.git();
+    .option("-a, --all", "Retrieve every account (with like greenkeeper)")
+    .action(async({ all }) => {
+        await commands.git(all !== undefined);
     });
 
 prog.parse(process.argv);
