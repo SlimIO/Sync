@@ -54,15 +54,24 @@ async function git(includeAllUsers) {
         `\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Issues")}${" ".repeat(mxLenRep - 11)} ${ul("Pull Request")}\n`
     );
 
+    let num = 0;
+
     for (const { name, issues, pr } of ret) {
         const currPrLen = includeAllUsers ? pr.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
-        if (issues === 0 && currPrLen === 0) {
+        const currIssueLen = includeAllUsers ? issues.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
+
+        if (currIssueLen === 0 && currPrLen === 0) {
             continue;
         }
+        num++;
 
         const rip = ripit(mxLenRep, name);
-        console.log(`${green(name)} ${rip} ${yellow().bold(issues)} ${" ".repeat(23)} ${yellow().bold(currPrLen)}`);
+        console.log(`${green(name)} ${rip} ${yellow().bold(currIssueLen)} ${" ".repeat(23)} ${yellow().bold(currPrLen)}`);
         console.log(gray().bold(` ${"-".repeat(mxLenRep + 42)}`));
+    }
+
+    if (num === 0) {
+        console.log(yellow().bold(" ⚠️ Nothing was found you may use --all or -a option"));
     }
 }
 
@@ -79,20 +88,22 @@ async function git(includeAllUsers) {
  * @description fetch repository pull-requests on github
  * @returns {Promise<repository>}
  */
-async function fetchPullRequests({ full_name, pulls_url, open_issues }) {
-    // https://api.github.com/repos/SlimIO/Config/pulls{/number} (example of pulls_url)
-    //                                                 ▲ here we slice this from the URL.
+async function fetchPullRequests({ full_name, pulls_url, open_issues, issues_url }) {
+    // https://api.github.com/repos/SlimIO/Config/[pulls || issues]{/number} (example of pulls_url)
+    //                                                             ▲ here we slice this from the URL.
     const pull = pulls_url.slice(0, pulls_url.length - PULL_URL_POSTFIX_LEN);
+    const issue = issues_url.slice(0, issues_url.length - PULL_URL_POSTFIX_LEN);
 
-    const { data } = await http.get(pull, {
-        headers: {
-            "User-Agent": GITHUB_ORGA,
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: "application/vnd.github.v3.raw"
-        }
-    });
+    const headers = {
+        "User-Agent": GITHUB_ORGA,
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: "application/vnd.github.v3.raw"
+    };
 
-    return { name: full_name, pr: data.map((row) => row.user.login), issues: open_issues };
+    const { data: pulls } = await http.get(pull, { headers });
+    const { data: issues } = await http.get(issue, { headers });
+
+    return { name: full_name, pr: pulls.map((row) => row.user.login), issues: issues.map((row) => row.user.login) };
 }
 
 module.exports = git;
