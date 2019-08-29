@@ -58,7 +58,7 @@ async function git(includeAllUsers) {
 
     for (const { name, issues, pr } of ret) {
         const currPrLen = includeAllUsers ? pr.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
-        const currIssueLen = includeAllUsers ? issues.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
+        const currIssueLen = includeAllUsers ? issues.length : issues.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
 
         if (currIssueLen === 0 && currPrLen === 0) {
             continue;
