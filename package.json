@@ -41,7 +41,7 @@
         "fast-outdated": "^3.0.0",
         "fetch-github-repositories": "^2.0.0",
         "httpie": "^1.1.2",
-        "isomorphic-git": "^0.64.3",
+        "isomorphic-git": "^0.66.0",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
         "premove": "^1.0.0",
