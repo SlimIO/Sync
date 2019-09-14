@@ -3,7 +3,6 @@
 // Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
-const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
 const { outdated, clearCache } = require("fast-outdated");
@@ -55,7 +54,6 @@ async function getMinorAndMajor(repo) {
  * @returns {Promise<void>}
  */
 async function outdatedAll() {
-    const start = performance.now();
     const spin = new Spinner({
         prefixText: "Searching for outdated dependencies in sub directories"
     }).start("");
@@ -69,9 +67,8 @@ async function outdatedAll() {
     const ret = (
         await Promise.all(getRepoWithToml.map(getMinorAndMajor))
     ).sort((left, right) => right.major - left.major || right.minor - left.minor);
-    const end = performance.now() - start;
     spin.succeed(
-        `Fetched ${green().bold(ret.length)} repositories in ${cyan().bold(end.toFixed(2))} millisecondes !`
+        `Fetched ${green().bold(ret.length)} repositories in ${cyan().bold(spin.elapsedTime.toFixed(2))} millisecondes !`
     );
 
     const table = new CLITable([

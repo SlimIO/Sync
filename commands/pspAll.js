@@ -3,7 +3,6 @@
 // Require Node.js Dependencies
 const { join } = require("path");
 const { readdir } = require("fs").promises;
-const { performance } = require("perf_hooks");
 
 // Require Third-party dependencies
 const psp = require("@slimio/psp");
@@ -49,7 +48,6 @@ async function pspTheRepo(repo) {
  * @returns {Promise<void>}
  */
 async function pspAll() {
-    const start = performance.now();
     const spin = new Spinner({
         prefixText: "Retrieving psp reports on all sub directories"
     }).start("");
@@ -63,7 +61,7 @@ async function pspAll() {
         await Promise.all(getRepoWithToml.map(pspTheRepo))
     ).sort((left, right) => right.crit - left.crit || right.warn - left.warn);
 
-    const end = cyan().bold((performance.now() - start).toFixed(2));
+    const end = cyan().bold(spin.elapsedTime.toFixed(2));
     spin.succeed(`Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`);
 
     const table = new CLITable([

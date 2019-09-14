@@ -1,8 +1,5 @@
 "use strict";
 
-// Require Node.js Dependencies
-const { performance } = require("perf_hooks");
-
 // Require Third-party dependencies
 const { green, yellow, gray, white, cyan, red } = require("kleur");
 const { fetch } = require("fetch-github-repositories");
@@ -31,7 +28,6 @@ const ul = white().bold().underline;
  * @returns {Promise<void>}
  */
 async function git(includeAllUsers) {
-    const start = performance.now();
     const spin = new Spinner({
         prefixText: "Retrieving git stats for current organization"
     }).start("");
@@ -43,7 +39,7 @@ async function git(includeAllUsers) {
         ret = (await Promise.all(repositories.map(fetchPullRequests)))
             .sort((left, right) => right.issues - left.issues || right.pull_requests - left.pull_requests);
 
-        const end = cyan().bold((performance.now() - start).toFixed(2));
+        const end = cyan().bold(spin.elapsedTime.toFixed(2));
         spin.succeed(`Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`);
     }
     catch (error) {
