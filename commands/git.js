@@ -1,13 +1,13 @@
 "use strict";
 
 // Require Third-party dependencies
-const { green, yellow, gray, white, cyan, red } = require("kleur");
+const { green, yellow, white, cyan, red } = require("kleur");
 const { fetch } = require("fetch-github-repositories");
 const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // Require Internal Dependencies
-const { getToken, ripit } = require("../src/utils");
+const { getToken } = require("../src/utils");
 const CLITable = require("../src/cli-table.js");
 
 // CONSTANTS
