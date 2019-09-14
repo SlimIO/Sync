@@ -36,8 +36,8 @@ async function git(includeAllUsers) {
     try {
         const token = await getToken();
         const repositories = await fetch(GITHUB_ORGA, { ...token, kind: "orgs" });
-        ret = (await Promise.all(repositories.map(fetchPullRequests)))
-            .sort((left, right) => right.issues - left.issues || right.pull_requests - left.pull_requests);
+        ret = await Promise.all(repositories.map(fetchPullRequests));
+        ret.sort((left, right) => right.issues.length - left.issues.length);
 
         const end = cyan().bold(spin.elapsedTime.toFixed(2));
         spin.succeed(`Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`);
