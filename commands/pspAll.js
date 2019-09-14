@@ -9,13 +9,15 @@ const { performance } = require("perf_hooks");
 const psp = require("@slimio/psp");
 const { red, green, yellow, gray, white, cyan } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
-Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
-const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
+const { getSlimioToml } = require("../src/utils");
+const CLITable = require("../src/cli-table.js");
 
-// CONSTANTS
+// CONSTANTS & Vars
 const CWD = process.cwd();
+const ul = white().bold().underline;
+Spinner.DEFAULT_SPINNER = "dots";
 
 /**
  * @async
@@ -62,18 +64,16 @@ async function pspAll() {
     ).sort((left, right) => right.crit - left.crit || right.warn - left.warn);
 
     const end = cyan().bold((performance.now() - start).toFixed(2));
-    spin.succeed(
-        `Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`
-    );
-    const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
+    spin.succeed(`Successfully handled ${green().bold(ret.length)} repositories in ${end} millisecondes !`);
 
-    const ul = white().bold().underline;
-    console.log(`\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Crit")}     ${ul("Warn")}\n`);
+    const table = new CLITable([
+        CLITable.create(ul("Repository"), 25),
+        ul("Crit"),
+        ul("Warn")
+    ]);
     for (const { name, crit, warn, err } of ret) {
         if (err) {
-            setImmediate(() => {
-                console.log(` ${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
-            });
+            setImmediate(() => console.log(` ${red(name)} ${white().bold(err)}`));
             continue;
         }
 
@@ -81,11 +81,11 @@ async function pspAll() {
             continue;
         }
 
-        const warnCount = `${ripit(9, warn)}${warn > 0 ? yellow().bold(warn) : gray().bold("0")}`;
-        const critCount = `${ripit(3, crit)}${crit > 0 ? red().bold(crit) : gray().bold("0")}`;
-        console.log(` ${green(name)}${ripit(mxLenRep, name)}${critCount}${warnCount}`);
-        console.log(gray().bold(` ${"-".repeat(mxLenRep + 14)}`));
+        const warnCount = warn > 0 ? yellow().bold(warn) : gray().bold("0");
+        const critCount = crit > 0 ? red().bold(crit) : gray().bold("0");
+        table.add([green(name), warnCount, critCount]);
     }
+    table.show();
 }
 
 

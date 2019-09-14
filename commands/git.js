@@ -8,16 +8,20 @@ const { green, yellow, gray, white, cyan, red } = require("kleur");
 const { fetch } = require("fetch-github-repositories");
 const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
-Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
 const { getToken, ripit } = require("../src/utils");
+const CLITable = require("../src/cli-table.js");
 
 // CONSTANTS
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const FILTER_DISPLAY = new Set(["greenkeeper[bot]", "snyk-bot"]);
 const PULL_URL_POSTFIX_LEN = "{/number}".length;
+
+// Vars
+Spinner.DEFAULT_SPINNER = "dots";
+const ul = white().bold().underline;
 
 /**
  * @async
@@ -48,14 +52,11 @@ async function git(includeAllUsers) {
         return;
     }
 
-    const mxLenRep = 30;
-    const ul = white().bold().underline;
-    console.log(
-        `\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Issues")}${" ".repeat(mxLenRep - 11)} ${ul("Pull Request")}\n`
-    );
-
-    let num = 0;
-
+    const table = new CLITable([
+        CLITable.create(ul("Repository"), 25),
+        ul("Issues"),
+        CLITable.create(ul("Pull Request"), 14, "center")
+    ]);
     for (const { name, issues, pr } of ret) {
         const currPrLen = includeAllUsers ? pr.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
         const currIssueLen = includeAllUsers ? issues.length : issues.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
@@ -63,14 +64,11 @@ async function git(includeAllUsers) {
         if (currIssueLen === 0 && currPrLen === 0) {
             continue;
         }
-        num++;
-
-        const rip = ripit(mxLenRep, name);
-        console.log(`${green(name)} ${rip} ${yellow().bold(currIssueLen)} ${" ".repeat(23)} ${yellow().bold(currPrLen)}`);
-        console.log(gray().bold(` ${"-".repeat(mxLenRep + 42)}`));
+        table.add([green(name), yellow().bold(currIssueLen), yellow().bold(currPrLen)]);
     }
 
-    if (num === 0) {
+    table.show();
+    if (table.rowCount === 0) {
         console.log(yellow().bold(" ⚠️ Nothing was found you may use --all or -a option"));
     }
 }

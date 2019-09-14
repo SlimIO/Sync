@@ -37,6 +37,7 @@
         "@slimio/lazy": "^1.2.0",
         "@slimio/lock": "^0.2.0",
         "@slimio/psp": "^0.8.0",
+        "cliui": "^5.0.0",
         "dotenv": "^8.1.0",
         "fast-outdated": "^3.0.0",
         "fetch-github-repositories": "^2.0.0",

@@ -10,14 +10,18 @@ const { outdated, clearCache } = require("fast-outdated");
 const { red, green, yellow, cyan, gray, white } = require("kleur");
 const { diff } = require("semver");
 const Spinner = require("@slimio/async-cli-spinner");
-Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
-const { getSlimioToml, ripit, wordMaxLength } = require("../src/utils");
+const { getSlimioToml } = require("../src/utils");
+const CLITable = require("../src/cli-table.js");
 
-// Constants
+// CONSTANTS
 const CWD = process.cwd();
 const NPM_TOKEN = process.env.NPM_TOKEN;
+
+// Vars
+const ul = white().bold().underline;
+Spinner.DEFAULT_SPINNER = "dots";
 
 /**
  * @async
@@ -65,32 +69,32 @@ async function outdatedAll() {
     const ret = (
         await Promise.all(getRepoWithToml.map(getMinorAndMajor))
     ).sort((left, right) => right.major - left.major || right.minor - left.minor);
-    const mxLenRep = wordMaxLength(getRepoWithToml) || 30;
     const end = performance.now() - start;
     spin.succeed(
         `Fetched ${green().bold(ret.length)} repositories in ${cyan().bold(end.toFixed(2))} millisecondes !`
     );
 
-    const ul = white().bold().underline;
-    console.log(`\n ${ul("Repository")}${" ".repeat(mxLenRep - 11)} ${ul("Major")}   ${ul("Minor")}   ${ul("Patch")}\n`);
+    const table = new CLITable([
+        CLITable.create(ul("Repository"), 25),
+        ul("Major"),
+        ul("Minor"),
+        ul("Patch")
+    ]);
     for (const { name, major, minor, patch, err } of ret) {
         if (err) {
-            setImmediate(() => {
-                console.log(` ${red(name)}${ripit(mxLenRep, name)} ${white().bold(err)}`);
-            });
+            setImmediate(() => console.log(` ${red(name)} ${white().bold(err)}`));
             continue;
         }
-
         if (minor === 0 && major === 0 && patch === 0) {
             continue;
         }
 
-        const majorCount = `${ripit(3, major)}${major > 0 ? red().bold(major) : gray().bold("0")}`;
-        const minorCount = `${ripit(5, minor)}${minor > 0 ? yellow().bold(minor) : gray().bold("0")}`;
-        const patchCount = `${ripit(5, patch)}${patch > 0 ? white().bold(patch) : gray().bold("0")}`;
-        console.log(` ${green(name)}${ripit(mxLenRep, name)} ${majorCount}   ${minorCount}   ${patchCount}`);
-        console.log(gray().bold(` ${"-".repeat(mxLenRep + 22)}`));
+        const majorCount = major > 0 ? red().bold(major) : gray().bold("0");
+        const minorCount = minor > 0 ? yellow().bold(minor) : gray().bold("0");
+        const patchCount = patch > 0 ? white().bold(patch) : gray().bold("0");
+        table.add([green(name), majorCount, minorCount, patchCount]);
     }
+    table.show();
 }
 
 module.exports = outdatedAll;
