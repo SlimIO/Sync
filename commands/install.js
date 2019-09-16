@@ -12,6 +12,7 @@ const premove = require("premove");
 const { cyan, red, yellow, green, gray, white } = require("kleur");
 const qoa = require("qoa");
 const Lock = require("@slimio/lock");
+const ms = require("ms");
 const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
@@ -200,7 +201,7 @@ async function install(update = false, noInstall = false, pick) {
         // Filter for dev
         .filter((name) => repoListOpt.has(name.toLowerCase()));
 
-    const fetchTime = cyan().bold(`${((performance.now() - fetchTimer) / 1000).toFixed(2)}s`);
+    const fetchTime = cyan().bold(ms(performance.now() - fetchTimer, { long: true }));
     spinner.succeed(`Successfully fetched ${green().bold(remoteToClone.length)} repositories in ${fetchTime}.\n`);
 
     console.log(white().bold(` > Number of local repositories: ${yellow().bold(reposLocalSet.size)}`));

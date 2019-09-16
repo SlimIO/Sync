@@ -13,6 +13,7 @@ const { cyan, white, green } = require("kleur");
 const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
+const ms = require("ms");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // CONSTANTS
@@ -191,7 +192,8 @@ async function pullMaster(repoName, options) {
             spinner.text = "Update dependencies";
             await npmInstall(repoName);
         }
-        const time = green().bold(`${((performance.now() - start) / 1000).toFixed(2)}s`);
+
+        const time = green().bold(ms(performance.now() - start, { long: true }));
         spinner.succeed(`Completed in ${time}`);
     }
     catch (error) {

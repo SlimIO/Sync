@@ -45,6 +45,7 @@
         "isomorphic-git": "^0.67.2",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
+        "ms": "^2.1.2",
         "premove": "^1.0.0",
         "qoa": "^0.2.0",
         "sade": "^1.6.1",
