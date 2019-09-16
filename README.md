@@ -85,21 +85,23 @@ TBC
 
 |Name|Refactoring|Security Risk|Usage|
 |---|---|---|---|
-|[@slimio/async-cli-spinner](https://github.com/SlimIO/Async-cli-spinner)|Minor|Low|Multi async cli spinner|
-|[@slimio/lazy](https://github.com/SlimIO/Lazy)|Minor|Low|Setup lazy props on Objects|
-|[@slimio/lock](https://github.com/SlimIO/Lock#readme)|Minor|High|TBC|
-|[@slimio/psp](https://github.com/SlimIO/psp#readme)|Minor|High|TBC|
-|[dotenv](https://github.com/motdotla/dotenv)|Minor|Low|Env file|
-|[fast-outdated](https://github.com/fraxken/fast-outdated#readme)|⚠️Major|High|TBC|
-|[httpie](https://github.com/jakubroztocil/httpie)|Minor|Low|	HTTP request|
-|[isomorphic-git](https://isomorphic-git.org/)|⚠️Major|High|TBC|
-|[kleur](https://github.com/lukeed/kleur)|Minor|Low|TTY color|
-|[make-promises-safe](https://github.com/mcollina/make-promises-safe#readme)|⚠️Major|Low|TBC|
-|[qoa](https://github.com/klaussinani/qoa#readme)|⚠️Major|Low|TBC|
-|[repos](https://github.com/jonschlinkert/repos)|⚠️Major|Low|Get all GIT repositories|
-|[sade](https://github.com/lukeed/sade#readme)|⚠️Major|High|TBC|
-|[semver](https://github.com/npm/node-semver)|⚠️Major|Low|SemVer validation|
-|[premove](https://github.com/lukeed/premove#readme)|Minor|Low|Remove dir/files recursively|
+|[@slimio/async-cli-spinner](https://github.com/SlimIO/Async-cli-spinner)|Minor|Low|Elegant Asynchronous Terminal (CLI) Spinner|
+|[@slimio/lazy](https://github.com/SlimIO/Lazy)|Minor|Low|Setup Lazy evaluation on JavaScript Objects|
+|[@slimio/lock](https://github.com/SlimIO/Lock)|Minor|Low|Semaphore for async/await|
+|[@slimio/psp](https://github.com/SlimIO/psp)|Minor|High|SlimIO projects structure policies|
+|[cliui](https://github.com/yargs/cliui#readme)|Minor|High|Create complicated column design in the terminal|
+|[dotenv](https://github.com/motdotla/dotenv)|Minor|Low|Loads environment variables from .env|
+|[fast-outdated](https://github.com/fraxken/fast-outdated#readme)|Minor|High|Javascript implementation of `npm outdated` command|
+|[fetch-github-repositories](https://github.com/fraxken/fetch-github-repositories)|Minor|Low|Fetch github repositories|
+|[httpie](https://github.com/lukeed/httpie#readme)|Minor|Low|A Node.js HTTP client as easy as pie!|
+|[isomorphic-git](https://isomorphic-git.org/)|Minor|High|Pure Javascript git implementation|
+|[kleur](https://github.com/lukeed/kleur)|Minor|Low|The fastest Node.js library for formatting terminal text with ANSI colors|
+|[make-promises-safe](https://github.com/mcollina/make-promises-safe)|⚠️Major|Low|Force Node.js [DEP00018](https://nodejs.org/dist/latest-v8.x/docs/api/deprecations.html#deprecations_dep0018_unhandled_promise_rejections)|
+|[ms](https://github.com/zeit/ms#readme)|Minor|Low|Convert various time formats to milliseconds.|
+|[premove](https://github.com/lukeed/premove#readme)|Minor|Low|Effectively rm -rf for Node.js|
+|[qoa](https://github.com/klaussinani/qoa#readme)|Minor|Low|Minimal interactive command-line prompts|
+|[sade](https://github.com/lukeed/sade#readme)|Minor|Low|Sade is a small but powerful tool for building command-line interface (CLI) applications for Node.js that are fast, responsive, and helpful!|
+|[semver](https://github.com/npm/node-semver)|⚠️Major|Low|Semver parser/utilities for node|
 
 ## License
 MIT
