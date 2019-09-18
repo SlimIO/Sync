@@ -19,7 +19,7 @@ const Spinner = require("@slimio/async-cli-spinner");
 // CONSTANTS
 const LOCKER_DEP_DL = new Lock({ maxConcurrent: 3 });
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.GIT_TOKEN;
 const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
