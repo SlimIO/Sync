@@ -28,16 +28,17 @@ $ npm ci
 $ npm link
 ```
 
-If you want to download private SlimIO repository, create a local .env file at the root with the following vars:
+## Environment Variables
 
+To configure the project you have to register (set) environment variables on your system. These variables can be set in a **.env** file (that file must be created at the root of the project).
 ```
-GITHUB_TOKEN=
+GIT_TOKEN=
 GITHUB_ORGA=
 NPM_TOKEN=
 TOML=true
 ```
 
-If you don't know how to get a personnal token, please follow [Github Guide](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) and [Npm Guide](https://docs.npmjs.com/creating-and-viewing-authentication-tokens).
+To known how to get a **GIT_TOKEN** and **NPM_TOKEN** or how to register environment variables follow our [Governance Guide](https://github.com/SlimIO/Governance/blob/master/docs/tooling.md#environment-variables).
 
 ## Usage example
 ```bash
