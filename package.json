@@ -1,88 +1,92 @@
 {
-    "name": "@slimio/sync",
-    "version": "0.1.0",
-    "description": "SlimIO Projects Synchroniser/Manager",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js",
-        "prepublishOnly": "pkg-ok",
-        "test": "cross-env psp && ava --verbose",
-        "doc": "jsdoc -c ./jsdoc.json -r -R ./README.md -P ./package.json --verbose",
-        "coverage": "nyc npm test",
-        "report": "nyc report --reporter=html"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/SlimIO/Sync.git"
-    },
-    "keywords": [
-        "slimio",
-        "sync",
-        "manager",
-        "update"
-    ],
-    "files": [
-        "bin/index.js",
-        "commands/*.js",
-        "src/*.js"
-    ],
-    "author": "SlimIO",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/SlimIO/Sync/issues"
-    },
-    "homepage": "https://github.com/SlimIO/Sync#readme",
-    "dependencies": {
-        "@slimio/async-cli-spinner": "^0.4.0",
-        "@slimio/lazy": "^1.2.0",
-        "@slimio/lock": "^0.3.0",
-        "@slimio/psp": "^0.8.0",
-        "cliui": "^5.0.0",
-        "dotenv": "^8.1.0",
-        "fast-outdated": "^3.0.1",
-        "fetch-github-repositories": "^2.0.0",
-        "httpie": "^1.1.2",
-        "isomorphic-git": "^0.67.2",
-        "kleur": "^3.0.3",
-        "make-promises-safe": "^5.0.0",
-        "ms": "^2.1.2",
-        "premove": "^1.0.0",
-        "qoa": "^0.2.0",
-        "sade": "^1.6.1",
-        "semver": "^6.3.0",
-        "simple-git": "^1.126.0"
-    },
-    "devDependencies": {
-        "@commitlint/cli": "^8.2.0",
-        "@commitlint/config-conventional": "^8.2.0",
-        "@escommunity/minami": "^1.0.0",
-        "@slimio/eslint-config": "^3.0.3",
-        "ava": "^2.4.0",
-        "cross-env": "^6.0.0",
-        "eslint": "^6.4.0",
-        "husky": "^3.0.5",
-        "jsdoc": "^3.6.3",
-        "nyc": "^14.1.1",
-        "pkg-ok": "^2.3.1"
-    },
-    "engines": {
-        "node": ">=10"
-    },
-    "husky": {
-        "hooks": {
-            "pre-push": "cross-env eslint bin/index.js commands/**.js src/**.js && npm test",
-            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-        }
-    },
-    "nyc": {
-        "check-coverage": true,
-        "per-file": false,
-        "lines": 98,
-        "statements": 98,
-        "functions": 98,
-        "branches": 90
-    },
-    "bin": {
-        "psync": "./bin/index.js"
+  "name": "@slimio/sync",
+  "version": "0.1.0",
+  "description": "SlimIO Projects Synchroniser/Manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "prepublishOnly": "pkg-ok",
+    "test": "cross-env psp && ava --verbose",
+    "doc": "jsdoc -c ./jsdoc.json -r -R ./README.md -P ./package.json --verbose",
+    "coverage": "nyc npm test",
+    "report": "nyc report --reporter=html",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SlimIO/Sync.git"
+  },
+  "keywords": [
+    "slimio",
+    "sync",
+    "manager",
+    "update"
+  ],
+  "files": [
+    "bin/index.js",
+    "commands/*.js",
+    "src/*.js"
+  ],
+  "author": "SlimIO",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SlimIO/Sync/issues"
+  },
+  "homepage": "https://github.com/SlimIO/Sync#readme",
+  "dependencies": {
+    "@slimio/async-cli-spinner": "^0.4.0",
+    "@slimio/lazy": "^1.2.0",
+    "@slimio/lock": "^0.3.0",
+    "@slimio/psp": "^0.8.0",
+    "cliui": "^5.0.0",
+    "dotenv": "^8.1.0",
+    "fast-outdated": "^3.0.1",
+    "fetch-github-repositories": "^2.0.0",
+    "httpie": "^1.1.2",
+    "isomorphic-git": "^0.67.2",
+    "kleur": "^3.0.3",
+    "make-promises-safe": "^5.0.0",
+    "ms": "^2.1.2",
+    "premove": "^1.0.0",
+    "qoa": "^0.2.0",
+    "sade": "^1.6.1",
+    "semver": "^6.3.0",
+    "simple-git": "^1.126.0",
+    "snyk": "^1.230.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "@escommunity/minami": "^1.0.0",
+    "@slimio/eslint-config": "^3.0.3",
+    "ava": "^2.4.0",
+    "cross-env": "^6.0.0",
+    "eslint": "^6.4.0",
+    "husky": "^3.0.5",
+    "jsdoc": "^3.6.3",
+    "nyc": "^14.1.1",
+    "pkg-ok": "^2.3.1"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "cross-env eslint bin/index.js commands/**.js src/**.js && npm test",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
+  },
+  "nyc": {
+    "check-coverage": true,
+    "per-file": false,
+    "lines": 98,
+    "statements": 98,
+    "functions": 98,
+    "branches": 90
+  },
+  "bin": {
+    "psync": "./bin/index.js"
+  },
+  "snyk": true
 }
