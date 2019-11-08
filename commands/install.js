@@ -119,7 +119,7 @@ async function updateRepositories(localRepositories, token) {
         const locker = new Lock({ maxConcurrent: startNpmInstall ? 3 : 8 });
         await Promise.all(
             repoWithNoUpdate.map((repoName) => pullMaster(repoName, {
-                needSpin: true, startNpmInstall, token, locker, sGit: true
+                needSpin: true, startNpmInstall, token, locker
             }))
         );
     }

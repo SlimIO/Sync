@@ -14,7 +14,6 @@ const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
 const ms = require("ms");
-const simpleGit = require("simple-git/promise");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // CONSTANTS
@@ -172,7 +171,7 @@ async function logRepoLocAndRemote(repoName) {
  * @returns {Promise<void>}
  */
 async function pullMaster(repoName, options) {
-    const { needSpin = false, startNpmInstall = false, token = {}, locker = null, sGit = false } = options;
+    const { needSpin = false, startNpmInstall = false, token = {}, locker = null } = options;
     const start = performance.now();
     const free = locker === null ? () => void 0 : await locker.acquireOne();
 
@@ -183,18 +182,12 @@ async function pullMaster(repoName, options) {
 
     try {
         const dir = join(CWD, repoName);
-        if (sGit) {
-            const gitBranch = await simpleGit(dir).revparse(["--abbrev-ref", "HEAD"]);
-            await simpleGit(dir).pull("origin", gitBranch, { "--rebase": true });
-        }
-        else {
-            await git.pull({
-                dir,
-                singleBranch: true,
-                ref: "master",
-                ...token
-            });
-        }
+        await git.pull({
+            dir,
+            singleBranch: true,
+            ref: "master",
+            ...token
+        });
 
         if (startNpmInstall) {
             spinner.text = "Update dependencies";
