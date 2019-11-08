@@ -42,7 +42,7 @@
         "fast-outdated": "^3.0.1",
         "fetch-github-repositories": "^2.0.0",
         "httpie": "^1.1.2",
-        "isomorphic-git": "^0.67.2",
+        "isomorphic-git": "^0.70.5",
         "kleur": "^3.0.3",
         "make-promises-safe": "^5.0.0",
         "ms": "^2.1.2",
