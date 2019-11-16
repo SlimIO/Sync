@@ -81,7 +81,7 @@ async function pspAll() {
 
         const warnCount = warn > 0 ? yellow().bold(warn) : gray().bold("0");
         const critCount = crit > 0 ? red().bold(crit) : gray().bold("0");
-        table.add([green(name), warnCount, critCount]);
+        table.add([green(name), critCount, warnCount]);
     }
     table.show();
 }
