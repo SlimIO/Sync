@@ -3,12 +3,11 @@
 
 // Require Node.js dependencies
 const { join } = require("path");
-const { readdir, stat } = require("fs").promises;
+const { readdir, stat, rmdir } = require("fs").promises;
 const { performance } = require("perf_hooks");
 
 // Require Third Party dependencies
 const { fetch } = require("fetch-github-repositories");
-const premove = require("premove");
 const { cyan, red, yellow, green, gray, white } = require("kleur");
 const qoa = require("qoa");
 const Lock = require("@slimio/lock");
@@ -179,7 +178,7 @@ async function install(update = false, noInstall = false, pick) {
 
     // Remove local pick
     if (pick.size > 0) {
-        await Promise.all([...pick].map((name) => premove(join(CWD, name))));
+        await Promise.all([...pick].map((name) => rmdir(join(CWD, name), { recursive: true })));
     }
 
     // Remove specific projects depending on the current OS

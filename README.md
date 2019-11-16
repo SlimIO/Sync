@@ -99,7 +99,6 @@ TBC
 |[kleur](https://github.com/lukeed/kleur)|Minor|Low|The fastest Node.js library for formatting terminal text with ANSI colors|
 |[make-promises-safe](https://github.com/mcollina/make-promises-safe)|⚠️Major|Low|Force Node.js [DEP00018](https://nodejs.org/dist/latest-v8.x/docs/api/deprecations.html#deprecations_dep0018_unhandled_promise_rejections)|
 |[ms](https://github.com/zeit/ms#readme)|Minor|Low|Convert various time formats to milliseconds.|
-|[premove](https://github.com/lukeed/premove#readme)|Minor|Low|Effectively rm -rf for Node.js|
 |[qoa](https://github.com/klaussinani/qoa#readme)|Minor|Low|Minimal interactive command-line prompts|
 |[sade](https://github.com/lukeed/sade#readme)|Minor|Low|Sade is a small but powerful tool for building command-line interface (CLI) applications for Node.js that are fast, responsive, and helpful!|
 |[semver](https://github.com/npm/node-semver)|⚠️Major|Low|Semver parser/utilities for node|

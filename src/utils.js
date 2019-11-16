@@ -3,14 +3,13 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const { access } = require("fs").promises;
+const { access, rmdir } = require("fs").promises;
 const { spawn } = require("child_process");
 const { performance } = require("perf_hooks");
 
 // Require Third-Party dependencies
 const git = require("isomorphic-git");
 const { cyan, white, green } = require("kleur");
-const premove = require("premove");
 const Lock = require("@slimio/lock");
 const http = require("httpie");
 const ms = require("ms");
@@ -89,7 +88,7 @@ async function cloneRepo(repoName, options = {}) {
     catch (error) {
         console.log(error);
         spinner.failed(`Installation failed: ${error.message}`);
-        await premove(dir);
+        await rmdir(dir, { recursive: true });
     }
     finally {
         free();
