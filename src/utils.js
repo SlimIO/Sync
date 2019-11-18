@@ -119,24 +119,32 @@ async function fileExist(dir, fileName) {
  * @function logRepoLocAndRemote
  * @description Log local commits
  * @param {!string} repoName Name of the repository
- * @returns {Promise<string|boolean>}
+ * @param {boolean?} logInfosRemoteOnly To return infos repository only
+ * @returns {Promise<any>}
  */
-async function logRepoLocAndRemote(repoName) {
+async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
+    const commitOrNot = logInfosRemoteOnly ? "" : "/commits";
+
     try {
-        const URL = `https://api.github.com/repos/${GITHUB_ORGA}/${repoName}/commits`;
-        const { data: [firstCommitRemote] } = await http.get(URL, {
+        const URL = `https://api.github.com/repos/${GITHUB_ORGA}/${repoName}${commitOrNot}`;
+        const { data } = await http.get(URL, {
             headers: {
                 "User-Agent": GITHUB_ORGA,
                 Authorization: `token ${GITHUB_TOKEN}`,
                 Accept: "application/vnd.github.v3.raw"
             }
         });
+
+        if (logInfosRemoteOnly) {
+            return data;
+        }
+
         const [firstCommitLocal] = await git.log({
             gitdir: join(CWD, repoName, ".git"),
             depth: 1,
             ref: "master"
         });
-        const { sha, commit } = firstCommitRemote;
+        const { sha, commit } = data.firstCommitRemote[0];
         const { oid, committer } = firstCommitLocal;
 
         // Equal commit, update OK
