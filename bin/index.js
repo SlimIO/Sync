@@ -43,6 +43,14 @@ prog
     });
 
 prog
+    .command("infos")
+    .describe("Get github informations on this repository")
+    .action(async(options) => {
+        const opts = options._.length > 0 ? options._.join("").split(",") : [];
+        await commands.getInfos(opts);
+    });
+
+prog
     .command("git")
     .describe("Get current github organization repositories stats")
     .option("-a, --all", "Retrieve every account (with like greenkeeper)")
