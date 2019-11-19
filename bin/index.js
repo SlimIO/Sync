@@ -44,10 +44,10 @@ prog
 
 prog
     .command("infos")
-    .describe("Get github informations on this repository")
-    .action(async(options) => {
-        const opts = options._.length > 0 ? options._.join("").split(",") : [];
-        await commands.getInfos(opts);
+    .describe("Get github informations on the repository at the current work position")
+    .option("-o, --open", "open github page", false)
+    .action(async({ open }) => {
+        await commands.getInfos(Boolean(open));
     });
 
 prog
