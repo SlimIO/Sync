@@ -102,7 +102,7 @@ async function updateRepositories(localRepositories, token) {
     }).start();
 
     const repoWithNoUpdate = (await Promise.all(
-        localRepositories.map(logRepoLocAndRemote)
+        localRepositories.map((repoName) => logRepoLocAndRemote(repoName))
     )).filter((repoName) => repoName !== false);
     spin.succeed(`${cyan().bold(repoWithNoUpdate.length)} repositories that need to be updated!`);
 

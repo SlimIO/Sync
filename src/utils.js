@@ -134,6 +134,7 @@ async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
                 Accept: "application/vnd.github.v3.raw"
             }
         });
+        const [firstCommitRemote] = data;
 
         if (logInfosRemoteOnly) {
             return data;
@@ -144,7 +145,7 @@ async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
             depth: 1,
             ref: "master"
         });
-        const { sha, commit } = data.firstCommitRemote[0];
+        const { sha, commit } = firstCommitRemote;
         const { oid, committer } = firstCommitLocal;
 
         // Equal commit, update OK
