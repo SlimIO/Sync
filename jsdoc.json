@@ -13,6 +13,7 @@
             "./commands/outdatedAll.js",
             "./commands/pspAll.js",
             "./commands/git.js",
+            "./commands/infos.js",
             "./src/utils.js",
             "./src/cli-table.js"
         ],
