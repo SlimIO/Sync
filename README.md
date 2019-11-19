@@ -91,6 +91,7 @@ TBC
 |[@slimio/async-cli-spinner](https://github.com/SlimIO/Async-cli-spinner)|Minor|Low|Elegant Asynchronous Terminal (CLI) Spinner|
 |[@slimio/lazy](https://github.com/SlimIO/Lazy)|Minor|Low|Setup Lazy evaluation on JavaScript Objects|
 |[@slimio/lock](https://github.com/SlimIO/Lock)|Minor|Low|Semaphore for async/await|
+|[@slimio/pretty-json](https://github.com/SlimIO/Pretty-JSON)|Minor|Low|Stdout beautified JSON|
 |[@slimio/psp](https://github.com/SlimIO/psp)|Minor|High|SlimIO projects structure policies|
 |[cliui](https://github.com/yargs/cliui#readme)|Minor|High|Create complicated column design in the terminal|
 |[dotenv](https://github.com/motdotla/dotenv)|Minor|Low|Loads environment variables from .env|
@@ -99,8 +100,10 @@ TBC
 |[httpie](https://github.com/lukeed/httpie#readme)|Minor|Low|A Node.js HTTP client as easy as pie!|
 |[isomorphic-git](https://isomorphic-git.org/)|Minor|High|Pure Javascript git implementation|
 |[kleur](https://github.com/lukeed/kleur)|Minor|Low|The fastest Node.js library for formatting terminal text with ANSI colors|
+|[lodash.pick](https://lodash.com/)|Minor|Low|Pick items in a given Object|
 |[make-promises-safe](https://github.com/mcollina/make-promises-safe)|⚠️Major|Low|Force Node.js [DEP00018](https://nodejs.org/dist/latest-v8.x/docs/api/deprecations.html#deprecations_dep0018_unhandled_promise_rejections)|
 |[ms](https://github.com/zeit/ms#readme)|Minor|Low|Convert various time formats to milliseconds.|
+|[open](https://github.com/sindresorhus/open#readme)|Minor|High|Open stuff like URLs, files, executables. Cross-platform.|
 |[qoa](https://github.com/klaussinani/qoa#readme)|Minor|Low|Minimal interactive command-line prompts|
 |[sade](https://github.com/lukeed/sade#readme)|Minor|Low|Sade is a small but powerful tool for building command-line interface (CLI) applications for Node.js that are fast, responsive, and helpful!|
 |[semver](https://github.com/npm/node-semver)|⚠️Major|Low|Semver parser/utilities for node|
