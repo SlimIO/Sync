@@ -134,12 +134,12 @@ async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
                 Accept: "application/vnd.github.v3.raw"
             }
         });
-        const [firstCommitRemote] = data;
 
         if (logInfosRemoteOnly) {
             return data;
         }
 
+        const [firstCommitRemote] = data;
         const [firstCommitLocal] = await git.log({
             gitdir: join(CWD, repoName, ".git"),
             depth: 1,

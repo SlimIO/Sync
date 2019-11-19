@@ -6,8 +6,19 @@ const { basename } = require("path");
 // Require Internals Dependencies
 const { logRepoLocAndRemote } = require("../src/utils");
 
+// Require Third-Party Dependencies
+const prettyJSON = require("@slimio/pretty-json");
+
 // Constants
 const CWD = process.cwd();
+const FIELDS_TO_DISPLAY = [
+    "name",
+    "private",
+    "html_url",
+    "fork",
+    "description",
+    "open_issues"
+];
 
 /**
  * @async
@@ -16,11 +27,11 @@ const CWD = process.cwd();
  * @param {sring[]} opts Options
  * @returns {void}
  */
-async function getInfos(opts = []) {
+async function getInfos() {
     const filteredInfos = {};
     const infos = await logRepoLocAndRemote(basename(CWD), true);
 
-    for (const field of opts) {
+    for (const field of FIELDS_TO_DISPLAY) {
         if (!Reflect.has(infos, field)) {
             continue;
         }
@@ -28,7 +39,7 @@ async function getInfos(opts = []) {
         filteredInfos[field] = infos[field];
     }
 
-    console.log(opts.length > 0 ? filteredInfos : infos);
+    console.log(prettyJSON(filteredInfos));
 }
 
 module.exports = getInfos;
