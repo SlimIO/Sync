@@ -3,13 +3,14 @@
 // Require Node.js Dependencies
 const { basename } = require("path");
 
+// Require Third-Party Dependencies
+const prettyJSON = require("@slimio/pretty-json");
+const pick = require("lodash.pick");
+
 // Require Internals Dependencies
 const { logRepoLocAndRemote } = require("../src/utils");
 
-// Require Third-Party Dependencies
-const prettyJSON = require("@slimio/pretty-json");
-
-// Constants
+// CONSTANTS
 const CWD = process.cwd();
 const FIELDS_TO_DISPLAY = [
     "name",
@@ -24,22 +25,11 @@ const FIELDS_TO_DISPLAY = [
  * @async
  * @function getInfos
  * @description Get infos about repository
- * @param {sring[]} opts Options
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function getInfos() {
-    const filteredInfos = {};
     const infos = await logRepoLocAndRemote(basename(CWD), true);
-
-    for (const field of FIELDS_TO_DISPLAY) {
-        if (!Reflect.has(infos, field)) {
-            continue;
-        }
-
-        filteredInfos[field] = infos[field];
-    }
-
-    console.log(prettyJSON(filteredInfos));
+    prettyJSON(pick(infos, FIELDS_TO_DISPLAY));
 }
 
 module.exports = getInfos;
