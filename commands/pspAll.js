@@ -45,9 +45,10 @@ async function pspTheRepo(repo) {
  * @async
  * @function pspAll
  * @description Active psp in the folder
+ * @param {!number} minimumPerLine
  * @returns {Promise<void>}
  */
-async function pspAll() {
+async function pspAll(minimumPerLine) {
     const spin = new Spinner({
         prefixText: "Retrieving psp reports on all sub directories"
     }).start("");
@@ -75,7 +76,7 @@ async function pspAll() {
             continue;
         }
 
-        if (warn === 0 && crit === 0) {
+        if (warn + crit < minimumPerLine) {
             continue;
         }
 

@@ -37,9 +37,10 @@ prog
 
 prog
     .command("psp")
+    .option("-m, --min", "minimum of warnings to stdout a line", 1)
     .describe("Launch project structure policy")
-    .action(async() => {
-        await commands.pspAll();
+    .action(async({ min }) => {
+        await commands.pspAll(Number(min));
     });
 
 prog
