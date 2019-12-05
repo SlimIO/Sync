@@ -180,7 +180,7 @@ async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
  */
 async function pullMaster(repoName, options) {
     const { needSpin = false, startNpmInstall = false, token = {}, locker = null } = options;
-    const start = performance.now();
+
     const free = locker === null ? () => void 0 : await locker.acquireOne();
 
     const spinner = new Spinner({
@@ -202,7 +202,7 @@ async function pullMaster(repoName, options) {
             await npmInstall(repoName);
         }
 
-        const time = green().bold(ms(performance.now() - start, { long: true }));
+        const time = green().bold(ms(spinner.elapsedTime, { long: true }));
         spinner.succeed(`Completed in ${time}`);
     }
     catch (error) {
