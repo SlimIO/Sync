@@ -88,6 +88,7 @@ TBC
 
 |Name|Refactoring|Security Risk|Usage|
 |---|---|---|---|
+|[@iarna/toml](https://github.com/iarna/iarna-toml#readme)|Minor|Low|Better TOML parsing and stringifying all in that familiar JSON interface.|
 |[@slimio/async-cli-spinner](https://github.com/SlimIO/Async-cli-spinner)|Minor|Low|Elegant Asynchronous Terminal (CLI) Spinner|
 |[@slimio/lazy](https://github.com/SlimIO/Lazy)|Minor|Low|Setup Lazy evaluation on JavaScript Objects|
 |[@slimio/lock](https://github.com/SlimIO/Lock)|Minor|Low|Semaphore for async/await|
