@@ -12,7 +12,7 @@ const CLITable = require("../src/cli-table.js");
 
 // CONSTANTS
 const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_TOKEN = process.env.GIT_TOKEN;
 const FILTER_DISPLAY = new Set(["greenkeeper[bot]", "snyk-bot"]);
 const PULL_URL_POSTFIX_LEN = "{/number}".length;
 
