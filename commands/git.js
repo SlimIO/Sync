@@ -49,7 +49,7 @@ async function git(includeAllUsers) {
     }
 
     const table = new CLITable([
-        CLITable.create(ul("Repository"), 25),
+        CLITable.create(ul("Repository"), 30),
         ul("Issues"),
         CLITable.create(ul("Pull Request"), 14, "center")
     ]);
