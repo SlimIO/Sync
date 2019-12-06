@@ -3,7 +3,7 @@
 // Require Node.js dependencies
 const { join } = require("path");
 const fs = require("fs");
-const { access, rmdir } = require("fs").promises;
+const { access, rmdir, readFile } = require("fs").promises;
 const { spawn } = require("child_process");
 const { performance } = require("perf_hooks");
 
@@ -14,6 +14,7 @@ const Lock = require("@slimio/lock");
 const http = require("httpie");
 const ms = require("ms");
 const Spinner = require("@slimio/async-cli-spinner");
+const toml = require("@iarna/toml");
 
 // CONSTANTS
 const LOCKER_DEP_DL = new Lock({ maxConcurrent: 3 });
@@ -241,12 +242,37 @@ async function npmInstall(cwd, stdio = "ignore") {
  */
 async function getSlimioToml(dir) {
     try {
-        await access(join(CWD, dir, "slimio.toml"));
+        const tomlPath = join(CWD, dir, "slimio.toml");
+        await access(tomlPath);
+        const buf = await readFile(tomlPath);
+        const manifest = toml.parse(buf.toString());
 
         return dir;
     }
     catch (error) {
         return false;
+    }
+}
+
+/**
+ * @async
+ * @function getSlimioTomlEx
+ * @description Return the content of the manifest (or null if there is none!);
+ * @param {!string} dir Folder checked
+ * @returns {boolean}
+ */
+async function getSlimioTomlEx(dir) {
+    try {
+        const tomlPath = join(CWD, dir, "slimio.toml");
+        await access(tomlPath);
+        const buf = await readFile(tomlPath);
+        const manifest = toml.parse(buf.toString());
+        manifest.original_dir = dir;
+
+        return manifest;
+    }
+    catch (error) {
+        return null;
     }
 }
 
@@ -312,6 +338,7 @@ module.exports = {
     cloneRepo,
     getToken,
     getSlimioToml,
+    getSlimioTomlEx,
     logRepoLocAndRemote,
     pullMaster,
     readTomlRemote,

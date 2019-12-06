@@ -10,7 +10,7 @@ const { red, green, yellow, gray, white, cyan } = require("kleur");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // Require Internal Dependencies
-const { getSlimioToml } = require("../src/utils");
+const { getSlimioTomlEx } = require("../src/utils");
 const CLITable = require("../src/cli-table.js");
 
 // CONSTANTS & Vars
@@ -53,10 +53,13 @@ async function pspAll(minimumPerLine) {
         prefixText: "Retrieving psp reports on all sub directories"
     }).start("");
 
-    const reposCWD = await readdir(CWD);
-    const getRepoWithToml = (
-        await Promise.all(reposCWD.map(getSlimioToml))
-    ).filter((name) => name !== false);
+    const reposCWD = (await readdir(CWD, { withFileTypes: true }))
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
+
+    const getRepoWithToml = (await Promise.all(reposCWD.map(getSlimioTomlEx)))
+        .filter((manifest) => manifest !== null && manifest.type !== "Degraded")
+        .map((manifest) => manifest.original_dir);
 
     const ret = (
         await Promise.all(getRepoWithToml.map(pspTheRepo))
