@@ -41,6 +41,7 @@
         "@slimio/psp": "^0.10.0",
         "cliui": "^6.0.0",
         "dotenv": "^8.2.0",
+        "fast-levenshtein": "^2.0.6",
         "fast-outdated": "^3.0.1",
         "fetch-github-repositories": "^2.0.0",
         "httpie": "^1.1.2",

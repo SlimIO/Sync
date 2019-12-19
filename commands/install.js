@@ -17,6 +17,7 @@ const Spinner = require("@slimio/async-cli-spinner");
 Spinner.DEFAULT_SPINNER = "dots";
 
 // Require Internal Dependencies
+const RemoteRepositories = require("../src/RemoteRepositories");
 const {
     cloneRepo,
     getToken,
@@ -66,7 +67,7 @@ async function question(sentence, force = false) {
  * @function reposLocalFiltered
  * @description Filters local repositories
  * @param {boolean} [searchForToml=true] search for a .toml file at the root of each directories
- * @returns {Set<string>}
+ * @returns {RemoteRepositories}
  */
 async function reposLocalFiltered(searchForToml = true) {
     const localDir = await readdir(CWD);
@@ -75,12 +76,12 @@ async function reposLocalFiltered(searchForToml = true) {
         .filter((name, idx) => reposLocalStat[idx].isDirectory());
 
     if (!searchForToml || !ALLOW_TOML) {
-        return new Set(reposLocal);
+        return new RemoteRepositories(reposLocal);
     }
 
     const result = await Promise.all(reposLocal.map((name) => getSlimioToml(name)));
 
-    return new Set(result.filter((name) => name !== false));
+    return new RemoteRepositories(result.filter((name) => name !== false));
 }
 
 /**
@@ -163,21 +164,17 @@ async function install(update = false, noInstall = false, pick) {
         fetch(GITHUB_ORGA, { ...token, kind: "orgs" }),
         reposLocalFiltered()
     ]);
+    const filteredRemote = remote.filter((row) => !row.archived).map((row) => row.name);
 
-    /** @type {Set<string>} */
-    const remoteSet = new Set(remote.map((repo) => repo.name.toLowerCase()));
-
-    /** @type {Set<string>} */
-    const repoListOpt = pick.size > 0 ? new Set() : remoteSet;
-    for (const repo of [...pick]) {
-        if (remoteSet.has(repo)) {
-            repoListOpt.add(repo);
-        }
-    }
+    const remoteSet = new RemoteRepositories(filteredRemote);
+    const repoListOpt = new RemoteRepositories(pick.size > 0 ?
+        [...pick].map((repo) => remoteSet.matchingName(repo)).filter((repo) => repo !== null) : filteredRemote);
 
     // Remove local pick
     if (pick.size > 0) {
-        await Promise.all([...pick].map((name) => rmdir(join(CWD, name), { recursive: true })));
+        const reposToDelete = new Set([...repoListOpt.repos, ...pick]);
+
+        await Promise.all([...reposToDelete].map((name) => rmdir(join(CWD, name), { recursive: true })));
     }
 
     // Remove specific projects depending on the current OS
@@ -194,11 +191,8 @@ async function install(update = false, noInstall = false, pick) {
     }
 
     // Filter to retrieve repositories that are not cloned in locals
-    const remoteToClone = remote
-        .filter((row) => !row.archived)
-        .map((row) => row.name)
+    const remoteToClone = filteredRemote
         .filter((name) => !reposLocalSet.has(name) && !EXCLUDES_REPOS.has(name.toLowerCase()))
-        // Filter for dev
         .filter((name) => repoListOpt.has(name.toLowerCase()));
 
     const fetchTime = cyan().bold(ms(performance.now() - fetchTimer, { long: true }));

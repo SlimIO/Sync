@@ -96,6 +96,7 @@ TBC
 |[@slimio/psp](https://github.com/SlimIO/psp)|Minor|High|SlimIO projects structure policies|
 |[cliui](https://github.com/yargs/cliui#readme)|Minor|High|Create complicated column design in the terminal|
 |[dotenv](https://github.com/motdotla/dotenv)|Minor|Low|Loads environment variables from .env|
+|[fast-levenshtein](https://github.com/hiddentao/fast-levenshtein#readme)|Minor|Low|An efficient Javascript implementation of the Levenshtein algorithm.|
 |[fast-outdated](https://github.com/fraxken/fast-outdated#readme)|Minor|High|Javascript implementation of `npm outdated` command|
 |[fetch-github-repositories](https://github.com/fraxken/fetch-github-repositories)|Minor|Low|Fetch github repositories|
 |[httpie](https://github.com/lukeed/httpie#readme)|Minor|Low|A Node.js HTTP client as easy as pie!|
@@ -108,6 +109,7 @@ TBC
 |[qoa](https://github.com/klaussinani/qoa#readme)|Minor|Low|Minimal interactive command-line prompts|
 |[sade](https://github.com/lukeed/sade#readme)|Minor|Low|Sade is a small but powerful tool for building command-line interface (CLI) applications for Node.js that are fast, responsive, and helpful!|
 |[semver](https://github.com/npm/node-semver)|⚠️Major|Low|Semver parser/utilities for node|
+
 
 ## License
 MIT
