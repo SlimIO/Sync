@@ -15,7 +15,8 @@
             "./commands/git.js",
             "./commands/infos.js",
             "./src/utils.js",
-            "./src/cli-table.js"
+            "./src/cli-table.js",
+            "./src/RemoteRepositories.js"
         ],
         "exclude": [
             "node_modules",
