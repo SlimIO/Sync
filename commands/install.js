@@ -213,7 +213,8 @@ async function install(update = false, noInstall = false, pick) {
     // Update repositories
     if (pick.size === 0) {
         console.log("");
-        await updateRepositories([...reposLocalSet], token);
+        console.log(reposLocalSet.repos);
+        await updateRepositories([...reposLocalSet.repos], token);
     }
 }
 
