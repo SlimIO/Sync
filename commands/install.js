@@ -48,7 +48,7 @@ async function install(noInstall = false, pick) {
 
     // Retrieve local and remote repositories
     const [remote, reposLocalSet] = await Promise.all([
-        fetch(config.github_orga, { ...token, kind: "orgs" }),
+        fetch(config.github_orga, { ...token, kind: config.github_kind }),
         reposLocalFiltered(config.toml)
     ]);
     const filteredRemote = remote.filter((row) => !row.archived).map((row) => row.name);

@@ -7,6 +7,12 @@
             "description": "Allow .TOML",
             "default": true
         },
+        "github_kind": {
+            "type": "string",
+            "enum": ["orgs", "users"],
+            "description": "Indicate if the github is an organization or a user account",
+            "default": "orgs"
+        },
         "github_orga": {
             "type": "string",
             "description": "Github organization name",
