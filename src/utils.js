@@ -15,17 +15,19 @@ const http = require("httpie");
 const ms = require("ms");
 const Spinner = require("@slimio/async-cli-spinner");
 const toml = require("@iarna/toml");
+const Config = require("@slimio/config");
 
 // Require Internal Dependencies
 const RemoteRepositories = require("./RemoteRepositories");
+const ConfigJSONSchema = require("./schema/config.schema.json");
 
 // CONSTANTS
 const LOCKER_DEP_DL = new Lock({ maxConcurrent: 3 });
-const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const GITHUB_TOKEN = process.env.GIT_TOKEN;
-const ORGA_URL = new URL(`https://github.com/${GITHUB_ORGA}/`);
 const CWD = process.cwd();
 const EXEC_SUFFIX = process.platform === "win32" ? ".cmd" : "";
+
+// VARS
+let configCache = null;
 
 Spinner.DEFAULT_SPINNER = "dots";
 git.plugins.set("fs", fs);
@@ -40,7 +42,7 @@ async function getToken() {
     try {
         await access(join(__dirname, "..", ".env"));
 
-        return GITHUB_TOKEN ? { token: GITHUB_TOKEN, oauth2format: "github" } : {};
+        return process.env.GIT_TOKEN ? { token: process.env.GIT_TOKEN, oauth2format: "github" } : {};
     }
     catch (error) {
         return {};
@@ -68,11 +70,12 @@ async function cloneRepo(repoName, options = {}) {
 
     try {
         const start = performance.now();
+        const config = await loadLocalConfig();
 
         // Clone
         await git.clone({
             dir,
-            url: new URL(repoName, ORGA_URL).href,
+            url: new URL(repoName, new URL(`https://github.com/${config.github_orga}/`)).href,
             singleBranch: true,
             ...token
         });
@@ -130,11 +133,14 @@ async function logRepoLocAndRemote(repoName, logInfosRemoteOnly = false) {
     const commitOrNot = logInfosRemoteOnly ? "" : "/commits";
 
     try {
-        const URL = `https://api.github.com/repos/${GITHUB_ORGA}/${repoName}${commitOrNot}`;
+        const config = await loadLocalConfig();
+        const token = config.github_token || await getToken();
+
+        const URL = `https://api.github.com/repos/${config.github_orga}/${repoName}${commitOrNot}`;
         const { data } = await http.get(URL, {
             headers: {
-                "User-Agent": GITHUB_ORGA,
-                Authorization: `token ${GITHUB_TOKEN}`,
+                "User-Agent": config.github_orga,
+                Authorization: `token ${token}`,
                 Accept: "application/vnd.github.v3.raw"
             }
         });
@@ -292,11 +298,14 @@ async function getSlimioTomlEx(dir) {
  */
 async function readTomlRemote({ name }) {
     try {
-        const URL = `https://raw.githubusercontent.com/${GITHUB_ORGA}/${name}/master/slimio.toml`;
+        const config = await loadLocalConfig();
+        const token = config.github_token || await getToken();
+
+        const URL = `https://raw.githubusercontent.com/${config.github_orga}/${name}/master/slimio.toml`;
         const { data } = await http.get(URL, {
             headers: {
-                "User-Agent": GITHUB_ORGA,
-                Authorization: `token ${GITHUB_TOKEN}`,
+                "User-Agent": config.github_orga,
+                Authorization: `token ${token}`,
                 Accept: "application/vnd.github.v3.raw"
             }
         });
@@ -359,7 +368,35 @@ async function reposLocalFiltered(searchForToml = true) {
     return new RemoteRepositories(result.filter((name) => name !== false));
 }
 
+/**
+ * @async
+ * @function loadLocalConfig
+ * @description load local configuration file
+ * @returns {any}
+ */
+async function loadLocalConfig() {
+    if (configCache !== null) {
+        return configCache;
+    }
+
+    const cfg = new Config(join(process.cwd(), "sync.toml"), {
+        createOnNoEntry: true,
+        autoReload: false,
+        defaultSchema: ConfigJSONSchema
+    });
+
+    await cfg.read();
+    const payload = cfg.payload;
+    payload.git_issues_filters = new Set(payload.git_issues_filters);
+    payload.exclude_repos = new Set(payload.exclude_repos);
+    configCache = payload;
+    await cfg.close();
+
+    return payload;
+}
+
 module.exports = {
+    loadLocalConfig,
     reposLocalFiltered,
     cloneRepo,
     getToken,

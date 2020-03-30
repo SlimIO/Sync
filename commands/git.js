@@ -7,13 +7,10 @@ const http = require("httpie");
 const Spinner = require("@slimio/async-cli-spinner");
 
 // Require Internal Dependencies
-const { getToken } = require("../src/utils");
+const { getToken, loadLocalConfig } = require("../src/utils");
 const CLITable = require("../src/cli-table.js");
 
 // CONSTANTS
-const GITHUB_ORGA = process.env.GITHUB_ORGA;
-const GITHUB_TOKEN = process.env.GIT_TOKEN;
-const FILTER_DISPLAY = new Set(["greenkeeper[bot]", "snyk-bot"]);
 const PULL_URL_POSTFIX_LEN = "{/number}".length;
 
 // Vars
@@ -28,15 +25,16 @@ const ul = white().bold().underline;
  * @returns {Promise<void>}
  */
 async function git(includeAllUsers) {
+    const config = await loadLocalConfig();
     const spin = new Spinner({
         prefixText: "Retrieving git stats for current organization"
     }).start("");
 
     let ret;
     try {
-        const token = await getToken();
-        const repositories = await fetch(GITHUB_ORGA, { ...token, kind: "orgs" });
-        ret = await Promise.all(repositories.map(fetchPullRequests));
+        const token = config.github_token || await getToken();
+        const repositories = await fetch(config.github_orga, { ...token, kind: "orgs" });
+        ret = await Promise.all(repositories.map((value) => fetchPullRequests(value, { token, org: config.github_orga })));
         ret.sort((left, right) => right.issues.length - left.issues.length);
 
         const end = cyan().bold(spin.elapsedTime.toFixed(2));
@@ -54,8 +52,12 @@ async function git(includeAllUsers) {
         CLITable.create(ul("Pull Request"), 14, "center")
     ]);
     for (const { name, issues, pr } of ret) {
-        const currPrLen = includeAllUsers ? pr.length : pr.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
-        const currIssueLen = includeAllUsers ? issues.length : issues.filter((userName) => !FILTER_DISPLAY.has(userName)).length;
+        const currPrLen = includeAllUsers ?
+            pr.length :
+            pr.filter((userName) => !config.git_issues_filters.has(userName)).length;
+        const currIssueLen = includeAllUsers ?
+            issues.length :
+            issues.filter((userName) => !config.git_issues_filters.has(userName)).length;
 
         if (currIssueLen === 0 && currPrLen === 0) {
             continue;
@@ -80,17 +82,19 @@ async function git(includeAllUsers) {
  * @async
  * @function fetchPullRequests
  * @description fetch repository pull-requests on github
+ * @param {object} fetchPullRequests
+ * @param {object} config
  * @returns {Promise<repository>}
  */
-async function fetchPullRequests({ full_name, pulls_url, open_issues, issues_url }) {
+async function fetchPullRequests({ full_name, pulls_url, open_issues, issues_url }, config) {
     // https://api.github.com/repos/SlimIO/Config/[pulls || issues]{/number} (example of pulls_url)
     //                                                             ▲ here we slice this from the URL.
     const pull = pulls_url.slice(0, pulls_url.length - PULL_URL_POSTFIX_LEN);
     const issue = issues_url.slice(0, issues_url.length - PULL_URL_POSTFIX_LEN);
 
     const headers = {
-        "User-Agent": GITHUB_ORGA,
-        Authorization: `token ${GITHUB_TOKEN}`,
+        "User-Agent": config.org,
+        Authorization: `token ${config.token}`,
         Accept: "application/vnd.github.v3.raw"
     };
 

@@ -14,11 +14,9 @@ const {
     getToken,
     logRepoLocAndRemote,
     pullMaster,
-    reposLocalFiltered
+    reposLocalFiltered,
+    loadLocalConfig
 } = require("../src/utils");
-
-// CONSTANTS
-const ALLOW_TOML = typeof process.env.TOML === "undefined" ? false : process.env.TOML === "true";
 
 /**
  * @async
@@ -28,8 +26,9 @@ const ALLOW_TOML = typeof process.env.TOML === "undefined" ? false : process.env
  * @returns {Promise<void>}
  */
 async function update(pick) {
-    const token = await getToken();
-    const remoteRepositories = await reposLocalFiltered(ALLOW_TOML);
+    const config = await loadLocalConfig();
+    const remoteRepositories = await reposLocalFiltered(config.toml);
+
     if (remoteRepositories.size === 0) {
         console.log("No repository to update\n");
         process.exit(1);
@@ -58,6 +57,7 @@ async function update(pick) {
 
     const startNpmInstall = await question("Do you want to run 'npm install' after each pull ?", true);
 
+    const token = config.github_token || await getToken();
     const locker = new Lock({ maxConcurrent: startNpmInstall ? 3 : 8 });
     await Promise.allSettled(
         repoWithNoUpdate.map((repoName) => pullMaster(repoName, {

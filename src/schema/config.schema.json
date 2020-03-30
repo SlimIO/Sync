@@ -1,0 +1,33 @@
+{
+    "additionalProperties": false,
+    "required": ["github_orga"],
+    "properties": {
+        "toml": {
+            "type": "boolean",
+            "description": "Allow .TOML",
+            "default": true
+        },
+        "github_orga": {
+            "type": "string",
+            "description": "Github organization name",
+            "default": "SlimIO"
+        },
+        "github_token": {
+            "type": "string",
+            "description": "Github token"
+        },
+        "exclude_repos": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "git_issues_filters": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "default": ["greenkeeper[bot]", "snyk-bot"]
+        }
+    }
+}
