@@ -1,9 +1,9 @@
 "use strict";
 
 // Require Node.js dependencies
-const { join } = require("path");
 const fs = require("fs");
-const { access, rmdir, readFile } = require("fs").promises;
+const { join } = require("path");
+const { access, rmdir, readFile, readdir, stat } = require("fs").promises;
 const { spawn } = require("child_process");
 const { performance } = require("perf_hooks");
 
@@ -15,6 +15,9 @@ const http = require("httpie");
 const ms = require("ms");
 const Spinner = require("@slimio/async-cli-spinner");
 const toml = require("@iarna/toml");
+
+// Require Internal Dependencies
+const RemoteRepositories = require("./RemoteRepositories");
 
 // CONSTANTS
 const LOCKER_DEP_DL = new Lock({ maxConcurrent: 3 });
@@ -334,7 +337,30 @@ function wordMaxLength(arrayString = []) {
     return arrayString.sort((left, right) => left.length - right.length).pop().length;
 }
 
+/**
+ * @async
+ * @function reposLocalFiltered
+ * @description Filters local repositories
+ * @param {boolean} [searchForToml=true] search for a .toml file at the root of each directories
+ * @returns {RemoteRepositories}
+ */
+async function reposLocalFiltered(searchForToml = true) {
+    const localDir = await readdir(process.cwd());
+    const reposLocalStat = await Promise.all(localDir.map((name) => stat(join(process.cwd(), name))));
+    const reposLocal = localDir
+        .filter((name, idx) => reposLocalStat[idx].isDirectory());
+
+    if (!searchForToml) {
+        return new RemoteRepositories(reposLocal);
+    }
+
+    const result = await Promise.all(reposLocal.map((name) => getSlimioToml(name)));
+
+    return new RemoteRepositories(result.filter((name) => name !== false));
+}
+
 module.exports = {
+    reposLocalFiltered,
     cloneRepo,
     getToken,
     getSlimioToml,

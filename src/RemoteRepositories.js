@@ -8,6 +8,10 @@ class RemoteRepositories {
         this.repos = new Set(repositories.map((repo) => repo.toLowerCase()));
     }
 
+    get size() {
+        return this.repos.size;
+    }
+
     matchingName(repoName) {
         const localName = repoName.toLowerCase();
 

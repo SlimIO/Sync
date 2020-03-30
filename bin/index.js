@@ -18,14 +18,24 @@ const prog = sade("psync").version("0.1.0");
 prog
     .command("install")
     .describe("Clone, pull master branch, install dependencies of the all SlimIO projects")
-    .option("-u, --update", "Use only the pull of the master branch for the all repositories SlimIO.")
     .option("-n, --noinstall", "Skip npm install")
     .option("-p, --pick", "Pick a given list of projects separated by a comma")
     .example("psync install --pick psp,registry,cli,is,core")
     .action(async(options) => {
         const pick = typeof options.p === "string" ? new Set(options.p.split(",").map((row) => row.toLowerCase())) : new Set();
 
-        await commands.install(options.u, options.n, pick);
+        await commands.install(options.n, pick);
+    });
+
+prog
+    .command("update")
+    .describe("Update local repositories")
+    .option("-p, --pick", "Pick a given list of projects separated by a comma")
+    .example("psync update")
+    .action(async(options) => {
+        const pick = typeof options.p === "string" ? new Set(options.p.split(",").map((row) => row.toLowerCase())) : new Set();
+
+        await commands.update(options.n, pick);
     });
 
 prog
