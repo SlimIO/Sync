@@ -10,10 +10,12 @@
             "./bin/index.js",
             "./commands/index.js",
             "./commands/install.js",
+            "./commands/update.js",
             "./commands/outdatedAll.js",
             "./commands/pspAll.js",
             "./commands/git.js",
             "./commands/infos.js",
+            "./src/question.js",
             "./src/utils.js",
             "./src/cli-table.js",
             "./src/RemoteRepositories.js"
