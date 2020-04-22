@@ -33,7 +33,7 @@
     },
     "homepage": "https://github.com/SlimIO/Sync#readme",
     "dependencies": {
-        "@iarna/toml": "^2.2.3",
+        "@iarna/toml": "^2.2.4",
         "@slimio/async-cli-spinner": "^0.5.2",
         "@slimio/config": "^0.15.1",
         "@slimio/lazy": "^1.2.0",
