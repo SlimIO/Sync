@@ -6,7 +6,6 @@
 ![size](https://img.shields.io/github/languages/code-size/SlimIO/Sync)
 [![Known Vulnerabilities](https://snyk.io//test/github/SlimIO/Sync/badge.svg?targetFile=package.json)](https://snyk.io//test/github/SlimIO/Sync?targetFile=package.json)
 [![Build Status](https://travis-ci.com/SlimIO/Sync.svg?branch=master)](https://travis-ci.com/SlimIO/Sync)
-[![Greenkeeper badge](https://badges.greenkeeper.io/SlimIO/Sync.svg)](https://greenkeeper.io/)
 
 SlimIO Synchronize. This tool has been created to help Developer and Integrator to work, download and verify each local SlimIO repositories.
 
