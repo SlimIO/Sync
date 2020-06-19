@@ -47,7 +47,7 @@
         "fetch-github-repositories": "^2.0.0",
         "httpie": "^1.1.2",
         "isomorphic-git": "^0.78.2",
-        "kleur": "^3.0.3",
+        "kleur": "^4.0.1",
         "lodash.pick": "^4.4.0",
         "make-promises-safe": "^5.1.0",
         "ms": "^2.1.2",
