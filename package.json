@@ -43,7 +43,7 @@
         "cliui": "^6.0.0",
         "dotenv": "^8.2.0",
         "fast-levenshtein": "^2.0.6",
-        "fast-outdated": "^3.0.1",
+        "fast-outdated": "^4.0.0",
         "fetch-github-repositories": "^2.0.0",
         "httpie": "^1.1.2",
         "isomorphic-git": "^0.78.2",
@@ -54,7 +54,7 @@
         "open": "^7.0.3",
         "qoa": "^0.2.0",
         "sade": "^1.7.3",
-        "semver": "^7.3.2"
+        "semver": "^7.5.2"
     },
     "devDependencies": {
         "@commitlint/cli": "^8.3.5",
